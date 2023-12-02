@@ -1,0 +1,463 @@
+; vim: ft=colortemplate fdm=marker
+
+; Filetype specific highlight groups
+
+; vim {{{
+vimVar            -> omit
+vimFunc           -> omit
+vimUserFunc       -> omit
+helpSpecial       -> omit
+vimCommentString  -> omit
+vimCommand        -> omit
+vimCmdSep         -> omit
+helpExample       -> omit
+helpOption        -> omit
+helpNote          -> omit
+helpVim           -> omit
+helpHyperTextJump -> omit
+helpHyperTextEntry-> omit
+vimIsCommand      -> omit
+vimSynMtchOpt     -> omit
+vimSynType        -> omit
+vimHiLink         -> omit
+vimHiGroup        -> omit
+vimGroup          -> omit
+
+vimVar            /gui/256/16 +extra 1  -> Identifier
+vimFunc           /gui/256/16 +extra 1  -> Function
+vimUserFunc       /gui/256/16 +extra 1  -> Function
+helpSpecial       /gui/256/16 +extra 1  -> Special
+vimCommentString  /gui/256/16 +extra 1     violet            none
+vimCommand        /gui/256/16 +extra 1     yellow            none
+vimCmdSep         /gui/256/16 +extra 1     blue              none              bold
+helpExample       /gui/256/16 +extra 1     base1             none
+helpOption        /gui/256/16 +extra 1     cyan              none
+helpNote          /gui/256/16 +extra 1     magenta           none
+helpVim           /gui/256/16 +extra 1     magenta           none
+helpHyperTextJump /gui/256/16 +extra 1     blue              none
+helpHyperTextEntry/gui/256/16 +extra 1     green             none
+vimIsCommand      /gui/256/16 +extra 1     base00            none
+vimSynMtchOpt     /gui/256/16 +extra 1     yellow            none
+vimSynType        /gui/256/16 +extra 1     cyan              none
+vimHiLink         /gui/256/16 +extra 1     blue              none
+vimHiGroup        /gui/256/16 +extra 1     blue              none
+vimGroup          /gui/256/16 +extra 1     blue              none              bold
+; }}}
+; diff {{{
+diffAdded         -> omit
+diffLine          -> omit
+
+diffAdded         /gui/256/16 +extra 1  -> Statement
+diffLine          /gui/256/16 +extra 1  -> Identifier
+; }}}
+; git {{{
+gitcommitComment        -> omit
+gitcommitUntracked      -> omit
+gitcommitDiscarded      -> omit
+gitcommitSelected       -> omit
+gitcommitUnmerged       -> omit
+gitcommitOnBranch       -> omit
+gitcommitBranch         -> omit
+gitcommitNoBranch       -> omit
+gitcommitdiscardedtype  -> omit
+gitcommitselectedtype   -> omit
+gitcommitHeader         -> omit
+gitcommitUntrackedFile  -> omit
+gitcommitDiscardedFile  -> omit
+gitcommitSelectedFile   -> omit
+gitcommitUnmergedFile   -> omit
+gitcommitFile           -> omit
+gitcommitDiscardedArrow -> omit
+gitcommitSelectedArrow  -> omit
+gitcommitUnmergedArrow  -> omit
+
+gitcommitComment        /gui/256/16 +extra_italic 3    base01          none              italic
+gitcommitComment        /gui/256/16 +extra_italic 1    base01          none
+gitcommitUntracked      /gui/256/16 +extra 1 -> gitcommitComment
+gitcommitDiscarded      /gui/256/16 +extra 1 -> gitcommitComment
+gitcommitSelected       /gui/256/16 +extra 1 -> gitcommitComment
+gitcommitUnmerged       /gui/256/16 +extra 1    green           none              bold
+gitcommitOnBranch       /gui/256/16 +extra 1    base01          none              bold
+gitcommitBranch         /gui/256/16 +extra 1    magenta         none              bold
+gitcommitNoBranch       /gui/256/16 +extra 1 -> gitcommitBranch
+gitcommitdiscardedtype  /gui/256/16 +extra 1    red             none
+gitcommitselectedtype   /gui/256/16 +extra 1    green           none
+gitcommitHeader         /gui/256/16 +extra 1    base01          none
+gitcommitUntrackedFile  /gui/256/16 +extra 1    cyan            none              bold
+gitcommitDiscardedFile  /gui/256/16 +extra 1    red             none              bold
+gitcommitSelectedFile   /gui/256/16 +extra 1    green           none              bold
+gitcommitUnmergedFile   /gui/256/16 +extra 1    yellow          none              bold
+gitcommitFile           /gui/256/16 +extra 1    base0           none              bold
+gitcommitDiscardedArrow /gui/256/16 +extra 1 -> gitcommitDiscardedFile
+gitcommitSelectedArrow  /gui/256/16 +extra 1 -> gitcommitSelectedFile
+gitcommitUnmergedArrow  /gui/256/16 +extra 1 -> gitcommitUnmergedFile
+; }}}
+; html {{{
+htmlTag                 -> omit
+htmlEndTag              -> omit
+htmlTagN                -> omit
+htmlTagName             -> omit
+htmlSpecialTagName      -> omit
+htmlArg                 -> omit
+javaScript              -> omit
+
+htmlTag            /gui/256/16 +extra  1    base01          none
+htmlEndTag         /gui/256/16 +extra  1    base01          none
+htmlTagN           /gui/256/16 +extra  1    base1           none              bold
+htmlTagName        /gui/256/16 +extra  1    blue            none              bold
+htmlSpecialTagName /gui/256/16 +extra_italic  3    blue            none              italic
+htmlSpecialTagName /gui/256/16 +extra_italic  1    blue            none
+htmlArg            /gui/256/16 +extra  1    base00          none
+javaScript         /gui/256/16 +extra  1    yellow          none
+; }}}
+; javascript {{{
+jsFuncCall -> omit
+jsFuncCall /gui/256/16 +extra 1 -> Function
+; }}}
+; perl {{{
+perlHereDoc               -> omit
+perlVarPlain              -> omit
+perlStatementFileDesc     -> omit
+
+perlHereDoc           /gui/256/16 +extra 1   base1           none
+perlVarPlain          /gui/256/16 +extra 1   yellow          none
+perlStatementFileDesc /gui/256/16 +extra 1   cyan            none
+; }}}
+; tex {{{
+texstatement   -> omit
+texmathzonex   -> omit
+texmathmatcher -> omit
+texreflabel    -> omit
+
+texstatement   /gui/256/16 +extra       1   cyan            none
+texmathzonex   /gui/256/16 +extra       1   yellow          none
+texmathmatcher /gui/256/16 +extra       1   yellow          none
+texreflabel    /gui/256/16 +extra       1   yellow          none
+; }}}
+; ruby {{{
+rubyDefine  -> omit
+rubySymbol  -> omit
+rubyBoolean -> omit
+
+rubyDefine  /gui/256/16 +extra          1    base1           none              bold
+rubySymbol  /gui/256/16 +extra          1 -> Type
+rubyBoolean /gui/256/16 +extra          1    magenta         none
+; }}}
+; haskell {{{
+; For use with syntax/haskell.vim : Haskell Syntax File
+; http://www.vim.org/scripts/script.php?script_id=3034
+; See also Steffen Siering's github repository:
+; http://github.com/urso/dotrc/blob/master/vim/syntax/haskell.vim
+;
+; Treat True and False and highlight delims specially, see the plugin
+; referenced above.
+cPreCondit         -> omit
+VarId              -> omit
+ConId              -> omit
+hsImport           -> omit
+hsString           -> omit
+hsStructure        -> omit
+hs_hlFunctionName  -> omit
+hsStatement        -> omit
+hsImportLabel      -> omit
+hs_OpFunctionName  -> omit
+hs_DeclareFunction -> omit
+hsVarSym           -> omit
+hsType             -> omit
+hsTypedef          -> omit
+hsModuleName       -> omit
+hsImportParams     -> omit
+hsDelimTypeExport  -> omit
+hsModuleStartLabel -> omit
+hsModuleWhereLabel -> omit
+hsNiceOperator     -> omit
+hsniceoperator     -> omit
+
+cPreCondit         /gui/256/16 +extra  1    orange          none
+VarId              /gui/256/16 +extra  1    blue            none
+ConId              /gui/256/16 +extra  1    yellow          none
+hsImport           /gui/256/16 +extra  1    magenta         none
+hsString           /gui/256/16 +extra  1    base00          none
+hsStructure        /gui/256/16 +extra  1    cyan            none
+hs_hlFunctionName  /gui/256/16 +extra  1    blue            none
+hsStatement        /gui/256/16 +extra  1    cyan            none
+hsImportLabel      /gui/256/16 +extra  1    cyan            none
+hs_OpFunctionName  /gui/256/16 +extra  1    yellow          none
+hs_DeclareFunction /gui/256/16 +extra  1    orange          none
+hsVarSym           /gui/256/16 +extra  1    cyan            none
+hsType             /gui/256/16 +extra  1    yellow          none
+hsTypedef          /gui/256/16 +extra  1    cyan            none
+hsModuleName       /gui/256/16 +extra  1    green           none
+hsImportParams     /gui/256/16 +extra  1 -> Delimiter
+hsDelimTypeExport  /gui/256/16 +extra  1 -> Delimiter
+hsModuleStartLabel /gui/256/16 +extra  1 -> hsStructure
+hsModuleWhereLabel /gui/256/16 +extra  1 -> hsModuleStartLabel
+; following is for the haskell-conceal plugin
+; the first two items don't have an impact, but better safe
+hsNiceOperator     /gui/256/16 +extra  1    cyan            none
+hsniceoperator     /gui/256/16 +extra  1    cyan            none
+verbatim
+let hs_highlight_boolean=1
+let hs_highlight_delimiters=1
+endverbatim
+; }}}
+; pandoc {{{
+pandocBlockQuote                           -> omit
+pandocBlockQuoteLeader1                    -> omit
+pandocBlockQuoteLeader2                    -> omit
+pandocBlockQuoteLeader3                    -> omit
+pandocBlockQuoteLeader4                    -> omit
+pandocBlockQuoteLeader5                    -> omit
+pandocBlockQuoteLeader6                    -> omit
+pandocCitation                             -> omit
+pandocCitationDelim                        -> omit
+pandocCitationID                           -> omit
+pandocCitationRef                          -> omit
+pandocCodeBlock                            -> omit
+pandocCodeBlockDelim                       -> omit
+pandocComment                              -> omit
+pandocDefinitionBlock                      -> omit
+pandocDefinitionIndctr                     -> omit
+pandocDefinitionTerm                       -> omit
+pandocEmphasis                             -> omit
+pandocEmphasisDefinition                   -> omit
+pandocEmphasisHeading                      -> omit
+pandocEmphasisNested                       -> omit
+pandocEmphasisNestedDefinition             -> omit
+pandocEmphasisNestedHeading                -> omit
+pandocEmphasisNestedTable                  -> omit
+pandocEmphasisTable                        -> omit
+pandocEscapePair                           -> omit
+pandocEscapedCharacter                     -> omit
+pandocFootnote                             -> omit
+pandocFootnoteDefLink                      -> omit
+pandocFootnoteInline                       -> omit
+pandocFootnoteLink                         -> omit
+pandocHeading                              -> omit
+pandocHeadingMarker                        -> omit
+pandocImageCaption                         -> omit
+pandocLineBreak                            -> omit
+pandocLinkDefinition                       -> omit
+pandocLinkDefinitionID                     -> omit
+pandocLinkDelim                            -> omit
+pandocLinkLabel                            -> omit
+pandocLinkText                             -> omit
+pandocLinkTitle                            -> omit
+pandocLinkTitleDelim                       -> omit
+pandocLinkURL                              -> omit
+pandocListMarker                           -> omit
+pandocListReference                        -> omit
+pandocMetadata                             -> omit
+pandocMetadataDelim                        -> omit
+pandocMetadataKey                          -> omit
+pandocMetadataTitle                        -> omit
+pandocNonBreakingSpace                     -> omit
+pandocRule                                 -> omit
+pandocRuleLine                             -> omit
+pandocStrikeout                            -> omit
+pandocStrikeoutDefinition                  -> omit
+pandocStrikeoutHeading                     -> omit
+pandocStrikeoutTable                       -> omit
+pandocStrongEmphasis                       -> omit
+pandocStrongEmphasisDefinition             -> omit
+pandocStrongEmphasisEmphasis               -> omit
+pandocStrongEmphasisEmphasisDefinition     -> omit
+pandocStrongEmphasisEmphasisHeading        -> omit
+pandocStrongEmphasisEmphasisTable          -> omit
+pandocStrongEmphasisHeading                -> omit
+pandocStrongEmphasisNested                 -> omit
+pandocStrongEmphasisNestedDefinition       -> omit
+pandocStrongEmphasisNestedHeading          -> omit
+pandocStrongEmphasisNestedTable            -> omit
+pandocStrongEmphasisTable                  -> omit
+pandocStyleDelim                           -> omit
+pandocSubscript                            -> omit
+pandocSubscriptDefinition                  -> omit
+pandocSubscriptHeading                     -> omit
+pandocSubscriptTable                       -> omit
+pandocSuperscript                          -> omit
+pandocSuperscriptDefinition                -> omit
+pandocSuperscriptHeading                   -> omit
+pandocSuperscriptTable                     -> omit
+pandocTable                                -> omit
+pandocTableStructure                       -> omit
+pandocTableStructureEnd                    -> omit
+pandocTableStructureTop                    -> omit
+pandocTableZebraDark                       -> omit
+pandocTableZebraLight                      -> omit
+pandocTitleBlock                           -> omit
+pandocTitleBlockTitle                      -> omit
+pandocTitleComment                         -> omit
+pandocVerbatimBlock                        -> omit
+pandocVerbatimBlockDeep                    -> omit
+pandocVerbatimInline                       -> omit
+pandocVerbatimInlineDefinition             -> omit
+pandocVerbatimInlineHeading                -> omit
+pandocVerbatimInlineTable                  -> omit
+
+pandocTitleBlock                /gui/256/16 +extra  1     blue               none
+pandocTitleBlockTitle           /gui/256/16 +extra  1     blue               none           bold
+pandocTitleComment              /gui/256/16 +extra  1     blue               none           bold
+pandocComment                   /gui/256/16 +extra_italic  3     base01             none           italic
+pandocComment                   /gui/256/16 +extra_italic  1     base01             none
+pandocVerbatimBlock             /gui/256/16 +extra  1     yellow             none
+pandocVerbatimBlockDeep         /gui/256/16 +extra  1  -> pandocVerbatimBlock
+pandocCodeBlock                 /gui/256/16 +extra  1  -> pandocVerbatimBlock
+pandocCodeBlockDelim            /gui/256/16 +extra  1  -> pandocVerbatimBlock
+pandocBlockQuote                /gui/256/16 +extra  1     blue               none
+pandocBlockQuoteLeader1         /gui/256/16 +extra  1     blue               none
+pandocBlockQuoteLeader2         /gui/256/16 +extra  1     cyan               none
+pandocBlockQuoteLeader3         /gui/256/16 +extra  1     yellow             none
+pandocBlockQuoteLeader4         /gui/256/16 +extra  1     red                none
+pandocBlockQuoteLeader5         /gui/256/16 +extra  1     base0              none
+pandocBlockQuoteLeader6         /gui/256/16 +extra  1     base01             none
+pandocListMarker                /gui/256/16 +extra  1     magenta            none
+pandocListReference             /gui/256/16 +extra  1     magenta            none
+; Definitions
+pandocDefinitionBlock                 /gui/256/16 +extra 1  violet             none
+pandocDefinitionTerm                  /gui/256/16 +extra 1  violet             none           standout
+pandocDefinitionIndctr                /gui/256/16 +extra 1  violet             none           bold
+pandocEmphasisDefinition              /gui/256/16 +extra_italic 3  violet             none           italic
+pandocEmphasisDefinition              /gui/256/16 +extra_italic 1  violet             none
+pandocEmphasisNestedDefinition        /gui/256/16 +extra 1  violet             none           bold
+pandocStrongEmphasisDefinition        /gui/256/16 +extra 1  violet             none           bold
+pandocStrongEmphasisNestedDefinition  /gui/256/16 +extra 1  violet             none           bold
+pandocStrongEmphasisEmphasisDefinition/gui/256/16 +extra 1  violet             none           bold
+pandocStrikeoutDefinition             /gui/256/16 +extra 1  violet             none           reverse
+pandocVerbatimInlineDefinition        /gui/256/16 +extra 1  violet             none
+pandocSuperscriptDefinition           /gui/256/16 +extra 1  violet             none
+pandocSubscriptDefinition             /gui/256/16 +extra 1  violet             none
+; Tables
+pandocTable                           /gui/256/16 +extra 1  blue               none
+pandocTableStructure                  /gui/256/16 +extra 1  blue               none
+; Sic in the original Solarized:
+pandocTableStructureTop            /gui/256/16 +extra 1 -> pandocTableStructre
+pandocTableStructureEnd            /gui/256/16 +extra 1 -> pandocTableStructre
+pandocTableZebraLight              /gui/256/16 +extra 1    blue               base03
+pandocTableZebraDark               /gui/256/16 +extra 1    blue               base02
+pandocEmphasisTable                /gui/256/16 +extra_italic 3    blue               none           italic
+pandocEmphasisTable                /gui/256/16 +extra_italic 1    blue               none
+pandocEmphasisNestedTable          /gui/256/16 +extra 1    blue               none           bold
+pandocStrongEmphasisTable          /gui/256/16 +extra 1    blue               none           bold
+pandocStrongEmphasisNestedTable    /gui/256/16 +extra 1    blue               none           bold
+pandocStrongEmphasisEmphasisTable  /gui/256/16 +extra 1    blue               none           bold
+pandocStrikeoutTable               /gui/256/16 +extra 1    blue               none           reverse
+pandocVerbatimInlineTable          /gui/256/16 +extra 1    blue               none
+pandocSuperscriptTable             /gui/256/16 +extra 1    blue               none
+pandocSubscriptTable               /gui/256/16 +extra 1    blue               none
+; Headings
+pandocHeading                      /gui/256/16 +extra 1    orange             none           bold
+pandocHeadingMarker                /gui/256/16 +extra 1    orange             none           bold
+pandocEmphasisHeading              /gui/256/16 +extra 1    orange             none           bold
+pandocEmphasisNestedHeading        /gui/256/16 +extra 1    orange             none           bold
+pandocStrongEmphasisHeading        /gui/256/16 +extra 1    orange             none           bold
+pandocStrongEmphasisNestedHeading  /gui/256/16 +extra 1    orange             none           bold
+pandocStrongEmphasisEmphasisHeading/gui/256/16 +extra 1    orange             none           bold
+pandocStrikeoutHeading             /gui/256/16 +extra 1    orange             none           reverse
+pandocVerbatimInlineHeading        /gui/256/16 +extra 1    orange             none           bold
+pandocSuperscriptHeading           /gui/256/16 +extra 1    orange             none           bold
+pandocSubscriptHeading             /gui/256/16 +extra 1    orange             none           bold
+; Links
+pandocLinkDelim                    /gui/256/16 +extra 1    base01             none
+pandocLinkLabel                    /gui/256/16 +extra 1    blue               none
+pandocLinkText                     /gui/256/16 +extra 1    blue               none
+pandocLinkURL                      /gui/256/16 +extra 1    base00             none
+pandocLinkTitle                    /gui/256/16 +extra 1    base00             none
+pandocLinkTitleDelim                   /256/16 +extra 1    base01             none
+pandocLinkTitleDelim               /gui        +extra 1    base01             none  s=base00
+pandocLinkDefinition                   /256/16 +extra 1    cyan               none
+pandocLinkDefinition               /gui        +extra 1    cyan               none  s=base00
+pandocLinkDefinitionID             /gui/256/16 +extra 1    blue               none           bold
+pandocImageCaption                 /gui/256/16 +extra 1    violet             none           bold
+pandocFootnoteLink                 /gui/256/16 +extra 1    green              none
+pandocFootnoteDefLink              /gui/256/16 +extra 1    green              none           bold
+pandocFootnoteInline               /gui/256/16 +extra 1    green              none           bold
+pandocFootnote                     /gui/256/16 +extra 1    green              none
+pandocCitationDelim                /gui/256/16 +extra 1    magenta            none
+pandocCitation                     /gui/256/16 +extra 1    magenta            none
+pandocCitationID                   /gui/256/16 +extra 1    magenta            none
+pandocCitationRef                  /gui/256/16 +extra 1    magenta            none
+; Main Styles
+pandocStyleDelim                   /gui/256/16 +extra 1    base01             none
+pandocEmphasis                     /gui/256/16 +extra_italic 3    base0              none           italic
+pandocEmphasis                     /gui/256/16 +extra_italic 1    base0              none
+pandocEmphasisNested               /gui/256/16 +extra 1    base0              none           bold
+pandocStrongEmphasis               /gui/256/16 +extra 1    base0              none           bold
+pandocStrongEmphasisNested         /gui/256/16 +extra 1    base0              none           bold
+pandocStrongEmphasisEmphasis       /gui/256/16 +extra 1    base0              none           bold
+pandocStrikeout                    /gui/256/16 +extra 1    base01             none           reverse
+pandocVerbatimInline               /gui/256/16 +extra 1    yellow             none
+pandocSuperscript                  /gui/256/16 +extra 1    violet             none
+pandocSubscript                    /gui/256/16 +extra 1    violet             none
+pandocRule                         /gui/256/16 +extra 1    blue               none           bold
+pandocRuleLine                     /gui/256/16 +extra 1    blue               none           bold
+pandocEscapePair                   /gui/256/16 +extra 1    red                none           bold
+pandocNonBreakingSpace             /gui/256/16 +extra 1    red                none           reverse
+pandocEscapedCharacter             /gui/256/16 +extra 1 -> pandocEscapePair
+pandocLineBreak                    /gui/256/16 +extra 1 -> pandocEscapePair
+; Embedded code
+pandocMetadataDelim                /gui/256/16 +extra 1    base01             none
+pandocMetadataKey                  /gui/256/16 +extra 1    blue               none
+pandocMetadata                     /gui/256/16 +extra 1    blue               none           bold
+pandocMetadataTitle                /gui/256/16 +extra 1 -> pandocMetadata
+; }}}
+; ale {{{
+#const extra_stl = get(g:, '@prefix_extra_hi_groups', 1) + 2 * (get(g:, '@prefix_statusline', '') == 'flat')
+#const extra_stl_hl = get(g:, '@prefix_extra_hi_groups', 1) + 2 * (get(g:, '@prefix_statusline', '') == 'flat') + 4 * get(g:, 'ale_sign_highlight_linenrs', '')
+
+ALEError                  -> omit
+ALEErrorLine              -> omit
+ALEErrorSign              -> omit
+ALEErrorSignLineNr        -> omit
+ALEInfo                   -> omit
+ALEInfoLine               -> omit
+ALEInfoSign               -> omit
+ALEInfoSignLineNr         -> omit
+ALEStyleError             -> omit
+ALEStyleErrorSign         -> omit
+ALEStyleErrorSignLineNr   -> omit
+ALEStyleWarning           -> omit
+ALEStyleWarningSign       -> omit
+ALEStyleWarningSignLineNr -> omit
+ALEWarning                -> omit
+ALEWarningLine            -> omit
+ALEWarningSign            -> omit
+ALEWarningSignLineNr      -> omit
+
+ALEErrorSignLineNr      /gui/256/16 +extra_stl 1  base02      red
+ALEInfoSignLineNr       /gui/256/16 +extra_stl 1  base02      cyan
+ALEWarningSignLineNr    /gui/256/16 +extra_stl 1  base02      yellow
+
+ALEErrorSignLineNr      /gui/256/16 +extra_stl 3   red         none
+ALEInfoSignLineNr       /gui/256/16 +extra_stl 3   cyan        none
+ALEWarningSignLineNr    /gui/256/16 +extra_stl 3   yellow      none
+
+ALEErrorSign        /gui/256/16 +extra_stl_hl  1   red         base02            bold
+ALEInfoSign         /gui/256/16 +extra_stl_hl  1   cyan        base02            bold
+ALEWarningSign      /gui/256/16 +extra_stl_hl  1   yellow      base02            bold
+
+ALEErrorSign        /gui/256/16 +extra_stl_hl  3   red         none              bold
+ALEInfoSign         /gui/256/16 +extra_stl_hl  3   cyan        none              bold
+ALEWarningSign      /gui/256/16 +extra_stl_hl  3   yellow      none              bold
+
+ALEErrorSign        /gui/256/16 +extra_stl_hl  5   base02      red               bold
+ALEInfoSign         /gui/256/16 +extra_stl_hl  5   base02      cyan              bold
+ALEWarningSign      /gui/256/16 +extra_stl_hl  5   base02      yellow            bold
+
+ALEError                      /256/16 +extra   1   red         none              underline
+ALEError                  /gui        +extra   1   red         none   s=red      undercurl
+ALEErrorLine              /gui/256/16 +extra   1   none        none
+ALEInfo                       /256/16 +extra   1   cyan        none              underline
+ALEInfo                   /gui        +extra   1   cyan        none   s=cyan     undercurl
+ALEInfoLine               /gui/256/16 +extra   1   none        none
+ALEWarning                    /256/16 +extra   1   yellow      none              underline
+ALEWarning                /gui        +extra   1   yellow      none   s=yellow   undercurl
+ALEWarningLine            /gui/256/16 +extra   1   none        none
+
+ALEStyleError             /gui/256/16 +extra   1 -> ALEError
+ALEStyleErrorSign         /gui/256/16 +extra   1 -> ALEErrorSign
+ALEStyleErrorSignLineNr   /gui/256/16 +extra   1 -> ALEErrorSignLineNr
+ALEStyleWarning           /gui/256/16 +extra   1 -> ALEWarning
+ALEStyleWarningSign       /gui/256/16 +extra   1 -> ALEWarningSign
+ALEStyleWarningSignLineNr /gui/256/16 +extra   1 -> ALEWarningSignLineNr
+; }}}

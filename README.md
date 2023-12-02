@@ -6,6 +6,10 @@ A collection of nvim plugins/Personal nvim settings.
 - [CN](https://git.mtdcy.top:8443/mtdcy/pretty.nvim.git)
 - [PR](https://github.com/mtdcy/pretty.nvim.git)
 
+## Colors 
+
+-  [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
+
 ## Plugins
 
 - [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
