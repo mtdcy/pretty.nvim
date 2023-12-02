@@ -17,8 +17,8 @@ function! ale#fixers#tidy#Fix(buffer) abort
 
     let l:config = ale#path#FindNearestFile(a:buffer, '.tidyrc')
     let l:config_options = !empty(l:config)
-    \   ? ' -q --tidy-mark no --show-errors 0 --show-warnings 0 -config ' . ale#Escape(l:config)
-    \   : ' -q --tidy-mark no --show-errors 0 --show-warnings 0'
+    \   ? ' -q -indent --tidy-mark no --show-errors 0 --show-warnings 0 -config ' . ale#Escape(l:config)
+    \   : ' -q -indent --tidy-mark no --show-errors 0 --show-warnings 0'
 
     return {
     \   'command': ale#Escape(l:executable) . l:config_options,
