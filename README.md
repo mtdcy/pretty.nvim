@@ -14,3 +14,4 @@ A collection of nvim plugins/Personal nvim settings.
 - [echodoc.vim](https://github.com/Shougo/echodoc.vim)@8c7e99e
 - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@7d538b7
 - [ALE](https://github.com/dense-analysis/ale)@3.3.0
+- [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
