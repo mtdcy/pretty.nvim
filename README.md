@@ -13,3 +13,4 @@ A collection of nvim plugins/Personal nvim settings.
 - [Tagbar](https://github.com/preservim/tagbar)@3.1.1
 - [echodoc.vim](https://github.com/Shougo/echodoc.vim)@8c7e99e
 - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@7d538b7
+- [ALE](https://github.com/dense-analysis/ale)@3.3.0
