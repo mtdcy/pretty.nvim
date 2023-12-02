@@ -20,3 +20,4 @@ A collection of nvim plugins/Personal nvim settings.
 ### Language Plugins 
 
 - Go: [vim-go](https://github.com/fatih/vim-go)@973279275
+- Rust: [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
