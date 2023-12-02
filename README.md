@@ -9,3 +9,4 @@ A collection of nvim plugins/Personal nvim settings.
 ## Plugins
 
 - [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
+- [NERDTree](https://github.com/preservim/nerdtree)@7.0.0
