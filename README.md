@@ -20,6 +20,7 @@ A collection of nvim plugins/Personal nvim settings.
 - [ALE](https://github.com/dense-analysis/ale)@3.3.0
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
+    - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
 
 ### Language Plugins
 
