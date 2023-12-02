@@ -19,7 +19,8 @@ A collection of nvim plugins/Personal nvim settings.
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
-- [vim-airline](https://github.com/vim-airline/vim-airline)@
+- [vim-airline](https://github.com/vim-airline/vim-airline)@0adefd0c4
+  - [vim-airline-theme](https://github.com/vim-airline/vim-airline-themes)@dd81554c2
 
 ### Language Plugins
 
