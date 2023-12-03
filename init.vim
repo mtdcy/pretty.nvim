@@ -518,6 +518,7 @@ let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_follow_anchor = 1
 let g:vim_markdown_no_default_key_mappings = 1
 let g:vim_markdown_autowrite = 1 " autowrite when follow link
+let g:vim_markdown_new_list_item_indent = 2
 " }}}
 
 " }}}
@@ -559,6 +560,8 @@ noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
 noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
 noremap! <expr><Left>   pumvisible() ? "\<C-E>"         : "\<Left>"
 noremap! <expr><Right>  pumvisible() ? "\<C-Y>"         : "\<Right>"
+noremap! <expr><S-Tab>  pumvisible() ? "\<C-E>\<C-D>"   : "\<C-D>"
+nnoremap <S-Tab>  <<
 
 " 窗口移动
 nmap <C-j>      <C-W>j
