@@ -11,7 +11,7 @@ let g:pretty_window = {
             \ }
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
 
-" => General Options "{{s
+" {{{ => General Options
 " set color and theme
 set termguicolors
 if g:pretty_dark
@@ -227,8 +227,11 @@ if g:ale_enabled
     let g:ale_sign_column_always = 1
     let g:ale_virtualtext_delay = 500
     let g:ale_virtualtext_cursor = 'current'
+    let g:ale_open_list = 'on_save' " loclist for errors and warnings
+    let g:ale_set_loclist = 1
     if g:pretty_verbose
         let g:ale_virtualtext_cursor = 'all'
+        let g:ale_open_list = 1
     endif
 
     " Errors:
@@ -289,6 +292,7 @@ if g:ale_enabled
                 \ 'java'        : ['clang-format'],
                 \ 'javascript'  : ['clang-format'],
                 \ 'json'        : ['clang-format'],
+                \ 'markdown'    : ['prettier'],
                 \ 'yaml'        : ['yamlfix'],
                 \ 'python'      : ['autopep8'],
                 \ }
@@ -491,7 +495,7 @@ let g:lightline = {
             \   'linter_ok'         : 'right',
             \ }}
 " 所有模式使用同样长度字符，防止界面抖动
-let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'V', 'V':'V', "\<C-v>":'V', 'c':'C', 's':'S', 'S':'S', "\<C-s>":'S', 't':'T' }
+let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
 function! GitBranch() abort
     let head = FugitiveHead()
     if head != ""
@@ -502,6 +506,18 @@ endfunction
 function! CurrentTag() abort
     return tagbar#currenttag('%s', '', '')
 endfunction
+" }}}
+
+" {{{ => tabular
+" NOTHING HERE
+" }}}
+
+" {{{ => vim-markdown
+let g:vim_markdown_folding_level = 2
+let g:vim_markdown_toc_autofit = 1
+let g:vim_markdown_follow_anchor = 1
+let g:vim_markdown_no_default_key_mappings = 1
+let g:vim_markdown_autowrite = 1 " autowrite when follow link
 " }}}
 
 " }}}
@@ -583,6 +599,10 @@ nmap ge         <Plug>(ale_next_wrap)
 " Go to yank and paste
 vmap gy         "+y
 nmap gp         "+p
+" Go to list, FIXME: what about quickfix
+nmap gl         :lopen<CR>
+" Tabularize
+vmap /          :Tabularize /
 
 " 其他
 imap <C-o>      <Plug>(neosnippet_expand_or_jump)
@@ -591,15 +611,18 @@ smap <C-o>      <Plug>(neosnippet_expand_or_jump)
 " 语言绑定
 augroup LANG
     autocmd!
-    autocmd FileType go     nmap <buffer>gB     <Plug>(go-build)
-    autocmd FileType go     nmap <buffer>gR     <Plug>(go-run)
+    autocmd FileType go         nmap <buffer>gB     <Plug>(go-build)
+    autocmd FileType go         nmap <buffer>gR     <Plug>(go-run)
 
-    autocmd FileType go     nmap <buffer>gh     <Plug>(go-def-pop)
-    autocmd FileType go     nmap <buffer>gd     <Plug>(go-def)
-    autocmd FileType go     nmap <buffer>gt     <Plug>(go-def-type)
-    autocmd FileType go     nmap <buffer>gk     <Plug>(go-doc)
+    autocmd FileType go         nmap <buffer>gh     <Plug>(go-def-pop)
+    autocmd FileType go         nmap <buffer>gd     <Plug>(go-def)
+    autocmd FileType go         nmap <buffer>gt     <Plug>(go-def-type)
+    autocmd FileType go         nmap <buffer>gk     <Plug>(go-doc)
 
-    autocmd FileType rust   nmap <buffer>gd     <Plug>(rust-def)
-    " non pop in racer
+    autocmd FileType rust       nmap <buffer>gd     <Plug>(rust-def)
+
+    autocmd FileType markdown   nmap <buffer>gd     <Plug>Markdown_EditUrlUnderCursor
+    autocmd FileType markdown   nmap <buffer>gh     :bprev<CR>
 augroup END
 " }}}
+"
