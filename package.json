@@ -1,0 +1,42 @@
+{
+    "name": "pretty-nvim",
+    "version": "0.0.1",
+    "description": "A collection of nvim plugins making nvim pretty.",
+    "main": "index.js",
+    "directories": {
+        "doc": "doc",
+        "lib": "lib"
+    },
+    "dependencies": {
+        "markdownlint-cli": "latest",
+        "vim-language-server": "latest",
+        "shellcheck": "latest",
+        "shfmt": "latest",
+        "clang-format": "latest",
+        "dprint": "latest",
+        "htmlhint": "latest",
+        "tidy-html5": "latest",
+        "eslint": "latest",
+        "prettier": "latest",
+        "prettier-eslint-cli": "latest",
+        "jsonlint": "latest",
+        "vint": "latest",
+        "rustfmt": "latest"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mtdcy/pretty.nvim.git"
+    },
+    "keywords": [
+        "nvim"
+    ],
+    "author": "Chen Fang",
+    "license": "BSD-2-Clause",
+    "bugs": {
+        "url": "https://github.com/mtdcy/pretty.nvim/issues"
+    },
+    "homepage": "https://github.com/mtdcy/pretty.nvim#readme"
+}

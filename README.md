@@ -35,10 +35,10 @@ A collection of nvim plugins/Personal nvim settings.
 ### ALE
 
 - Vim
-  - [vimls](https://github.com/iamcco/vim-language-server) - `npm install -g vim-language-server`
+  - [vimls](https://github.com/iamcco/vim-language-server)
 - Sh
-  - [shellcheck](https://github.com/koalaman/shellcheck) - `brew install shellcheck`
-  - [shfmt]() - `brew install shfmt`
+  - [shellcheck](https://github.com/koalaman/shellcheck)
+  - [shfmt]()
 - Go
   - [go]()
   - [gopls]() - `go install golang.org/x/tools/gopls@latest`
@@ -46,32 +46,32 @@ A collection of nvim plugins/Personal nvim settings.
 - Rust
   - [cargo]()
   - [racer]()
-  - [rustfmt]() - `cargo install rustfmt`
+  - [rustfmt]()
 - C/C++
   - [gcc]() or [clang]()
-  - [clang-format]() - `npm install -g clang-format` - [参数](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
+  - [clang-format]() - [参数](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
 - CMake
   - [cmakelint]() - `pip3 install cmakelint`
   - [cmake-format]() - `pip3 install cmake-format`
 - Dockerfile
-  - [haoolint](https://github.com/hadolint/hadolint) - `brew install hadolint`
-  - [dprint](https://dprint.dev/) - `npm install -g dprint`
+  - [hadolint](https://github.com/hadolint/hadolint) - `brew install hadolint`
+  - [dprint](https://dprint.dev/)
 - Html
-  - [htmlhint](https://github.com/htmlhint/HTMLHint) - `npm install -g htmlhint`
-  - [tidy]() - `brew install tidy-html5`
+  - [htmlhint](https://github.com/htmlhint/HTMLHint)
+  - [tidy]()
 - Java
   - [javac]()
   - [clang-format]()
 - JavaScript
-  - [eslint]() - `npm install -g eslint`
-  - [prettier-eslint](https://github.com/prettier/prettier-eslint-cli) - `npm install -g prettier-eslint-cli`
+  - [eslint]()
+  - [prettier-eslint](https://github.com/prettier/prettier-eslint-cli)
 - Json
-  - [jsonlint](https://github.com/zaach/jsonlint) - `npm install -g jsonlint`
+  - [jsonlint](https://github.com/zaach/jsonlint)
   - [clang-format]()
 - Markdown - [规则/Rules](https://github.com/DavidAnson/markdownlint#rules--aliases)
-  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) - `brew install markdownlint-cli`
+  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli)
     - [配置文件](.markdownlint.yaml)
-  - [prettier](https://prettier.io/) - `npm install -g prettier`
+  - [prettier](https://prettier.io/)
 - Yaml
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
   - [yamlfix](https://github.com/lyz-code/yamlfix) - `pip3 install yamlfix`
