@@ -1,34 +1,25 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""{{{
-" Copyright 2018 (c) Chen Fang
-"
-" Redistribution and use in source and binary forms, with or without
-" modification, are permitted provided that the following conditions are met:
-"
-" 1. Redistributions of source code must retain the above copyright notice, this
-" list of conditions and the following disclaimer.
-"
-" 2. Redistributions in binary form must reproduce the above copyright notice,
-" this list of conditions and the following disclaimer in the documentation
-" and/or other materials provided with the distribution.
-"
-" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-" DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-" SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-" CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-" OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+" Copyright 2023 (c) Chen Fang, mtdcy.chen@gmail.com
+" pretty.nvim: global settings
+let g:pretty_verbose = 0    " 0 - silence
+let g:pretty_dark = 1       " light or drak
+" floating window config - ':h nvim_open_win'
+let g:pretty_window = {
+            \ 'border'      : 'single',
+            \ 'title'       : 'pretty.nvim',
+            \ 'title_pos'   : 'center',
+            \ 'style'       : 'minimal'
+            \ }
+let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
 
-" => General Options "{{{
+" => General Options "{{s
 " set color and theme
 set termguicolors
-set background=dark
-colorscheme solarized8_flat
+if g:pretty_dark
+    set background=dark
+else
+    set background=light
+endif
+colorscheme solarized8
 
 " 字体
 if has('gui_running')
@@ -142,7 +133,7 @@ set foldnestmax=2
 augroup FILES
     au!
     "set autochdir => may cause problem to some plugins
-    au BufEnter     * silent! lcd %:p:h " alternative for autochdir
+    "au BufEnter     * silent! lcd %:p:h " alternative for autochdir
     " 自动跳转到上一次打开的位置
     au BufReadPost  * silent! call <SID>jump_to_las_pos()
     " set extra properties for interest files
@@ -160,16 +151,13 @@ endfunction
 
 " {{{ => Plugins
 
-" {{{ => completeopt
-"set completeopt=menu,longest
-set complete=],.,i,d,b,u,w " :h 'complete'
-" }}}
-
 " {{{ => bufexplorer
 " NOTHING HERE
 " }}}
 
 " {{{ => NERDTree
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeMinimalUI = 1
 "autocmd VimEnter * NERDTree
 "autocmd VimEnter * NERDTree | wincmd p
 " Exit Vim if NERDTree is the only window remaining in the only tab.
@@ -190,16 +178,12 @@ autocmd BufEnter * if winnr() == winnr('l') && bufname('#') =~ '__Tagbar__\.\d\+
             \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
 " }}}
 
-" {{{ => vim-racer
-let g:racer_experimental_completer = 1
-" }}}
-
 " {{{ => echodoc
 let g:echodoc#enable_at_startup = 1
 if g:echodoc#enable_at_startup
     if has('nvim')
         let g:echodoc#type = 'floating'
-        let g:echodoc#floating_config = {'border': 'single', 'title': ' echodoc ', 'title_pos' : 'center'}
+        let g:echodoc#floating_config = g:pretty_window
     else
         let g:echodoc#type = 'popup'
     endif
@@ -213,25 +197,52 @@ let g:signify_number_highlight = 1
 " }}}
 
 " {{{ => ALE
-"  => ALE可以替换deoplete, vim-go, echodoc
 let g:ale_enabled = 1
 if g:ale_enabled
-    " => prefer deoplete
-    let g:ale_completion_enabled = 0
+    " always set omnifunc here, can be used as source for others
+    "  or be replaced by others later
+    set omnifunc=ale#completion#OmniFunc " => 支持手动补全
+    let g:ale_completion_enabled = 0     " => prefer deoplete
     if g:ale_completion_enabled
         let g:ale_completion_autoimport = 1
-        set omnifunc=ale#completion#OmniFunc " 支持手动补全
+        let g:ale_completion_delay = 500
+        set completeopt-=preview
         set paste& " ALE complete won't work with paste
+
+        inoremap <expr><Tab> pumvisible() ? "\<C-N>" : "\<Tab>"
     endif
 
-    let g:ale_floating_preview = 1
+    " 默认：只显示左侧图标，不显示virtualtext，
+    "   => ale对floating window的控制逻辑有点乱，这里只使用virtualtext
+    let g:ale_set_signs = 1
+    let g:ale_sign_priority = 100
+    let g:ale_set_highlights = 1
+    let g:ale_sign_highlight_linenrs = 1
+    let g:ale_sign_column_always = 1
+    let g:ale_virtualtext_delay = 500
+    let g:ale_virtualtext_cursor = 'current'
+    if g:pretty_verbose
+        let g:ale_virtualtext_cursor = 'all'
+    endif
 
-    " BUG: 只对部分文件有效
+    " Errors:
+    let g:ale_echo_cursor = 0       " error message to statusline
+    let g:ale_cursor_detail = 0     " error message to preview window
+    let g:ale_floating_preview = 0  " error message to floating preview
+
+    " Hover: 显示光标处函数签名
+    let g:ale_hover_cursor = 1      " to statusline by default
+    let g:ale_hover_to_preview = 0  " preview window
+    let g:ale_hover_to_floating_preview = 0 " to floating preview
+
+    " Linters:
+    let g:ale_lint_delay = 1000     " see following BUG
+    let g:ale_lint_on_enter = 1
+    let g:ale_lint_on_save = 1
+    let g:ale_lint_on_insert_leave = 1
+    " BUG: 'never' never work
     let g:ale_lint_on_text_changed = 'never'
-    let g:ale_cursor_detail = 1
-
-    " 显式指定linter和fixer，防止意外情况出现
-    "  => 通常情况均为一个，防止竞争的情况出现
+    " 显式指定linter和fixer => 通常情况均为一个，防止竞争的情况出现
     let g:ale_linters_explicit = 1
     let g:ale_linters = {
                 \ 'sh'          : ['shellcheck'],
@@ -283,11 +294,6 @@ if g:ale_enabled
     let g:ale_cmake_cmakeformat_options = ''
     let g:ale_yaml_yamlfix_options = ''
     " tidy options is hardcoded
-
-    " 防止界面跳动
-    let g:ale_sign_column_always = 1
-    let g:ale_sign_highlight_linenrs = 1
-    let g:ale_set_highlights = 1
 endif
 " }}}
 
@@ -298,9 +304,39 @@ if g:ale_enabled
 else
     let g:go_code_completion_enabled = 1
 endif
+
 set autowrite   " auto save file before run or build
-let g:go_def_mode='gopls'
-let g:go_info_mode='gopls'
+let g:go_def_mode = 'gopls'
+let g:go_info_mode = 'gopls'
+let g:go_fillstruct_mode = 'gopls'
+
+let g:go_auto_sameids = 1
+let g:go_updatetime = 200
+
+if !g:ale_enabled
+    let g:go_metalinter_autosave = 1
+    let g:go_imports_autosave = 1
+    let g:go_fmt_autosave = 1
+    let g:go_fmt_command = 'gopls'
+    let g:go_fmt_options = ''
+endif
+
+" BUG: won't dismiss, disable it explicitly
+"  => 这本来是个很好的功能，避免打开preview窗口，避免了界面跳动
+let g:go_doc_popup_window = 0
+
+" BUG: first doc windows determine the size
+let g:go_doc_max_height = 10
+" BUG: not working
+let g:go_def_reuse_buffer = 1
+
+" use Terminal for GoRun
+" BUG: the height not working
+let g:go_term_enabled = 1
+let g:go_term_reuse = 1
+let g:go_term_height = 20
+let g:go_term_close_on_exit = 0
+let g:go_term_mode = "split"
 
 let g:go_highlight_types = 1
 let g:go_highlight_fields = 1
@@ -309,9 +345,20 @@ let g:go_highlight_function_calls = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_extra_types = 1
 
-" BUG: first doc windows determine the size
-let g:go_doc_max_height = 10
-let g:go_def_reuse_buffer = 1   " BUG: not working
+augroup Go
+    autocmd!
+    autocmd FileType go     nmap <buffer>gB     <Plug>(go-build)
+    autocmd FileType go     nmap <buffer>gR     <Plug>(go-run)
+
+    " => 由于vim-go使用omnifunc，所以没必要再次设置这些快捷键
+    "autocmd FileType go     nmap <buffer>gd     <Plug>(go-def)
+    "autocmd FileType go     nmap <buffer>gt     <Plug>(go-def-pop)
+    "autocmd FileType go     nmap <buffer>gh     <Plug>(go-doc-split)<C-W>w
+augroup END
+" }}}
+
+" {{{ => vim-racer
+let g:racer_experimental_completer = 1
 " }}}
 
 " {{{ => deoplete
@@ -333,52 +380,44 @@ if g:deoplete#enable_at_startup
     " neosnippet: 与deoplete配合
     let g:neosnippet#enable_snipmate_compatibility = 1
 
-    " 补全时有个preview窗口 => 导致界面总是变动
-    set completeopt-=preview
-    " 不兼容paste
+    set completeopt=menu,noselect,noinsert
+    set complete=],.,i,d,b,u,w " :h 'complete'
     set paste&
 
-    " 为每个语言定义completion source
     if g:ale_enabled
-        " insert longest match word
-        set completeopt+=longest
-        au FileType vim setlocal completeopt-=longest
-        "  => 'buffer'和'longest'冲突，补全时会删除光标前面的字符(vim only?)
-        "   => 但是不开启'buffer'，则普通文本无法补全，比如注释
-        "    => 如果不使用'longest'，则每次都会填充第一个候选词，很麻烦
-        "     => map Backspace, 如果不是需要的候选词，则用BS删除已经填充的部分
-
         " ALE as completion source for deoplete
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'buffer', 'neosnippet', 'file'],
-                    \ })
-        " 异步自动补全，候选框抖动, 干扰界面, 改成手动模式
-        call deoplete#custom#option({
-                    \ 'auto_complete_popup' : 'manual',
-                    \ 'num_processes'       : 4,
-                    \ 'refresh_always'      : v:false,
-                    \ 'refresh_backspace'   : v:false,
-                    \ 'prev_completion_mode': 'length',
+                    \   '_'     : ['ale', 'buffer', 'file', 'neosnippet'],
                     \ })
     else
+        " 为每个语言定义completion source
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['tag', 'buffer', 'neosnippet', 'file'],
+                    \   '_'     : ['buffer', 'file', 'neosnippet'],
                     \   'cpp'   : ['LanguageClient'],
                     \   'c'     : ['LanguageClient'],
                     \   'vim'   : ['vim'],
                     \ })
     endif
 
-    "call deoplete#custom#option(
-    "            \ 'sources', {
-    "            \   'sh'    : [''],
-    "            \ })
-
     " complete with vim-go => 手动模式omni不工作，为什么？
     if g:go_code_completion_enabled
-        call deoplete#custom#option('omni_patterns', { 'go' : '[^. *\t]\.\w*' })
+        set completeopt+=noinsert
+        call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
+    endif
+
+    if g:pretty_autocomplete
+        " 自动补全时给一个较大的延时
+        call deoplete#custom#option({
+                    \ 'auto_complete_delay' : 500,
+                    \ })
+    else
+        " 异步自动补全，候选框抖动, 干扰界面, 改成手动模式
+        call deoplete#custom#option({
+                    \ 'auto_complete_popup' : 'manual',
+                    \ 'auto_complete_delay' : 0,
+                    \ })
     endif
 
     call deoplete#custom#source('_', 'smart_case', v:true)
@@ -397,13 +436,61 @@ if g:deoplete#enable_at_startup
     inoremap <expr><Tab>
                 \ pumvisible() ? "\<C-N>" :
                 \ <SID>check_back_space() ? <SID>check_snippet_jump() :
-                \ deoplete#can_complete() ? deoplete#complete() : <SID>check_snippet_jump()
+                \ deoplete#can_complete() ? deoplete#complete() :
+                \ <SID>check_snippet_jump()
 
     " Enter: 选取候选词 + snippets
     inoremap <expr><Enter>
                 \ neosnippet#expandable() ? "\<Plug>(neosnippet_expand)" :
                 \ pumvisible() ? "\<C-Y>" : "\<Enter>"
 endif
+" }}}
+
+" {{{ => lightline
+" 3: 只显示一个statusline，如果不喜欢这个风格，可改成'2'
+set laststatus=3
+set noshowmode  " mode is displayed in the statusline
+" 把会跳变的元素放在左边最后一位或右边最前一位
+let g:lightline = {
+            \ 'colorscheme' : 'solarized',
+            \ 'active' : {
+            \   'left' : [
+            \       [ 'mode', 'paste' ],
+            \       [ 'gitbranch', 'readonly', 'filename', 'modified'],
+            \   ],
+            \   'right' : [
+            \       [ 'percent' ],
+            \       [ 'fileformat', 'fileencoding', 'filetype'],
+            \       [ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'linter_ok' ],
+            \   ],
+            \ },
+            \ 'component_expand' : {
+            \   'gitbranch'         : 'GitBranch',
+            \   'linter_checking'   : 'lightline#ale#checking',
+            \   'linter_infos'      : 'lightline#ale#infos',
+            \   'linter_warnings'   : 'lightline#ale#warnings',
+            \   'linter_errors'     : 'lightline#ale#errors',
+            \   'linter_ok'         : 'lightline#ale#ok',
+            \ },
+            \ 'component_type' : {
+            \   'linter_checking'   : 'right',
+            \   'linter_infos'      : 'right',
+            \   'linter_warnings'   : 'warning',
+            \   'linter_errors'     : 'error',
+            \   'linter_ok'         : 'right',
+            \ }}
+" 所有模式使用同样长度字符，防止界面抖动
+let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'V', 'V':'V', "\<C-v>":'V', 'c':'C', 's':'S', 'S':'S', "\<C-s>":'S', 't':'T' }
+function! GitBranch() abort
+    let head = FugitiveHead()
+    if head != ""
+        let head = "\uf126 " . head
+    endif
+    return head
+endfunction
+function! CurrentTag() abort
+    return tagbar#currenttag('%s', '', '')
+endfunction
 " }}}
 
 " }}}
@@ -435,16 +522,16 @@ nmap <leader>ss :source $MYVIMRC<CR>
 
 " 特殊按键
 " Space: 只选取候选词，区别于Enter，这样可以避免snippets
-inoremap <expr><Space>  pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
+noremap! <expr><Space>  pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
 " Backspace: 删除已经填充的部分
-inoremap <expr><BS>     pumvisible() ? "\<C-E>"         : "\<BS>"
+noremap! <expr><BS>     pumvisible() ? "\<C-E>"         : "\<BS>"
 " ESC: 取消已经填充的部分并退出插入模式
-inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
+noremap! <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
 " Arrow Keys: 选择、选取、取消候选词
-inoremap <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
-inoremap <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
-inoremap <expr><Left>   pumvisible() ? "\<C-E>"         : "\<Left>"
-inoremap <expr><Right>  pumvisible() ? "\<C-Y>"         : "\<Right>"
+noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
+noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
+noremap! <expr><Left>   pumvisible() ? "\<C-E>"         : "\<Left>"
+noremap! <expr><Right>  pumvisible() ? "\<C-Y>"         : "\<Right>"
 
 " 窗口移动
 nmap <C-j>      <C-W>j
@@ -453,9 +540,10 @@ nmap <C-h>      <C-W>h
 nmap <C-l>      <C-W>l
 
 " Buffer explorer
-nmap <C-e>      :ToggleBufExplorer<CR>
-nmap <C-n>      :bnext<CR>
-nmap <C-p>      :bprev<CR>
+"  => must be silent here or flicker happens
+nmap <silent> <C-e> :ToggleBufExplorer<CR>
+nmap <silent> <C-n> :bnext<CR>
+nmap <silent> <C-p> :bprev<CR>
 
 " 触发(单手模式）=> 读代码必须
 nmap <F8>       :ToggleBufExplorer<CR>
