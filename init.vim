@@ -76,6 +76,12 @@ set backspace=indent,eol,start
 
 " no bracket match
 set noshowmatch
+
+if g:pretty_verbose
+    set updatetime=1000
+else
+    set updatetime=3000
+endif
 " }}}
 
 " {{{ => Search:
@@ -234,6 +240,7 @@ if g:ale_enabled
     let g:ale_hover_cursor = 1      " to statusline by default
     let g:ale_hover_to_preview = 0  " preview window
     let g:ale_hover_to_floating_preview = 0 " to floating preview
+    " => 使用语言特定插件的功能更好一些
 
     " Linters:
     let g:ale_lint_delay = 1000     " see following BUG
@@ -298,7 +305,6 @@ endif
 " }}}
 
 " {{{ => vim-go
-" vim-go 的补全差点意思，其他还好
 if g:ale_enabled
     let g:go_code_completion_enabled = 0
 else
@@ -308,27 +314,32 @@ endif
 set autowrite   " auto save file before run or build
 let g:go_def_mode = 'gopls'
 let g:go_info_mode = 'gopls'
+let g:go_fmt_command = 'gopls'
+let g:go_imports_mode = 'gopls'
 let g:go_fillstruct_mode = 'gopls'
+" BUG: not working
+let g:go_def_reuse_buffer = 1
 
-let g:go_auto_sameids = 1
-let g:go_updatetime = 200
-
+" linter and formatter => prefer ale
 if !g:ale_enabled
     let g:go_metalinter_autosave = 1
     let g:go_imports_autosave = 1
     let g:go_fmt_autosave = 1
-    let g:go_fmt_command = 'gopls'
-    let g:go_fmt_options = ''
+    let g:go_mod_fmt_autosave = 1
 endif
 
-" BUG: won't dismiss, disable it explicitly
-"  => 这本来是个很好的功能，避免打开preview窗口，避免了界面跳动
-let g:go_doc_popup_window = 0
+" 查看变量和函数信息，这个在读代码时非常有用
+let g:go_auto_sameids = 1   " highlight word under cursor
+let g:go_auto_type_info = 1 " type info for word under cursor
+let g:go_updatetime = 1000  " shorten this value as go code usually omit type
+if g:pretty_verbose
+    let g:go_updatetime = 500
+endif
+" => ale hover perform the same actions.
 
+let g:go_doc_keywordprg_enabled = 0     " godoc - ':h K'
 " BUG: first doc windows determine the size
 let g:go_doc_max_height = 10
-" BUG: not working
-let g:go_def_reuse_buffer = 1
 
 " use Terminal for GoRun
 " BUG: the height not working
@@ -339,22 +350,22 @@ let g:go_term_close_on_exit = 0
 let g:go_term_mode = "split"
 
 let g:go_highlight_types = 1
+let g:go_highlight_extra_types = 1
 let g:go_highlight_fields = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
+let g:go_highlight_function_parameters = 1
 let g:go_highlight_operators = 1
-let g:go_highlight_extra_types = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_string_spellcheck = 1
+let g:go_highlight_format_strings = 1
+let g:go_highlight_variable_declarations = 1
+let g:go_highlight_variable_assignments = 1
+let g:go_highlight_diagnostic_errors = 1
+let g:go_highlight_diagnostic_warnings = 1
 
-augroup Go
-    autocmd!
-    autocmd FileType go     nmap <buffer>gB     <Plug>(go-build)
-    autocmd FileType go     nmap <buffer>gR     <Plug>(go-run)
-
-    " => 由于vim-go使用omnifunc，所以没必要再次设置这些快捷键
-    "autocmd FileType go     nmap <buffer>gd     <Plug>(go-def)
-    "autocmd FileType go     nmap <buffer>gt     <Plug>(go-def-pop)
-    "autocmd FileType go     nmap <buffer>gh     <Plug>(go-doc-split)<C-W>w
-augroup END
+let g:go_fold_enable = ['block', 'import', 'varconst', 'package_comment']
 " }}}
 
 " {{{ => vim-racer
@@ -562,13 +573,11 @@ nmap gf         <C-F>
 nmap gb         <C-B>
 " Go to Define and Back(Top of stack)
 nmap gd         <C-]>
-nmap gt         <C-T>
-" Go to Define in split => :h CTRL-W
-"  => 先分割窗口，再在新窗口中用`gd`跳转
-nmap gD         10<C-W>sgd<C-W>w
-nmap gT         <C-W>W<C-W>c
+nmap gh         <C-T>
 " Go to man or doc
-nmap gh         K10<C-W>_<C-W>w
+nmap gk         K
+" Go to Type
+" nmap gt
 " Go to next error of ale
 nmap ge         <Plug>(ale_next_wrap)
 " Go to yank and paste
@@ -585,10 +594,10 @@ augroup LANG
     autocmd FileType go     nmap <buffer>gB     <Plug>(go-build)
     autocmd FileType go     nmap <buffer>gR     <Plug>(go-run)
 
-    " => 由于vim-go使用omnifunc，所以没必要再次设置这些快捷键
-    "autocmd FileType go     nmap <buffer>gd     <Plug>(go-def)
-    "autocmd FileType go     nmap <buffer>gt     <Plug>(go-def-pop)
-    "autocmd FileType go     nmap <buffer>gh     <Plug>(go-doc-split)<C-W>w
+    autocmd FileType go     nmap <buffer>gh     <Plug>(go-def-pop)
+    autocmd FileType go     nmap <buffer>gd     <Plug>(go-def)
+    autocmd FileType go     nmap <buffer>gt     <Plug>(go-def-type)
+    autocmd FileType go     nmap <buffer>gk     <Plug>(go-doc)
 
     autocmd FileType rust   nmap <buffer>gd     <Plug>(rust-def)
     " non pop in racer
