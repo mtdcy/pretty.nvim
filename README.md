@@ -25,6 +25,7 @@ A collection of nvim plugins/Personal nvim settings.
   - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
+- [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
 
 ### Language Plugins
 
