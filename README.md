@@ -22,6 +22,7 @@ A collection of nvim plugins/Personal nvim settings.
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
     - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
 - [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
+  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
 
 ### Language Plugins
 
