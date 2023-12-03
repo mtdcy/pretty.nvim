@@ -274,7 +274,7 @@ if g:ale_enabled
 
     "let g:ale_dockerfile_hadolint_options = '--ignore DL3059'
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
-    let g:ale_markdown_markdownlint_executable = 'markdownlint-cli2'
+    let g:ale_markdown_markdownlint_options = '--config .markdownlint.yaml'
     let g:ale_yaml_yamllint_options = '-d relaxed'
     "let g:ale_python_pylint_options = '--errors-only'
     let g:ale_python_pylint_options = '--ignore-docstrings'
@@ -290,7 +290,7 @@ if g:ale_enabled
                 \ 'cmake'       : ['cmakeformat'],
                 \ 'html'        : ['tidy'],
                 \ 'java'        : ['clang-format'],
-                \ 'javascript'  : ['clang-format'],
+                \ 'javascript'  : ['prettier_eslint'],
                 \ 'json'        : ['clang-format'],
                 \ 'markdown'    : ['prettier'],
                 \ 'yaml'        : ['yamlfix'],

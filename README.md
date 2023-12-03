@@ -64,11 +64,13 @@ A collection of nvim plugins/Personal nvim settings.
   - [clang-format]()
 - JavaScript
   - [eslint]() - `npm install -g eslint`
+  - [prettier-eslint](https://github.com/prettier/prettier-eslint-cli) - `npm install -g prettier-eslint-cli`
 - Json
   - [jsonlint](https://github.com/zaach/jsonlint) - `npm install -g jsonlint`
   - [clang-format]()
-- Markdown
-  - [markdownlint](https://github.com/DavidAnson/markdownlint-cli2) - `npm install -g markdownlint-cli2`
+- Markdown - [规则/Rules](https://github.com/DavidAnson/markdownlint#rules--aliases)
+  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) - `brew install markdownlint-cli`
+    - [配置文件](.markdownlint.yaml)
   - [prettier](https://prettier.io/) - `npm install -g prettier`
 - Yaml
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
