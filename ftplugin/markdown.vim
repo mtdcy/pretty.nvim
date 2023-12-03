@@ -392,7 +392,7 @@ function! s:Toc(...)
     if l:window_type ==# 'horizontal'
         lopen
     elseif l:window_type ==# 'vertical'
-        vertical lopen
+        vertical rightbelow lopen
         " auto-fit toc window when possible to shrink it
         if (&columns/2) > l:header_max_len && l:vim_markdown_toc_autofit == 1
             " header_max_len + 1 space for first header + 3 spaces for line numbers
@@ -772,7 +772,7 @@ if !get(g:, 'vim_markdown_no_default_key_mappings', 0)
     call <sid>MapNotHasmapto(']u', 'Markdown_MoveToParentHeader')
     call <sid>MapNotHasmapto(']h', 'Markdown_MoveToCurHeader')
     call <sid>MapNotHasmapto('gx', 'Markdown_OpenUrlUnderCursor')
-    call <sid>MapNotHasmapto('ge', 'Markdown_EditUrlUnderCursor')
+    call <sid>MapNotHasmapto('gd', 'Markdown_EditUrlUnderCursor')
 endif
 
 command! -buffer -range=% HeaderDecrease call s:HeaderDecrease(<line1>, <line2>)

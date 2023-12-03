@@ -623,6 +623,7 @@ augroup LANG
 
     autocmd FileType markdown   nmap <buffer>gd     <Plug>Markdown_EditUrlUnderCursor
     autocmd FileType markdown   nmap <buffer>gh     :bprev<CR>
+    autocmd FileType markdown   nmap <buffer><F10>  :Toc<CR>
 augroup END
 " }}}
 "
