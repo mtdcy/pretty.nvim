@@ -6,7 +6,7 @@ A collection of nvim plugins/Personal nvim settings.
 - [CN](https://git.mtdcy.top:8443/mtdcy/pretty.nvim.git)
 - [PR](https://github.com/mtdcy/pretty.nvim.git)
 
-## Colors 
+## Colors
 
 -  [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
 
@@ -21,8 +21,9 @@ A collection of nvim plugins/Personal nvim settings.
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
     - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
+- [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
 
-### Language Plugins 
+### Language Plugins
 
 - Go: [vim-go](https://github.com/fatih/vim-go)@973279275
 - Rust: [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
