@@ -36,19 +36,22 @@ if [ "$(uname -s)" = "Darwin" ]; then
         tar xzf nvim-macos.tar.gz
         rm nvim-macos.tar.gz
     fi
-    sudo ln -svf "$(pwd)/nvim-macos/bin/nvim" /usr/local/bin/nvim ||
+    [ ! -e /usr/local/bin/nvim ] &&
+        sudo ln -svf "$(pwd)/nvim-macos/bin/nvim" /usr/local/bin/nvim ||
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim-macos/bin/nvim"
 else
     if [ ! -e nvim.appimage ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage
         chmod a+x nvim.appimage
     fi
-    sudo ln -svf "$(pwd)/nvim.appimage" /usr/local/bin/nvim ||
+    [ ! -e /usr/local/bin/nvim ] &&
+        sudo ln -svf "$(pwd)/nvim.appimage" /usr/local/bin/nvim ||
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
 fi
 
 # nvim final prepare
 if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
+    [ -d "$HOME/.config/nvim" ] && mv "$HOME/.config/nvim" "$HOME/.config/nvim-$(date)"
     mkdir -p "$HOME/.config"
     ln -svfT "$(pwd)" ~/.config/nvim
 fi

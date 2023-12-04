@@ -1,17 +1,55 @@
 # pretty.nvim
 
-A collection of nvim plugins/Personal nvim settings.
+A collection of pre-configured nvim plugins, plug and play ready.
 
 ## Screenshot
 
-![]()
+![](picture/markdown.png)
 
-[More](pictures/index.md)
+[More](pic)
 
 ## Requirements
 
-- [neovim](https://github.com/neovim/neovim): ~0.6+
-- [python3]()
+- [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.9.4 embedded**
+- [python3](): latest +pip +venv
+- [npm](https://www.npmjs.com/): latest
+
+## Installation
+
+Clone this repo or download from Release, then run `install.sh` ==> **Dependencies are installed locally in pretty.nvim.**
+
+```shell
+git clone https://github.com/mtdcy/pretty.nvim.git
+cd pretty.nvim && ./install.sh
+```
+
+## Settings
+
+- g:pretty_verbose - How many messages show on screen.
+- g:pretty_dark - Dark mode.
+- g:pretty_autocomplete - Auto complete or complete with Tab.
+
+### Key Mappings
+
+- [n] `F8` - Open bufexplorer on center screen.
+- [n] `F9` - Open NERDTree (file brower) on left side.
+- [n] `F10`- Open Tagbar or TOC on right side.
+
+- [n] `gg` - Goto first line
+- [n] `gG` - Goto last line
+- [n] `g[` - Goto start of code block
+- [n] `g]` - Goto end of code block
+- [n] `gd` - Goto symbols' definition
+- [n] `gh` - Goto top of stack (home)
+- [n] `gk` - Goto keyword's man page
+- [n] `ge` - Goto next error
+- [v] `gy` - Goto yank
+- [n] `gp` - Goto paste
+- [n] `gl` - Goto loclist
+- [n] `gf` - Go forward (page down)
+- [n] `gb` - Go backward (page up)
+
+- [v] `/` -- Tabularize
 
 ## Plugins Embedded
 
@@ -92,5 +130,5 @@ A collection of nvim plugins/Personal nvim settings.
 
 ## Copyrights and Licenses
 
-- Files merged from other projects are following their own licenses.
-- Files bellond to this project(mainly the top level files) are licensesd under [BSD-2-Clound](LICENSE).
+- Files merged from other projects follow their own licenses.
+- Files belonging to this project(mainly top-level files) are licensesd under the [BSD-2-Clause](LICENSE).
