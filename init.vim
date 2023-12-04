@@ -246,6 +246,7 @@ if g:ale_enabled
     " => 使用语言特定插件的功能更好一些
 
     " Linters:
+    let g:ale_virtualenv_dir_names = ['node_modules/.bin']
     let g:ale_lint_delay = 1000     " see following BUG
     let g:ale_lint_on_enter = 1
     let g:ale_lint_on_save = 1
