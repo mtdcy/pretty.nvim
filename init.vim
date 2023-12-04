@@ -481,6 +481,7 @@ endif
 
 " {{{ => lightline
 set laststatus=2
+set showtabline=2
 set noshowmode  " mode is displayed in the statusline
 " 把会跳变的元素放在左边最后一位或右边最前一位
 let g:lightline = {
@@ -496,8 +497,13 @@ let g:lightline = {
             \       [ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'linter_ok' ],
             \   ],
             \ },
+            \ 'tabline' : {
+            \   'left'  : [ ['buffers'] ],
+            \   'right' : [ ['close'] ],
+            \ },
             \ 'component_expand' : {
             \   'gitbranch'         : 'GitBranch',
+            \   'buffers'           : 'lightline#bufferline#buffers',
             \   'linter_checking'   : 'lightline#ale#checking',
             \   'linter_infos'      : 'lightline#ale#infos',
             \   'linter_warnings'   : 'lightline#ale#warnings',
@@ -505,6 +511,7 @@ let g:lightline = {
             \   'linter_ok'         : 'lightline#ale#ok',
             \ },
             \ 'component_type' : {
+            \   'buffers'           : 'tabsel',
             \   'linter_checking'   : 'right',
             \   'linter_infos'      : 'right',
             \   'linter_warnings'   : 'warning',
