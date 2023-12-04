@@ -6,6 +6,8 @@ cd $(dirname "$0")
 
 # cleanup
 #rm -rf py3env node_modules package-lock.json nvim.appimage nvim-macos*
+# always remove py3env as interpretor is hardcoded in venv
+rm -rf py3env
 
 RED="\\033[31m"
 info() { echo -e "$RED$*\\033[39m"; }
