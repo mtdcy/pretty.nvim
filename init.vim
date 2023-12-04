@@ -10,6 +10,10 @@ let g:pretty_window = {
             \ 'style'       : 'minimal'
             \ }
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
+let g:pretty_home=fnamemodify($MYVIMRC, ':p:h')
+
+let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
+let $PATH = g:pretty_home . '/py3env/bin:' . $PATH
 
 " {{{ => General Options
 " set color and theme
@@ -246,7 +250,6 @@ if g:ale_enabled
     " => 使用语言特定插件的功能更好一些
 
     " Linters:
-    let g:ale_virtualenv_dir_names = ['node_modules/.bin']
     let g:ale_lint_delay = 1000     " see following BUG
     let g:ale_lint_on_enter = 1
     let g:ale_lint_on_save = 1
@@ -273,9 +276,20 @@ if g:ale_enabled
                 \ 'python'      : ['pylint'],
                 \ }
 
+    function! CheckConfig(prefix, target)
+        let l:found=findfile(a:target, ".;")
+        if l:found != ''
+            return a:prefix . found
+        endif
+        return ''
+    endfunction
+    "let g:ale_sh_shellcheck_executable = g:pretty_home . '/node_modules/.bin/shellcheck'
+    "let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
+    "let g:ale_html_htmlhint_executable = g:pretty_home . '/node_modules/.bin/htmlhint'
+    "let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
     "let g:ale_dockerfile_hadolint_options = '--ignore DL3059'
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
-    let g:ale_markdown_markdownlint_options = '--config .markdownlint.yaml'
+    let g:ale_markdown_markdownlint_options = CheckConfig('--config ', '.markdownlint.yaml')
     let g:ale_yaml_yamllint_options = '-d relaxed'
     "let g:ale_python_pylint_options = '--errors-only'
     let g:ale_python_pylint_options = '--ignore-docstrings'
@@ -289,7 +303,7 @@ if g:ale_enabled
                 \ 'go'          : ['goimports', 'gopls'],
                 \ 'rust'        : ['rustfmt'],
                 \ 'cmake'       : ['cmakeformat'],
-                \ 'html'        : ['tidy'],
+                \ 'html'        : ['prettier'],
                 \ 'java'        : ['clang-format'],
                 \ 'javascript'  : ['prettier_eslint'],
                 \ 'json'        : ['clang-format'],
@@ -299,13 +313,16 @@ if g:ale_enabled
                 \ }
                 "\ 'dockerfile'  : ['dprint'],
 
-    let g:ale_c_clangformat_options = '-style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
+    " autoload/afe/fixers/clangformat.vim can not handle path properly
+    "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
+    "let g:ale_javascript_prettier_executable = g:pretty_home . '/node_modules/.bin/prettier'
+    let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
     let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
     let g:ale_rust_rustfmt_options = '--force --write-mode replace'
-    let g:ale_cmake_cmakeformat_executable = 'cmake-format'
+    "let g:ale_cmake_cmakeformat_executable = 'cmake-format'
     let g:ale_cmake_cmakeformat_options = ''
     let g:ale_yaml_yamlfix_options = ''
-    " tidy options is hardcoded
+
 endif
 " }}}
 
@@ -463,8 +480,7 @@ endif
 " }}}
 
 " {{{ => lightline
-" 3: 只显示一个statusline，如果不喜欢这个风格，可改成'2'
-set laststatus=3
+set laststatus=2
 set noshowmode  " mode is displayed in the statusline
 " 把会跳变的元素放在左边最后一位或右边最前一位
 let g:lightline = {

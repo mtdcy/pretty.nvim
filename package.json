@@ -8,20 +8,18 @@
         "lib": "lib"
     },
     "dependencies": {
-        "markdownlint-cli": "latest",
-        "vim-language-server": "latest",
-        "shellcheck": "latest",
-        "shfmt": "latest",
         "clang-format": "latest",
         "dprint": "latest",
-        "htmlhint": "latest",
-        "tidy-html5": "latest",
         "eslint": "latest",
+        "htmlhint": "latest",
+        "jsonlint": "latest",
+        "markdownlint-cli": "latest",
+        "node": "^21.2.0",
+        "node.js": "^0.0.1-security",
         "prettier": "latest",
         "prettier-eslint-cli": "latest",
-        "jsonlint": "latest",
-        "vint": "latest",
-        "rustfmt": "latest"
+        "shellcheck": "latest",
+        "vim-language-server": "latest"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
