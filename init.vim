@@ -1,7 +1,17 @@
-" Copyright 2023 (c) Chen Fang, mtdcy.chen@gmail.com
-" pretty.nvim: global settings
-let g:pretty_verbose = 0    " 0 - silence
-let g:pretty_dark = 1       " light or drak
+" pretty.nvim, copyright 2023 (c) Chen Fang, mtdcy.chen@gmail.com
+
+" {{{ => Settings
+"
+let g:pretty_verbose = 0        " 0 - silence
+let g:pretty_dark = 1           " light or drak
+let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
+let g:pretty_singleclick = 0    " mouse single click
+let g:pretty_debug = 1
+
+let g:pretty_home = fnamemodify($MYVIMRC, ':p:h')
+let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
+let $PATH = g:pretty_home . '/py3env/bin:' . $PATH
+
 " floating window config - ':h nvim_open_win'
 let g:pretty_window = {
             \ 'border'      : 'single',
@@ -9,11 +19,7 @@ let g:pretty_window = {
             \ 'title_pos'   : 'center',
             \ 'style'       : 'minimal'
             \ }
-let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
-let g:pretty_home=fnamemodify($MYVIMRC, ':p:h')
-
-let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
-let $PATH = g:pretty_home . '/py3env/bin:' . $PATH
+" }}}
 
 " {{{ => General Options
 " set color and theme
@@ -24,6 +30,9 @@ else
     set background=light
 endif
 colorscheme solarized8
+if !has('gui_running')
+  set t_Co=256
+endif
 
 " 字体
 if has('gui_running')
@@ -142,8 +151,6 @@ set foldnestmax=2
 
 augroup FILES
     au!
-    "set autochdir => may cause problem to some plugins
-    "au BufEnter     * silent! lcd %:p:h " alternative for autochdir
     " 自动跳转到上一次打开的位置
     au BufReadPost  * silent! call <SID>jump_to_las_pos()
     " set extra properties for interest files
@@ -163,29 +170,6 @@ endfunction
 
 " {{{ => bufexplorer
 " NOTHING HERE
-" }}}
-
-" {{{ => NERDTree
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeMinimalUI = 1
-"autocmd VimEnter * NERDTree
-"autocmd VimEnter * NERDTree | wincmd p
-" Exit Vim if NERDTree is the only window remaining in the only tab.
-autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
-" If another buffer tries to replace NERDTree, put it in the other window, and bring back NERDTree.
-"  => 很好的解决在错误窗口打开bufexplorer的问题
-autocmd BufEnter * if winnr() == winnr('h') && bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
-            \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
-" }}}
-
-" {{{ => tagbar
-" use on fly tags
-let g:tagbar_autofocus = 1
-let g:tagbar_autoshowtag = 1
-let g:tagbar_compact = 1
-" 避免在Tagbar中打开新的buffer
-autocmd BufEnter * if winnr() == winnr('l') && bufname('#') =~ '__Tagbar__\.\d\+' && bufname('%') !~ '__Tagbar__\.\d\+' && winnr('$') > 1 |
-            \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
 " }}}
 
 " {{{ => echodoc
@@ -231,11 +215,11 @@ if g:ale_enabled
     let g:ale_sign_column_always = 1
     let g:ale_virtualtext_delay = 500
     let g:ale_virtualtext_cursor = 'current'
-    let g:ale_open_list = 'on_save' " loclist for errors and warnings
     let g:ale_set_loclist = 1
+    let g:ale_open_list = 0
     if g:pretty_verbose
         let g:ale_virtualtext_cursor = 'all'
-        let g:ale_open_list = 1
+        let g:ale_open_list = 'on_save' " loclist for errors and warnings
     endif
 
     " Errors:
@@ -486,6 +470,10 @@ set noshowmode  " mode is displayed in the statusline
 " 把会跳变的元素放在左边最后一位或右边最前一位
 let g:lightline = {
             \ 'colorscheme' : 'solarized',
+            \ 'inactive' : {
+            \   'left'  : [ [ 'filename' ] ],
+            \   'right' : [ ['filetype' ] ]
+            \ },
             \ 'active' : {
             \   'left' : [
             \       [ 'mode', 'paste' ],
@@ -511,7 +499,7 @@ let g:lightline = {
             \   'linter_ok'         : 'lightline#ale#ok',
             \ },
             \ 'component_type' : {
-            \   'buffers'           : 'tabsel',
+            \   'buffers'           : 'warning',
             \   'linter_checking'   : 'right',
             \   'linter_infos'      : 'right',
             \   'linter_warnings'   : 'warning',
@@ -536,16 +524,164 @@ endfunction
 " NOTHING HERE
 " }}}
 
-" {{{ => vim-markdown
-let g:vim_markdown_folding_level = 2
-let g:vim_markdown_toc_autofit = 1
-let g:vim_markdown_follow_anchor = 1
-let g:vim_markdown_no_default_key_mappings = 1
-let g:vim_markdown_autowrite = 1 " autowrite when follow link
-let g:vim_markdown_new_list_item_indent = 2
 " }}}
 
-" }}}
+" {{{ => Windows Manager
+set wildignore&
+" NERDTree:
+"  Bug: VCS will ignore submodule
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeNaturalSort = 1
+let g:NERDTreeMouseMode = g:pretty_singleclick + 1
+let g:NERDTreeShowHidden = 1
+let g:NERDTreeIgnore = ['\~$', '.git*', '.DS_Store' ]
+let g:NERDTreeRespectWildIgnore = 1
+let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeMinimalMenu=1
+let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+"" Netrw: disable for now, test later
+let g:NERDTreeHijackNetrw = 0
+"" cancel some key mappings: too much mappings won't help user
+""  => keep only: Enter, Space, Mouse, F1/?
+"let g:NERDTreeMapActivateNode = ''
+
+" Tagbar: use on fly tags
+let g:tagbar_singleclick = g:pretty_singleclick
+let g:tagbar_position = 'botright vertical'
+let g:tagbar_left = 0   " right
+let g:tagbar_compact = 1
+let g:tagbar_autofocus = 1
+let g:tagbar_autoshowtag = 1
+let g:tagbar_show_data_type = 1
+let g:tagbar_width = min([30, winwidth(0) / 4])
+" cancel some key mappings: too much mappings won't help user
+"  => keep only: Enter, Space, Mouse, F1/?
+let g:tagbar_map_hidenonpublic = ''
+let g:tagbar_map_openallfolds = ''
+let g:tagbar_map_closeallfolds = ''
+let g:tagbar_map_incrementfolds = ''
+let g:tagbar_map_decrementfolds = ''
+let g:tagbar_map_togglesort = ''
+let g:tagbar_map_toggleautoclose = ''
+let g:tagbar_map_togglecaseinsensitive = ''
+let g:tagbar_map_zoomwin = ''
+let g:tagbar_map_close = ''
+let g:tagbar_map_preview = ''
+let g:tagbar_map_previewwin = ''
+let g:tagbar_map_nexttag = ''
+let g:tagbar_map_prevtag = ''
+let g:tagbar_map_nextfold = ''
+let g:tagbar_map_prevfold = ''
+let g:tagbar_map_togglefold = ''
+let g:tagbar_map_togglepause = ''
+" multiple key mapping to these one, can't disable single one
+"let g:tagbar_map_openfold = ''
+"let g:tagbar_map_closefold = ''
+
+set noequalalways
+set winheight=10
+set winwidth=20
+set winminheight=10
+set winminwidth=20
+set cmdheight=1
+
+" check window parts, return filetype if it's sidebar.
+"  => don't return bufname, as some window may not have it.
+function! s:wm_part_check(buf) abort
+    let l:ft = getbufvar(bufnr(a:buf), '&ft')
+    if l:ft == 'nerdtree' || l:ft == 'tagbar' || l:ft == 'qf'
+        return l:ft
+    elseif l:ft == 'help' && getbufvar(bufnr(a:buf), '&bt') == 'help'
+        return l:ft
+    endif
+    return ''
+endfunction()
+
+function! s:wm_part_inspect() abort
+    echo 'perform hint @ buf:' . bufname('%') . '/alt:' . bufname('#')
+                \ . '/bufnr:' . bufnr() . '#' . bufnr('$') . '/ft:' . &ft . '/bt:' . &bt
+                \ . '/winnr:' . winnr() . '#' . winnr('$') . '/type:' . win_gettype(winnr()) . '/id:' . win_getid()
+endfunction()
+" debug
+if g:pretty_debug == 1
+    nmap <C-I> :call <sid>wm_part_inspect()<cr>
+endif
+
+" toggle window parts by hint
+function! s:wm_part_toggle(hint) abort
+    let l:bufname = bufname('%') " save bufname
+    let l:altname = bufname('#') " save altname
+    echohl WarningMsg
+
+    if <sid>wm_part_check('%') != ''
+        if a:hint == 'bclose'   | exec "normal! :quit\<cr>" | return
+        endif
+        " goto the right window
+        if l:altname != ''      | exec "normal! :" .. bufwinnr(l:altname) .. "wincmd w\<cr>"
+        else                    | exec "normal! :wincmd p\<cr>"
+        endif
+    endif
+
+    if     a:hint == 'buflist'  | exec "normal! :ToggleBufExplorer\<cr>"
+    elseif a:hint == 'bnext'    | exec "normal! :bnext\<cr>"
+    elseif a:hint == 'bprev'    | exec "normal! :bprev\<cr>"
+    elseif a:hint == 'leftbar'  | exec "normal! :NERDTreeToggleVCS\<cr>"
+    elseif a:hint == 'rightbar'
+        if &ft == 'markdown'    | exec "normal! :Toc\<cr>"
+        else                    | exec "normal! :TagbarToggle\<cr>"
+        endif
+    elseif a:hint == 'bclose'
+        if l:altname == ''      | echo 'Last buffer, close it with :quit'
+        else                    | exec "normal! :bprev\<cr> :confirm bwipeout " .. l:bufname .. "\<cr>"
+        endif                   " FIXME: two window open the same buffer
+    endif
+    echohl None
+endfunction()
+" => why bwipeout: bdelete only unlist it, it means user can't see
+"    but code can. bdelete is bad for WM, so use bwipeout instead.
+
+function! s:wm_on_enter() abort
+    let l:bufname = bufname('%') " save bufname
+    let l:altname = bufname('#') " save altname
+    echohl WarningMsg
+    " check alt buf
+    if <sid>wm_part_check('#') != ''
+        echo 'alt buf is sidebar.'
+        exec "normal! :buffer#\<cr> :wincmd p\<cr>"
+        exec "normal! :buffer " .. l:bufname .. "\<cr>"
+    endif
+
+    if <sid>wm_part_check('%') != ''
+        setlocal nomodifiable
+    endif
+
+    if     &ft == 'markdown'    | exec "normal! :TagbarClose\<cr>"
+    elseif &ft == 'text'        | exec "normal! :TagbarClose\<cr>"
+    endif
+    echohl None
+endfunction()
+
+nmap <F8>       :call <sid>wm_part_toggle('buflist')<cr>
+nmap <F9>       :call <sid>wm_part_toggle('leftbar')<cr>
+nmap <F10>      :call <sid>wm_part_toggle('rightbar')<cr>
+
+" Buffer explorer
+nmap <C-e>      <F8>
+nmap <C-n>      :call <sid>wm_part_toggle('bnext')<cr>
+nmap <C-p>      :call <sid>wm_part_toggle('bprev')<cr>
+nmap <C-q>      :call <sid>wm_part_toggle('bclose')<cr>
+
+" Move focus
+nmap <C-j>      <C-W>j
+nmap <C-k>      <C-W>k
+nmap <C-h>      <C-W>h
+nmap <C-l>      <C-W>l
+
+augroup WINDOWS
+    autocmd!
+    autocmd BufEnter * call <sid>wm_on_enter()
+augroup END
 
 " {{{ => Key maps
 " 非必要不加<silent>，这样我们可以很好的看到具体执行的命令
@@ -578,31 +714,15 @@ noremap! <expr><Space>  pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
 " Backspace: 删除已经填充的部分
 noremap! <expr><BS>     pumvisible() ? "\<C-E>"         : "\<BS>"
 " ESC: 取消已经填充的部分并退出插入模式
-noremap! <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
+inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
+cnoremap <expr><ESC>    pumvisible() ? "\<C-E>"         : "\<C-C>"
 " Arrow Keys: 选择、选取、取消候选词
 noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
 noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
 noremap! <expr><Left>   pumvisible() ? "\<C-E>"         : "\<Left>"
 noremap! <expr><Right>  pumvisible() ? "\<C-Y>"         : "\<Right>"
 noremap! <expr><S-Tab>  pumvisible() ? "\<C-E>\<C-D>"   : "\<C-D>"
-nnoremap <S-Tab>  <<
-
-" 窗口移动
-nmap <C-j>      <C-W>j
-nmap <C-k>      <C-W>k
-nmap <C-h>      <C-W>h
-nmap <C-l>      <C-W>l
-
-" Buffer explorer
-"  => must be silent here or flicker happens
-nmap <silent> <C-e> :ToggleBufExplorer<CR>
-nmap <silent> <C-n> :bnext<CR>
-nmap <silent> <C-p> :bprev<CR>
-
-" 触发(单手模式）=> 读代码必须
-nmap <F8>       :ToggleBufExplorer<CR>
-nmap <F9>       :NERDTreeToggle<CR>
-nmap <F10>      :TagbarToggle<CR>
+nnoremap <S-Tab>        <<
 
 " 跳转 - Goto
 " Go to first line - `gg`
@@ -634,8 +754,21 @@ vmap /          :Tabularize /
 " 其他
 imap <C-o>      <Plug>(neosnippet_expand_or_jump)
 smap <C-o>      <Plug>(neosnippet_expand_or_jump)
+" }}}
 
-" 语言绑定
+" }}}
+
+" {{{ => Language Settings
+" Markdown:
+let g:vim_markdown_no_default_key_mappings=1
+let g:vim_markdown_folding_level = 2
+let g:vim_markdown_toc_autofit = 1
+let g:vim_markdown_follow_anchor = 1
+let g:vim_markdown_autowrite = 1 " autowrite when follow link
+let g:vim_markdown_new_list_item_indent = 2
+let g:vim_markdown_conceal = 1
+set conceallevel=2
+
 augroup LANG
     autocmd!
     autocmd FileType go         nmap <buffer>gB     <Plug>(go-build)
@@ -653,4 +786,3 @@ augroup LANG
     autocmd FileType markdown   nmap <buffer><F10>  :Toc<CR>
 augroup END
 " }}}
-"

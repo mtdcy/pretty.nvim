@@ -4,7 +4,7 @@ A collection of pre-configured nvim plugins, plug and play ready.
 
 ## Screenshot
 
-![](picture/markdown.png)
+![screenshot](picture/markdown.png)
 
 [More](pic)
 
@@ -31,9 +31,31 @@ cd pretty.nvim && ./install.sh
 
 ### Key Mappings
 
-- [n] `F8` - Open bufexplorer on center screen.
-- [n] `F9` - Open NERDTree (file brower) on left side.
-- [n] `F10`- Open Tagbar or TOC on right side.
+Since mouse works even in terminal, you don't have to remember these key mappings.
+There are only a few that cannot be done with the mouse, which marked as '[*]'.
+
+#### Windows
+
+- [n] `F8` - Open bufexplorer on center screen. [*]
+- [n] `F9` - Open NERDTree (file brower) on left side. [*]
+- [n] `F10` - Open Tagbar or TOC on right side. [*]
+
+- [n] `C-q` - Close window/buffer. [*]
+
+- [n] `C-h` - Move focus to left window.
+- [n] `C-l` - Move focus to right window.
+- [n] C-j - Move focus to below window.
+- [n] `C-k` - Move focus to up window.
+
+#### Buffers
+
+[*] FIXME: buffer line clickable is not working right now.
+
+- [n] `C-e` - Buffer Explorer
+- [n] `C-n` - Buffer Next
+- [n] `C-p` - Buffer Prev
+
+#### Goto/Jump
 
 - [n] `gg` - Goto first line
 - [n] `gG` - Goto last line
@@ -49,7 +71,9 @@ cd pretty.nvim && ./install.sh
 - [n] `gf` - Go forward (page down)
 - [n] `gb` - Go backward (page up)
 
-- [v] `/` -- Tabularize
+#### Features
+
+- [v] `/` - Tabularize
 
 ## Plugins Embedded
 
@@ -65,6 +89,7 @@ cd pretty.nvim && ./install.sh
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
 - [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
   - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
+  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8a2e7ab94
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
 - [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
@@ -132,4 +157,5 @@ cd pretty.nvim && ./install.sh
 ## Copyrights and Licenses
 
 - Files merged from other projects follow their own licenses.
-- Files belonging to this project(mainly top-level files) are licensesd under the [BSD-2-Clause](LICENSE).
+- Files belonging to this project(mainly top-level files) are licensesd
+  under the [BSD-2-Clause](LICENSE).
