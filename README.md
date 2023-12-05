@@ -102,6 +102,7 @@ cd pretty.nvim && ./install.sh
   - [htmlhint](https://github.com/htmlhint/HTMLHint) - `npm install htmlhint`
     - [.htmlhintrc](.htmlhintrc)
   - [prettier]() - `npm install prettier`
+    - [.prettierrc](.prettierrc), [.prettierignore](.prettierignore)(use .gitignore syntax)
 - Java
   - [javac]()
   - [clang-format]()
