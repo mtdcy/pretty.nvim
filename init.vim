@@ -618,7 +618,7 @@ function! s:wm_part_check(buf)
     let l:ft = getbufvar(bufnr(a:buf), '&ft')
     if l:ft == 'nerdtree' || l:ft == 'tagbar'
         return l:ft
-    elseif l:ft == 'help' || l:ft == 'man'
+    elseif l:ft == 'help' || l:ft == 'man' || l:ft =~ '\.*doc'
         return 'docs'
     elseif l:ft == 'qf' || getbufvar(bufnr(a:buf), '&bt') == 'quickfix'
         return l:ft
@@ -639,26 +639,29 @@ if g:pretty_debug == 1
     nmap <C-I> :call <sid>wm_part_inspect()<cr>
 endif
 
+" shorten the cmd only, :h CTRL-W
+function! s:wmcmd(id, cmd)
+    return ":" .. win_id2win(g:pretty_winids[a:id]) .. "wincmd " .. a:cmd .. "\<cr>"
+endfunction
 " toggle window parts by hint
 "  => don't use kepmap cmd here, in case it map to something else
 function! s:wm_part_toggle(hint)
-    echohl WarningMsg
     let l:bufname = bufname('%') " save bufname
     " sticky buffer: toggle nothing in sidebars
     if <sid>wm_part_check('%') != ''
         echom "== toggle in sidebar, swap it out."
         if a:hint == 'buf.close'            | exec g:pretty_cmdlet .. ":quit\<cr>" | return
-            echohl None
         endif
 
         " goto the right window
         if bufnr('#') > 0                   | exec g:pretty_cmdlet .. ":" .. bufwinnr(bufnr('#')) .. "wincmd w\<cr>"
-        elseif g:pretty_winids[0] > 0       | exec g:pretty_cmdlet .. ":call win_gotoid(g:pretty_winids[0])"
+        elseif g:pretty_winids[0] > 0       | exec g:pretty_cmdlet .. <sid>wmcmd(0, 'w')
         else                                | exec g:pretty_cmdlet .. ":wincmd p\<cr>"
         endif
     endif
 
     if     a:hint == 'bar.left'             | exec g:pretty_cmdlet .. ":NERDTreeToggleVCS\<cr>"
+        let g:pretty_winids[1] = win_getid() " NERDTree open with no event, why?
     elseif a:hint == 'bar.right'
         if &ft == 'markdown'
             if g:pretty_winids[4] > 0       | exec g:pretty_cmdlet .. ":TagbarClose\<cr>"
@@ -667,7 +670,7 @@ function! s:wm_part_toggle(hint)
             " vim-markdown is pretty good with some faults
             "  => this toc has no name and no cmd to close
             "  => and its a loclist that can share with others => FIXME
-            if g:pretty_winids[5] > 0       | exec g:pretty_cmdlet .. ":call win_execute(g:pretty_winids[5], ':q')\<cr>"
+            if g:pretty_winids[5] > 0       | exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
             else                            | exec g:pretty_cmdlet .. ":Toc\<cr>"
                 " XXX: move to wm_on_win_update
                 let g:pretty_winids[5] = win_getid()
@@ -676,16 +679,19 @@ function! s:wm_part_toggle(hint)
                 setlocal bufhidden=hide nobuflisted nomodifiable noswapfile nolist
             endif
         else                                | exec g:pretty_cmdlet .. ":TagbarToggle\<cr>"
+            let g:pretty_winids[4] = win_getid() " Tagbar open with no event, why?
         endif
     elseif a:hint == 'buf.list'             | exec g:pretty_cmdlet .. ":ToggleBufExplorer\<cr>"
     elseif a:hint == 'buf.next'             | exec g:pretty_cmdlet .. ":bnext\<cr>"
     elseif a:hint == 'buf.prev'             | exec g:pretty_cmdlet .. ":bprev\<cr>"
     elseif a:hint == 'buf.close'
+        echohl WarningMsg
         " don't close last buffer, even multiple window exists.
         let l:listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
         if l:listed > 1                     | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. l:bufname .. "\<cr>"
         else                                | echo 'Last buffer, close it with :quit'
         endif
+        echohl None
     elseif a:hint == 'buf.open'
         " if NERDTree exists and opened, goto NERDTree
         " else open current path with :Explore
@@ -694,11 +700,9 @@ function! s:wm_part_toggle(hint)
         else                                | exec g:pretty_cmdlet .. ":Explore\<cr>"
         endif
     endif
-    echohl None
 endfunction()
 
 function! s:wm_on_win_update()
-    echohl WarningMsg
     call <sid>wm_part_inspect()
     " 1. sticky buffer: never open buffer in sidebars
     let l:alt = <sid>wm_part_check('#')
@@ -706,8 +710,8 @@ function! s:wm_on_win_update()
         let l:bufnr = bufnr('%') " save bufnr
         echom "== open normal file in sidebar, swap it to main win."
         exec g:pretty_cmdlet .. ":buffer#\<cr>"
-        exec win_gotoid(g:pretty_winids[0])
-        exec g:pretty_cmdlet .. ":buffer " .. l:bufnr .. "\<cr>"
+                    \ .. <sid>wmcmd(0, 'w')
+                    \ .. ":buffer " .. l:bufnr .. "\<cr>"
     endif
 
     " 2. update winids
@@ -719,7 +723,7 @@ function! s:wm_on_win_update()
             let l:height = g:pretty_bar_height
             if g:pretty_winids[2] > 0
                 let l:height = winheight(win_id2win(g:pretty_winids[5]))
-                exec g:pretty_cmdlet .. ":call win_execute(g:pretty_winids[2], ':q')\<cr>"
+                exec g:pretty_cmdlet .. <sid>wmcmd(2, 'c')
             endif
             " document window can be opened in many ways
             exec g:pretty_cmdlet .. ":resize " .. l:height .. "\<cr>"
@@ -731,7 +735,7 @@ function! s:wm_on_win_update()
         if g:pretty_winids[5] > 0
             echom "== toc closed as tagbar shows."
             let l:width = winwidth(win_id2win(g:pretty_winids[5]))
-            exec g:pretty_cmdlet .. ":call win_execute(g:pretty_winids[5], ':q')\<cr>"
+            exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
         endif
         if g:pretty_winids[4] <= 0
             exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
@@ -744,7 +748,6 @@ function! s:wm_on_win_update()
             let g:pretty_winids[1] = win_getid()
         endif
     endif
-    echohl None
 endfunction
 
 " clean records on window close
@@ -786,9 +789,8 @@ nmap <C-k>      <C-W>k
 nmap <C-h>      <C-W>h
 nmap <C-l>      <C-W>l
 
-augroup WINDOWS
+augroup pretty.windows
     autocmd!
-    " WinEnter has no buffer info
     autocmd BufEnter    * call <sid>wm_on_win_update()
     autocmd WinClosed   * call <sid>wm_on_win_close()
 augroup END
