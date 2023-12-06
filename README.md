@@ -2,11 +2,11 @@
 
 A collection of pre-configured nvim plugins, plug and play ready.
 
-## Screenshot
+## UI / TermUI
 
-![screenshot](picture/markdown.png)
+![ui](picture/ui.png)
 
-[More](pic)
+[More](picture)
 
 ## Requirements
 
@@ -44,7 +44,7 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 
 - [n] `C-h` - Move focus to left window.
 - [n] `C-l` - Move focus to right window.
-- [n] C-j - Move focus to below window.
+- [n] `C-j` - Move focus to below window.
 - [n] `C-k` - Move focus to up window.
 
 #### Buffers
@@ -77,27 +77,32 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 
 ## Plugins Embedded
 
+### Window Plugins 
+
 - [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
 - [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
 - [NERDTree](https://github.com/preservim/nerdtree)@7.0.0
 - [Tagbar](https://github.com/preservim/tagbar)@3.1.1
+- [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
+  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
+  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8a2e7ab94
+
+### Function Plugins 
+
 - [echodoc.vim](https://github.com/Shougo/echodoc.vim)@8c7e99e
 - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@7d538b7
 - [ALE](https://github.com/dense-analysis/ale)@3.3.0
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
-- [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
-  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
-  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8a2e7ab94
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
-- [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
 
 ### Language Plugins
 
-- Go: [vim-go](https://github.com/fatih/vim-go)@973279275 - `:GoInstallBinaries`
-- Rust: [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
+- Markdown : [vim-markdown](https : //github.com/preservim/vim-markdown)@46add6c30
+- Go       : [vim-go](https       : //github.com/fatih/vim-go)@973279275 - `       : GoInstallBinaries`
+- Rust     : [vim-racer](https    : //github.com/racer-rust/vim-racer)@d1aead98a
 
 ## Plugins Configurations
 
