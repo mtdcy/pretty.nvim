@@ -2,15 +2,15 @@
 
 " {{{ => Settings
 
-let g:pretty_debug        = 1
+let g:pretty_debug        = 0
 let g:pretty_verbose      = 0   " 0 - silence
 let g:pretty_dark         = 1   " light or drak
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
 let g:pretty_singleclick  = 0   " mouse single click
 let g:pretty_delay        = 200 " in GUI mode, flicker less, shorten this value
 let g:pretty_home         = fnamemodify($MYVIMRC, ':p:h')
-let g:pretty_bar_height   = min([20, winheight(0) / 3])
-let g:pretty_bar_width    = min([30, winwidth(0) / 4])
+let g:pretty_bar_height   = min([15, winheight(0) / 3])
+let g:pretty_bar_width    = min([20, winwidth(0) / 4])
 
 let $PATH = g:pretty_home .. '/node_modules/.bin:' .. $PATH
 let $PATH = g:pretty_home .. '/py3env/bin:'        .. $PATH
@@ -160,7 +160,7 @@ set foldmethod=syntax
 set foldlevel=0
 set foldnestmax=2
 
-augroup FILES
+augroup pretty.files
     au!
     " 自动跳转到上一次打开的位置
     au BufReadPost  * silent! call <SID>jump_to_las_pos()
@@ -635,7 +635,7 @@ set cmdheight=1
 " check window parts, return filetype if it's sidebar.
 function! s:wm_part_check(buf)
     let ftype = getbufvar(bufnr(a:buf), '&ft')
-    if win_getid(bufwinnr('%')) == g:pretty_winids[0]
+    if win_getid(winnr()) == g:pretty_winids[0]
         return ''
     elseif ftype == 'nerdtree' || ftype == 'tagbar'
         return ftype
@@ -656,71 +656,12 @@ function! s:wm_part_inspect()
                 \ . '/type:' . win_gettype(winnr()) . '/winbufnr:' . winbufnr(winnr())
                 \ . '/list:' . &list . '/cpoptions:' . &cpoptions
 endfunction()
-if g:pretty_debug == 1
-    nnoremap <C-I> :call <sid>wm_part_inspect()<cr>
-endif
+if g:pretty_debug == 1 | nnoremap <C-I> :call <sid>wm_part_inspect()<cr> | endif
 
 " shorten the wincmd only, :h CTRL-W
 function! s:wmcmd(id, cmd)
     return ":" .. win_id2win(g:pretty_winids[a:id]) .. "wincmd " .. a:cmd .. "\<cr>"
 endfunction
-" toggle window parts by hint
-"  => don't use kepmap cmd here, in case it map to something else
-function! s:wm_part_toggle(hint)
-    let l:bufnr = bufnr('%') " save bufnr
-    " sticky buffer: toggle nothing in sidebars
-    if <sid>wm_part_check('%') != ''
-        echom "== toggle in sidebar, swap it out."
-        if a:hint == 'buf.close'            | exec g:pretty_cmdlet .. ":quit\<cr>" | return
-        endif
-
-        " goto the right window
-        if g:pretty_winids[0] > 0           | exec g:pretty_cmdlet .. <sid>wmcmd(0, 'w')
-        else                                | exec g:pretty_cmdlet .. ":wincmd p\<cr>"
-        endif
-    endif
-
-    if     a:hint == 'bar.left'             | exec g:pretty_cmdlet .. ":NERDTreeToggleVCS\<cr>"
-        let g:pretty_winids[1] = win_getid() " NERDTree open with no event, why?
-    elseif a:hint == 'bar.right'
-        if &ft == 'markdown'
-            if g:pretty_winids[4] > 0       | exec g:pretty_cmdlet .. ":TagbarClose\<cr>"
-                echom "== close tagbar with text buffers"
-            endif
-            " vim-markdown is pretty good with some faults
-            "  => this toc has no name and no cmd to close
-            "  => and its a loclist that can share with others => FIXME
-            if g:pretty_winids[5] > 0       | exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
-            else                            | exec g:pretty_cmdlet .. ":Toc\<cr>"
-                " XXX: move to wm_on_win_update
-                let g:pretty_winids[5] = win_getid()
-                setlocal filetype=toc
-                "setlocal buftype=nofile
-                setlocal bufhidden=hide nobuflisted noswapfile nolist
-            endif
-        else                                | exec g:pretty_cmdlet .. ":TagbarToggle\<cr>"
-            let g:pretty_winids[4] = win_getid() " Tagbar open with no event, why?
-        endif
-    elseif a:hint == 'buf.list'             | exec g:pretty_cmdlet .. ":ToggleBufExplorer\<cr>"
-    elseif a:hint == 'buf.next'             | exec g:pretty_cmdlet .. ":bnext\<cr>"
-    elseif a:hint == 'buf.prev'             | exec g:pretty_cmdlet .. ":bprev\<cr>"
-    elseif a:hint == 'buf.close'
-        echohl WarningMsg
-        " don't close last buffer, even multiple window exists.
-        let l:listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-        if l:listed > 1                     | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. l:bufnr .. "\<cr>"
-        else                                | echo 'Last buffer, close it with :quit'
-        endif
-        echohl None
-    elseif a:hint == 'buf.open'
-        " if NERDTree exists and opened, goto NERDTree
-        " else open current path with :Explore
-        let l:nerdtree = bufwinnr(bufnr('NERD_tree_*'))
-        if l:nerdtree != -1                 | exec g:pretty_cmdlet .. ":" .. l:nerdtree .. "wincmd w\<cr>"
-        else                                | exec g:pretty_cmdlet .. ":Explore\<cr>"
-        endif
-    endif
-endfunction()
 
 function! s:wm_on_win_update()
     if win_getid() == g:pretty_winids[0] | return | endif
@@ -784,43 +725,26 @@ function! s:wm_on_win_close() abort
     endif
 endfunction
 
-" Window parts toggle
-nnoremap <F8>       :call <sid>wm_part_toggle('buf.list')<cr>
-nnoremap <F9>       :call <sid>wm_part_toggle('bar.left')<cr>
-nnoremap <F10>      :call <sid>wm_part_toggle('bar.right')<cr>
-
-" Buffer explorer
-nnoremap <C-e>      :call <sid>wm_part_toggle('buf.list')<cr>
-nnoremap <C-n>      :call <sid>wm_part_toggle('buf.next')<cr>
-nnoremap <C-p>      :call <sid>wm_part_toggle('buf.prev')<cr>
-tnoremap <C-n>      :call <sid>wm_part_toggle('buf.next')<cr>
-tnoremap <C-p>      :call <sid>wm_part_toggle('buf.prev')<cr>
-nnoremap <C-q>      :call <sid>wm_part_toggle('buf.close')<cr>
-nnoremap <C-o>      :call <sid>wm_part_toggle('buf.open')<cr>
-
-" Buffer select
-"  => have to use <leader>, as Ctrl-numbers are likely unavailable.
-nnoremap <Leader>1  <Plug>lightline#bufferline#go(1)
-nnoremap <Leader>2  <Plug>lightline#bufferline#go(2)
-nnoremap <Leader>3  <Plug>lightline#bufferline#go(3)
-nnoremap <Leader>4  <Plug>lightline#bufferline#go(4)
-nnoremap <Leader>5  <Plug>lightline#bufferline#go(5)
-nnoremap <Leader>6  <Plug>lightline#bufferline#go(6)
-nnoremap <Leader>7  <Plug>lightline#bufferline#go(7)
-nnoremap <Leader>8  <Plug>lightline#bufferline#go(8)
-nnoremap <Leader>9  <Plug>lightline#bufferline#go(9)
-nnoremap <Leader>0  <Plug>lightline#bufferline#go(10)
-
-" Move focus
-nnoremap <C-j>      <C-W>j
-nnoremap <C-k>      <C-W>k
-nnoremap <C-h>      <C-W>h
-nnoremap <C-l>      <C-W>l
+function! s:wm_quit() abort
+    if win_getid() != g:pretty_winids[0]
+        exec g:pretty_cmdlet .. ":confirm quit\<cr>"
+    else
+        echohl WarningMsg
+        let bufnr = bufnr('%') " save bufnr
+        let listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+        if listed > 1 | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. bufnr .. "\<cr>"
+        else          | echo "Last buffer, close it with :quit"
+        endif
+        echohl None
+    endif
+endfunction
 
 augroup pretty.windows
     autocmd!
     autocmd BufEnter    * call <sid>wm_on_win_update()
     autocmd WinClosed   * call <sid>wm_on_win_close()
+    " quit window parts if main window went away
+    autocmd BufEnter    * if !win_id2win(g:pretty_winids[0]) && <sid>wm_part_check('%') != '' | quit | endif
 augroup END
 
 " {{{ => Key maps
@@ -849,7 +773,36 @@ let g:mapleader = ';'
 nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
 
-" 特殊按键
+" Window
+nnoremap <F8>       :ToggleBufExplorer<cr>
+nnoremap <F9>       :NERDTreeToggle<cr>
+nnoremap <F10>      :TagbarToggle<cr>
+
+noremap  <C-q>      :call <sid>wm_quit()<cr>
+
+nnoremap <C-j>      <C-W>j
+nnoremap <C-k>      <C-W>k
+nnoremap <C-h>      <C-W>h
+nnoremap <C-l>      <C-W>l
+
+" Buffer
+nnoremap <C-e>      :ToggleBufExplorer<cr>
+nnoremap <C-n>      :bnext<cr>
+nnoremap <C-p>      :bprev<cr>
+
+" have to use <leader>, as Ctrl-numbers are likely unavailable.
+nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
+nnoremap <leader>2  <Plug>lightline#bufferline#go(2)
+nnoremap <leader>3  <Plug>lightline#bufferline#go(3)
+nnoremap <leader>4  <Plug>lightline#bufferline#go(4)
+nnoremap <leader>5  <Plug>lightline#bufferline#go(5)
+nnoremap <leader>6  <Plug>lightline#bufferline#go(6)
+nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
+nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
+nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
+nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
+
+" Special keys
 inoremap <expr><Tab>    exists("*SuperTab")   ? SuperTab()   : pumvisible() ? "\<C-N>"         : "\<BS>"
 inoremap <expr><Enter>  exists("*SuperEnter") ? SuperEnter() : pumvisible   ? "\<C-Y>"         : "\<cr>"
 inoremap <expr><BS>     exists("*SuperBack")  ? SuperBack()  : pumvisible   ? "\<C-E>"         : "\<cr>"
@@ -872,10 +825,8 @@ noremap  gG         G
 " Go to begin or end of code block
 noremap  g[         [{
 noremap  g]         ]}
-" Go to Forward and Backward
-noremap  gf         <C-F>
-noremap  gb         <C-B>
 " Go to Define and Back(Top of stack)
+" TODO: map K,<C-]>,gD,... to one key
 nnoremap gd         <C-]>
 nnoremap gh         <C-T>
 " Go to man or doc
@@ -931,6 +882,9 @@ augroup pretty.languages
     autocmd FileType rust       nnoremap <buffer>gd     <Plug>(rust-def)
 
     autocmd FileType markdown   nnoremap <buffer>gd     <Plug>Markdown_EditUrlUnderCursor
-    autocmd FileType markdown   nnoremap <buffer>gh     :bprev<CR>
+    autocmd FileType markdown   nnoremap <buffer>gh     :bprev<cr>
+    autocmd FileType markdown   nnoremap <buffer><F10>  :Toc<cr>
+                \ :setlocal nobuflisted nolist nomodifiable<cr>
+                \ :TagbarClose<cr>
 augroup END
 " }}}
