@@ -613,15 +613,16 @@ set winminwidth=20
 set cmdheight=1
 
 " check window parts, return filetype if it's sidebar.
-"  => don't return bufname, as some window may not have it.
 function! s:wm_part_check(buf)
-    let l:ft = getbufvar(bufnr(a:buf), '&ft')
-    if l:ft == 'nerdtree' || l:ft == 'tagbar'
-        return l:ft
-    elseif l:ft == 'help' || l:ft == 'man' || l:ft =~ '\.*doc'
+    let ftype = getbufvar(bufnr(a:buf), '&ft')
+    if bufwinid('%') == g:pretty_winids[0]
+        return ''
+    elseif ftype == 'nerdtree' || ftype == 'tagbar'
+        return ftype
+    elseif ftype == 'help' || ftype == 'man' || ftype =~ '\.*doc'
         return 'docs'
-    elseif l:ft == 'qf' || getbufvar(bufnr(a:buf), '&bt') == 'quickfix'
-        return l:ft
+    elseif ftype == 'qf' || getbufvar(bufnr(a:buf), '&bt') == 'quickfix'
+        return ftype
     endif
     return ''
 endfunction()
@@ -639,14 +640,14 @@ if g:pretty_debug == 1
     nmap <C-I> :call <sid>wm_part_inspect()<cr>
 endif
 
-" shorten the cmd only, :h CTRL-W
+" shorten the wincmd only, :h CTRL-W
 function! s:wmcmd(id, cmd)
     return ":" .. win_id2win(g:pretty_winids[a:id]) .. "wincmd " .. a:cmd .. "\<cr>"
 endfunction
 " toggle window parts by hint
 "  => don't use kepmap cmd here, in case it map to something else
 function! s:wm_part_toggle(hint)
-    let l:bufname = bufname('%') " save bufname
+    let l:bufnr = bufnr('%') " save bufnr
     " sticky buffer: toggle nothing in sidebars
     if <sid>wm_part_check('%') != ''
         echom "== toggle in sidebar, swap it out."
@@ -654,8 +655,7 @@ function! s:wm_part_toggle(hint)
         endif
 
         " goto the right window
-        if bufnr('#') > 0                   | exec g:pretty_cmdlet .. ":" .. bufwinnr(bufnr('#')) .. "wincmd w\<cr>"
-        elseif g:pretty_winids[0] > 0       | exec g:pretty_cmdlet .. <sid>wmcmd(0, 'w')
+        if g:pretty_winids[0] > 0           | exec g:pretty_cmdlet .. <sid>wmcmd(0, 'w')
         else                                | exec g:pretty_cmdlet .. ":wincmd p\<cr>"
         endif
     endif
@@ -676,7 +676,7 @@ function! s:wm_part_toggle(hint)
                 let g:pretty_winids[5] = win_getid()
                 setlocal filetype=toc
                 "setlocal buftype=nofile
-                setlocal bufhidden=hide nobuflisted nomodifiable noswapfile nolist
+                setlocal bufhidden=hide nobuflisted noswapfile nolist
             endif
         else                                | exec g:pretty_cmdlet .. ":TagbarToggle\<cr>"
             let g:pretty_winids[4] = win_getid() " Tagbar open with no event, why?
@@ -688,7 +688,7 @@ function! s:wm_part_toggle(hint)
         echohl WarningMsg
         " don't close last buffer, even multiple window exists.
         let l:listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-        if l:listed > 1                     | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. l:bufname .. "\<cr>"
+        if l:listed > 1                     | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. l:bufnr .. "\<cr>"
         else                                | echo 'Last buffer, close it with :quit'
         endif
         echohl None
@@ -703,12 +703,13 @@ function! s:wm_part_toggle(hint)
 endfunction()
 
 function! s:wm_on_win_update()
-    call <sid>wm_part_inspect()
+    if g:pretty_debug | call <sid>wm_part_inspect() | endif
     " 1. sticky buffer: never open buffer in sidebars
+    let l:buf = <sid>wm_part_check('%')
     let l:alt = <sid>wm_part_check('#')
-    if l:alt != '' && l:alt != <sid>wm_part_check('%')
+    if l:alt != '' && l:buf != l:alt
         let l:bufnr = bufnr('%') " save bufnr
-        echom "== open normal file in sidebar, swap it to main win."
+        echom "== open file in sidebar, swap it to main win."
         exec g:pretty_cmdlet .. ":buffer#\<cr>"
                     \ .. <sid>wmcmd(0, 'w')
                     \ .. ":buffer " .. l:bufnr .. "\<cr>"
@@ -716,34 +717,37 @@ function! s:wm_on_win_update()
 
     " 2. update winids
     " footbar & toc are quickfix|loclist, no way to tell here.
-    let l:bar = <sid>wm_part_check('%')
-    if l:bar == 'docs'
-        " multiple document windows?
-        if g:pretty_winids[2] != win_getid()
-            let l:height = g:pretty_bar_height
-            if g:pretty_winids[2] > 0
-                let l:height = winheight(win_id2win(g:pretty_winids[5]))
-                exec g:pretty_cmdlet .. <sid>wmcmd(2, 'c')
-            endif
+    if l:buf == 'docs'
+        setlocal nobuflisted nolist
+        " multiple document window types? yes! > help|man|doc
+        if g:pretty_winids[2] > 0 && g:pretty_winids[2] != win_getid()
             " document window can be opened in many ways
-            exec g:pretty_cmdlet .. ":resize " .. l:height .. "\<cr>"
-            setlocal nobuflisted nomodifiable nolist
+            "  => move buffer to existing window
+            let bufnr = bufnr('%') " save bufnr
+            let nrbuf = len(filter(range(1, bufnr('$')), 'bufwinnr(v:val) == winnr('%')'))
+            if nrufs > 1 | exec g:pretty_cmdlet .. ":buffer#\<cr>"
+            else         | exec g:pretty_cmdlet .. ":wincmd c\<cr>"
+            endif
+            exec g:pretty_cmdlet .. <sid>wmcmd(2, 'w')
+                \ .. ":buffer" .. bufnr .. "\<cr>"
+        elseif g:pretty_winids[2] <= 0
+            exec g:pretty_cmdlet .. ":resize " .. g:pretty_bar_height .. "\<cr>"
             let g:pretty_winids[2] = win_getid()
         endif
-    elseif l:bar == 'tagbar'
+    elseif l:buf == 'tagbar'
         let l:width = g:pretty_bar_width
         if g:pretty_winids[5] > 0
             echom "== toc closed as tagbar shows."
             let l:width = winwidth(win_id2win(g:pretty_winids[5]))
             exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
         endif
-        if g:pretty_winids[4] <= 0
+        if g:pretty_winids[4] != win_getid()
             exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
             let g:pretty_winids[4] = win_getid()
         endif
-    elseif l:bar == 'nerdtree'
+    elseif l:buf == 'nerdtree'
         let l:width = g:pretty_bar_width
-        if g:pretty_winids[1] <= 0
+        if g:pretty_winids[1] != win_getid()
             exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
             let g:pretty_winids[1] = win_getid()
         endif
@@ -752,7 +756,7 @@ endfunction
 
 " clean records on window close
 function! s:wm_on_win_close() abort
-    call <sid>wm_part_inspect()
+    if g:pretty_debug | call <sid>wm_part_inspect() | endif
     let l:found = index(g:pretty_winids, win_getid())
     if l:found >= 0
         let g:pretty_winids[l:found] = -1
