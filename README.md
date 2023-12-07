@@ -2,11 +2,11 @@
 
 A collection of pre-configured nvim plugins, plug and play ready.
 
-## Screenshot
+## UI / TermUI
 
-![screenshot](picture/markdown.png)
+![ui](picture/ui.png)
 
-[More](pic)
+[More](picture)
 
 ## Requirements
 
@@ -16,7 +16,9 @@ A collection of pre-configured nvim plugins, plug and play ready.
 
 ## Installation
 
-Clone this repo or download from Release, then run `install.sh` ==> **Dependencies are installed locally in pretty.nvim.**
+Clone this repo or download from Release, then run `install.sh`. 
+
+==> **Dependencies are installed locally in pretty.nvim.**
 
 ```shell
 git clone https://github.com/mtdcy/pretty.nvim.git
@@ -36,26 +38,41 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 
 #### Windows
 
+[x] Prefer using `C-q` instead of `:quit` or `:close`, as it is smarter.
+
 - [n] `F8` - Open bufexplorer on center screen. [*]
 - [n] `F9` - Open NERDTree (file brower) on left side. [*]
 - [n] `F10` - Open Tagbar or TOC on right side. [*]
 
-- [n] `C-q` - Close window/buffer. [*]
-
 - [n] `C-h` - Move focus to left window.
 - [n] `C-l` - Move focus to right window.
-- [n] C-j - Move focus to below window.
+- [n] `C-j` - Move focus to below window.
 - [n] `C-k` - Move focus to up window.
+
+- [n] `C-q` - Close windows and buffers, util the last one.
 
 #### Buffers
 
-[*] FIXME: buffer line clickable is not working right now.
+[ ] FIXME: buffer line clickable is not working right now.
 
 - [n] `C-e` - Buffer Explorer
 - [n] `C-n` - Buffer Next
 - [n] `C-p` - Buffer Prev
 
+- [n] `<leader>1` - Select buffer 1
+- [n] `<leader>2` - Select buffer 2
+- [n] `<leader>3` - Select buffer 3
+- [n] `<leader>4` - Select buffer 4
+- [n] `<leader>5` - Select buffer 5
+- [n] `<leader>6` - Select buffer 6
+- [n] `<leader>7` - Select buffer 7
+- [n] `<leader>8` - Select buffer 8
+- [n] `<leader>9` - Select buffer 9
+- [n] `<leader>0` - Select buffer 10
+
 #### Goto/Jump
+
+[ ] TODO: map `gd` `gk` `gD` to single key.
 
 - [n] `gg` - Goto first line
 - [n] `gG` - Goto last line
@@ -68,8 +85,6 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 - [v] `gy` - Goto yank
 - [n] `gp` - Goto paste
 - [n] `gl` - Goto loclist
-- [n] `gf` - Go forward (page down)
-- [n] `gb` - Go backward (page up)
 
 #### Features
 
@@ -77,27 +92,34 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 
 ## Plugins Embedded
 
+### Window Plugins 
+
 - [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
 - [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
 - [NERDTree](https://github.com/preservim/nerdtree)@7.0.0
 - [Tagbar](https://github.com/preservim/tagbar)@3.1.1
+- [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
+  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
+  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8a2e7ab94
+
+### Function Plugins 
+
 - [echodoc.vim](https://github.com/Shougo/echodoc.vim)@8c7e99e
 - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@7d538b7
 - [ALE](https://github.com/dense-analysis/ale)@3.3.0
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
-- [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
-  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
-  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8a2e7ab94
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
-- [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
 
 ### Language Plugins
 
-- Go: [vim-go](https://github.com/fatih/vim-go)@973279275 - `:GoInstallBinaries`
-- Rust: [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
+[ ] FIXME: `vim-markdown` is pretty good but the toc does not work so well.
+
+- Markdown : [vim-markdown](https : //github.com/preservim/vim-markdown)@46add6c30
+- Go       : [vim-go](https       : //github.com/fatih/vim-go)@973279275 - `       : GoInstallBinaries`
+- Rust     : [vim-racer](https    : //github.com/racer-rust/vim-racer)@d1aead98a
 
 ## Plugins Configurations
 
