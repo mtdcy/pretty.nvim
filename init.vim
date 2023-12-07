@@ -637,7 +637,7 @@ function! s:wm_part_inspect()
                 \ . '/list:' . &list . '/cpoptions:' . &cpoptions
 endfunction()
 if g:pretty_debug == 1
-    nmap <C-I> :call <sid>wm_part_inspect()<cr>
+    nnoremap <C-I> :call <sid>wm_part_inspect()<cr>
 endif
 
 " shorten the wincmd only, :h CTRL-W
@@ -763,35 +763,38 @@ function! s:wm_on_win_close() abort
     endif
 endfunction
 
-nmap <F8>       :call <sid>wm_part_toggle('buf.list')<cr>
-nmap <F9>       :call <sid>wm_part_toggle('bar.left')<cr>
-nmap <F10>      :call <sid>wm_part_toggle('bar.right')<cr>
+" Window parts toggle
+nnoremap <F8>       :call <sid>wm_part_toggle('buf.list')<cr>
+nnoremap <F9>       :call <sid>wm_part_toggle('bar.left')<cr>
+nnoremap <F10>      :call <sid>wm_part_toggle('bar.right')<cr>
 
 " Buffer explorer
-nmap <C-e>      <F8>
-nmap <C-n>      :call <sid>wm_part_toggle('buf.next')<cr>
-nmap <C-p>      :call <sid>wm_part_toggle('buf.prev')<cr>
-nmap <C-q>      :call <sid>wm_part_toggle('buf.close')<cr>
-nmap <C-o>      :call <sid>wm_part_toggle('buf.open')<cr>
+nnoremap <C-e>      :call <sid>wm_part_toggle('buf.list')<cr>
+nnoremap <C-n>      :call <sid>wm_part_toggle('buf.next')<cr>
+nnoremap <C-p>      :call <sid>wm_part_toggle('buf.prev')<cr>
+tnoremap <C-n>      :call <sid>wm_part_toggle('buf.next')<cr>
+tnoremap <C-p>      :call <sid>wm_part_toggle('buf.prev')<cr>
+nnoremap <C-q>      :call <sid>wm_part_toggle('buf.close')<cr>
+nnoremap <C-o>      :call <sid>wm_part_toggle('buf.open')<cr>
 
 " Buffer select
 "  => have to use <leader>, as Ctrl-numbers are likely unavailable.
-nmap <Leader>1  <Plug>lightline#bufferline#go(1)
-nmap <Leader>2  <Plug>lightline#bufferline#go(2)
-nmap <Leader>3  <Plug>lightline#bufferline#go(3)
-nmap <Leader>4  <Plug>lightline#bufferline#go(4)
-nmap <Leader>5  <Plug>lightline#bufferline#go(5)
-nmap <Leader>6  <Plug>lightline#bufferline#go(6)
-nmap <Leader>7  <Plug>lightline#bufferline#go(7)
-nmap <Leader>8  <Plug>lightline#bufferline#go(8)
-nmap <Leader>9  <Plug>lightline#bufferline#go(9)
-nmap <Leader>0  <Plug>lightline#bufferline#go(10)
+nnoremap <Leader>1  <Plug>lightline#bufferline#go(1)
+nnoremap <Leader>2  <Plug>lightline#bufferline#go(2)
+nnoremap <Leader>3  <Plug>lightline#bufferline#go(3)
+nnoremap <Leader>4  <Plug>lightline#bufferline#go(4)
+nnoremap <Leader>5  <Plug>lightline#bufferline#go(5)
+nnoremap <Leader>6  <Plug>lightline#bufferline#go(6)
+nnoremap <Leader>7  <Plug>lightline#bufferline#go(7)
+nnoremap <Leader>8  <Plug>lightline#bufferline#go(8)
+nnoremap <Leader>9  <Plug>lightline#bufferline#go(9)
+nnoremap <Leader>0  <Plug>lightline#bufferline#go(10)
 
 " Move focus
-nmap <C-j>      <C-W>j
-nmap <C-k>      <C-W>k
-nmap <C-h>      <C-W>h
-nmap <C-l>      <C-W>l
+nnoremap <C-j>      <C-W>j
+nnoremap <C-k>      <C-W>k
+nnoremap <C-h>      <C-W>h
+nnoremap <C-l>      <C-W>l
 
 augroup pretty.windows
     autocmd!
@@ -818,21 +821,22 @@ let g:mapleader = ';'
 "  ...
 "  :h <char> 查看更多 => 最佳实践：使用<leader>
 "
+" About map - :h map-table
 " => 注释不要写在map的后面，vim不会处理中间的空格
 
 " 编辑和加载.vimrc/init.vim
-nmap <leader>se :e $MYVIMRC<CR>
-nmap <leader>ss :source $MYVIMRC<CR>
+nnoremap <leader>se :e $MYVIMRC<CR>
+nnoremap <leader>ss :source $MYVIMRC<CR>
 
 " 特殊按键
 " Space: 只选取候选词，区别于Enter，这样可以避免snippets
 noremap! <expr><Space>  pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
 " Backspace: 删除已经填充的部分
-"  => in auto complete mode: popup alwasys, so Backspace always issue BS keycode
+"  => in auto complete mode: popup always, so Backspace insert the keycode.
 if g:pretty_autocomplete
-    noremap! <expr><BS>     pumvisible() ? "\<C-E>\<BS>"         : "\<BS>"
+    noremap! <expr><BS> pumvisible() ? "\<C-E>\<BS>"    : "\<BS>"
 else
-    noremap! <expr><BS>     pumvisible() ? "\<C-E>"         : "\<BS>"
+    noremap! <expr><BS> pumvisible() ? "\<C-E>"         : "\<BS>"
 endif
 " ESC: 取消已经填充的部分并退出插入模式
 inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
@@ -848,40 +852,41 @@ nnoremap <S-Tab>        <<
 " 跳转 - Goto
 " Go to first line - `gg`
 " Go to last line
-nmap gG         G
+noremap  gG         G
 " Go to begin or end of code block
-nmap g[         [{
-nmap g]         ]}
+noremap  g[         [{
+noremap  g]         ]}
 " Go to Forward and Backward
-nmap gf         <C-F>
-nmap gb         <C-B>
+noremap  gf         <C-F>
+noremap  gb         <C-B>
 " Go to Define and Back(Top of stack)
-nmap gd         <C-]>
-nmap gh         <C-T>
+nnoremap gd         <C-]>
+nnoremap gh         <C-T>
 " Go to man or doc
-nmap gk         K
+nnoremap gk         K
 " Go to Type
 " nmap gt
 " Go to next error of ale
-nmap ge         <Plug>(ale_next_wrap)
+nnoremap ge         <Plug>(ale_next_wrap)
 " Go to yank and paste
-vmap gy         "+y
-nmap gp         "+p
-vnoremap <C-c>  "+y
+vnoremap gy         "+y
+nnoremap gp         "+p
+vnoremap <C-c>      "+y
 " Go to list, FIXME: what about quickfix
-nmap gl         :lopen<CR>
+nnoremap gl         :lopen<CR>
 " Tabularize
-vmap /          :Tabularize /
+vnoremap /          :Tabularize /
 
 " 其他
-if g:pretty_debug != 0
-imap <C-o>      <Plug>(neosnippet_expand_or_jump)
-smap <C-o>      <Plug>(neosnippet_expand_or_jump)
+if g:pretty_debug
+inoremap <C-o>      <Plug>(neosnippet_expand_or_jump)
+snoremap <C-o>      <Plug>(neosnippet_expand_or_jump)
 endif
 
 " reasonable setting
 " 'u' = undo => 'U' = redo
-nmap U          :redo<cr>
+"  => like 'n' & 'N' in search mode
+nnoremap U          :redo<cr>
 " }}}
 
 " }}}
@@ -897,19 +902,19 @@ let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_conceal = 1
 set conceallevel=2
 
-augroup LANG
+augroup pretty.languages
     autocmd!
-    autocmd FileType go         nmap <buffer>gB     <Plug>(go-build)
-    autocmd FileType go         nmap <buffer>gR     <Plug>(go-run)
+    autocmd FileType go         nnoremap <buffer>gB     <Plug>(go-build)
+    autocmd FileType go         nnoremap <buffer>gR     <Plug>(go-run)
 
-    autocmd FileType go         nmap <buffer>gh     <Plug>(go-def-pop)
-    autocmd FileType go         nmap <buffer>gd     <Plug>(go-def)
-    autocmd FileType go         nmap <buffer>gt     <Plug>(go-def-type)
-    autocmd FileType go         nmap <buffer>gk     <Plug>(go-doc)
+    autocmd FileType go         nnoremap <buffer>gh     <Plug>(go-def-pop)
+    autocmd FileType go         nnoremap <buffer>gd     <Plug>(go-def)
+    autocmd FileType go         nnoremap <buffer>gt     <Plug>(go-def-type)
+    autocmd FileType go         nnoremap <buffer>gk     <Plug>(go-doc-split)
 
-    autocmd FileType rust       nmap <buffer>gd     <Plug>(rust-def)
+    autocmd FileType rust       nnoremap <buffer>gd     <Plug>(rust-def)
 
-    autocmd FileType markdown   nmap <buffer>gd     <Plug>Markdown_EditUrlUnderCursor
-    autocmd FileType markdown   nmap <buffer>gh     :bprev<CR>
+    autocmd FileType markdown   nnoremap <buffer>gd     <Plug>Markdown_EditUrlUnderCursor
+    autocmd FileType markdown   nnoremap <buffer>gh     :bprev<CR>
 augroup END
 " }}}
