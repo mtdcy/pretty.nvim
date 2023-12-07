@@ -635,7 +635,7 @@ set cmdheight=1
 " check window parts, return filetype if it's sidebar.
 function! s:wm_part_check(buf)
     let ftype = getbufvar(bufnr(a:buf), '&ft')
-    if bufwinid('%') == g:pretty_winids[0]
+    if win_getid(bufwinnr('%')) == g:pretty_winids[0]
         return ''
     elseif ftype == 'nerdtree' || ftype == 'tagbar'
         return ftype
@@ -723,6 +723,7 @@ function! s:wm_part_toggle(hint)
 endfunction()
 
 function! s:wm_on_win_update()
+    if win_getid() == g:pretty_winids[0] | return | endif
     if g:pretty_debug | call <sid>wm_part_inspect() | endif
     " 1. sticky buffer: never open buffer in sidebars
     let l:buf = <sid>wm_part_check('%')
@@ -738,14 +739,14 @@ function! s:wm_on_win_update()
     " 2. update winids
     " footbar & toc are quickfix|loclist, no way to tell here.
     if l:buf == 'docs'
-        setlocal nobuflisted nolist
+        setlocal nobuflisted nolist nomodifiable
         " multiple document window types? yes! > help|man|doc
         if g:pretty_winids[2] > 0 && g:pretty_winids[2] != win_getid()
             " document window can be opened in many ways
             "  => move buffer to existing window
             let bufnr = bufnr('%') " save bufnr
             let nrbuf = len(filter(range(1, bufnr('$')), 'bufwinnr(v:val) == winnr('%')'))
-            if nrufs > 1 | exec g:pretty_cmdlet .. ":buffer#\<cr>"
+            if nrbuf > 1 | exec g:pretty_cmdlet .. ":buffer#\<cr>"
             else         | exec g:pretty_cmdlet .. ":wincmd c\<cr>"
             endif
             exec g:pretty_cmdlet .. <sid>wmcmd(2, 'w')
