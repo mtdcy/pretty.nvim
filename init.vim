@@ -723,8 +723,18 @@ endfunction
 " clean records on window close
 function! s:wm_on_win_close() abort
     if g:pretty_debug | call <sid>wm_part_inspect() | endif
+    " Hack: :w cause WinClosed
+    if win_getid() == g:pretty_winids[0]
+        let listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
+        if listed > 1
+            echom "== WinClosed issued when buffer listed"
+            return
+        endif
+    endif
+
     let l:found = index(g:pretty_winids, win_getid())
     if l:found >= 0
+        echom "== winid closed " .. win_getid()
         let g:pretty_winids[l:found] = -1
     endif
 endfunction
