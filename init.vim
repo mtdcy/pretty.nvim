@@ -2,12 +2,14 @@
 
 " {{{ => Settings
 
-let g:pretty_debug        = 0
-let g:pretty_verbose      = 0   " 0 - silence
+let g:pretty_verbose      = 1   " 0 - silence
 let g:pretty_dark         = 1   " light or drak
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
-let g:pretty_singleclick  = 0   " mouse single click
+let g:pretty_singleclick  = 1   " mouse single click
 let g:pretty_delay        = 200 " in GUI mode, flicker less, shorten this value
+
+" {{{ => Advance
+let g:pretty_debug        = 1
 let g:pretty_home         = fnamemodify($MYVIMRC, ':p:h')
 let g:pretty_bar_height   = min([15, winheight(0) / 3])
 let g:pretty_bar_width    = min([20, winwidth(0) / 4])
@@ -32,6 +34,7 @@ let g:pretty_window = {
             \ 'style'       : 'minimal'
             \ }
 " }}}
+" }}}
 
 " {{{ => General Options
 " set color and theme
@@ -45,6 +48,7 @@ colorscheme solarized8
 if !has('gui_running')
   set t_Co=256
 endif
+set guicursor=a:blinkwait5-blinkon5-blinkoff5
 
 " 字体
 if has('gui_running')
@@ -665,7 +669,7 @@ endfunction
 
 function! s:wm_on_win_update()
     if win_getid() == g:pretty_winids[0] | return | endif
-    if g:pretty_debug | call <sid>wm_part_inspect() | endif
+    "if g:pretty_debug | call <sid>wm_part_inspect() | endif
     " 1. sticky buffer: never open buffer in sidebars
     let l:buf = <sid>wm_part_check('%')
     let l:alt = <sid>wm_part_check('#')
@@ -745,6 +749,9 @@ augroup pretty.windows
     autocmd WinClosed   * call <sid>wm_on_win_close()
     " quit window parts if main window went away
     autocmd BufEnter    * if !win_id2win(g:pretty_winids[0]) && <sid>wm_part_check('%') != '' | quit | endif
+
+    autocmd BufEnter    term://* startinsert
+    autocmd BufLeave    term://* stopinsert
 augroup END
 
 " {{{ => Key maps
@@ -775,20 +782,30 @@ nnoremap <leader>ss :source $MYVIMRC<CR>
 
 " Window
 nnoremap <F8>       :ToggleBufExplorer<cr>
-nnoremap <F9>       :NERDTreeToggle<cr>
-nnoremap <F10>      :TagbarToggle<cr>
+nnoremap <F9>       :NERDTreeToggle<cr><C-W>p<C-W>w
+nnoremap <F10>      :TagbarToggle<cr><C-W>p<C-W>w
+" nerdtree & tagbar set eventignore in creation
+"  => <C-W>p<C-W>w move focus around to fix it
 
 noremap  <C-q>      :call <sid>wm_quit()<cr>
+tnoremap <C-q>      <C-\><C-N>:call <sid>wm_quit()<cr>
 
+" Move focus
 nnoremap <C-j>      <C-W>j
 nnoremap <C-k>      <C-W>k
 nnoremap <C-h>      <C-W>h
 nnoremap <C-l>      <C-W>l
+tnoremap <C-j>      <C-\><C-N><C-W>j
+tnoremap <C-k>      <C-\><C-N><C-W>k
+tnoremap <C-h>      <C-\><C-N><C-W>h
+tnoremap <C-l>      <C-\><C-N><C-W>l
 
 " Buffer
 nnoremap <C-e>      :ToggleBufExplorer<cr>
 nnoremap <C-n>      :bnext<cr>
 nnoremap <C-p>      :bprev<cr>
+tnoremap <C-n>      <C-\><C-N>:bnext<cr>
+tnoremap <C-p>      <C-\><C-N>:bprev<cr>
 
 " have to use <leader>, as Ctrl-numbers are likely unavailable.
 nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
@@ -807,9 +824,10 @@ inoremap <expr><Tab>    exists("*SuperTab")   ? SuperTab()   : pumvisible() ? "\
 inoremap <expr><Enter>  exists("*SuperEnter") ? SuperEnter() : pumvisible   ? "\<C-Y>"         : "\<cr>"
 inoremap <expr><BS>     exists("*SuperBack")  ? SuperBack()  : pumvisible   ? "\<C-E>"         : "\<cr>"
 noremap! <expr><Space>  exists("*SuperSpace") ? SuperSpace() : pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
-" ESC: 取消已经填充的部分并退出插入模式
-inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
-cnoremap <expr><ESC>    pumvisible() ? "\<C-E>"         : "\<C-C>"
+" Esc: 取消已经填充的部分并退出插入模式
+inoremap <expr><Esc>    pumvisible() ? "\<C-E>\<Esc>"   : "\<Esc>"
+cnoremap <expr><Esc>    pumvisible() ? "\<C-E>"         : "\<C-C>"
+tnoremap <Esc>          <C-\><C-N>
 " Arrow Keys: 选择、选取、取消候选词
 noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
 noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
