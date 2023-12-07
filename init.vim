@@ -213,8 +213,6 @@ if g:ale_enabled
         let g:ale_completion_delay = g:pretty_delay
         set completeopt-=preview
         set paste& " ALE complete won't work with paste
-
-        inoremap <expr><Tab> pumvisible() ? "\<C-N>" : "\<Tab>"
     endif
 
     " 默认：只显示左侧图标，不显示virtualtext，
@@ -397,21 +395,17 @@ else
     let g:deoplete#enable_at_startup = 1
 endif
 
-" 后台自动补全，前台手动显示候选列表
-"  => 不仅实现了自动补全，同时还减少的界面打扰
-" Tab:
-"  1. 开始自动补全
-"  2. 选择候选词
-"  3. snippet跳转
-"  4. 插入Tab
 if g:deoplete#enable_at_startup
     " neosnippet: 与deoplete配合
     let g:neosnippet#enable_snipmate_compatibility = 1
 
     set completeopt=menu,noselect,noinsert
-    set complete=],.,i,d,b,u,w " :h 'complete'
+    " scan only tags and buffers => :h 'complete'
+    "  => deep scan by deoplete and ale
+    set complete=t,.,b,u,w
     set paste&
-    if g:pretty_autocomplete == 0 | set completeopt-=noselect | endif
+    set pumheight=10
+    " wish to have 'longest', but deoplete can work with it.
 
     if g:ale_enabled
         " ALE as completion source for deoplete
@@ -432,17 +426,18 @@ if g:deoplete#enable_at_startup
 
     " complete with vim-go => 手动模式omni不工作，为什么？
     if g:go_code_completion_enabled
-        set completeopt+=noinsert
         call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
     endif
 
     if g:pretty_autocomplete
         " 自动补全时给一个较大的延时
+        "  => 打字够快，补全就不会干扰
         call deoplete#custom#option({
                     \ 'auto_complete_delay' : g:pretty_delay,
                     \ })
     else
-        " 异步自动补全，候选框抖动, 干扰界面, 改成手动模式
+        " 后台自动补全，前台手动显示候选列表
+        "  => 不仅实现了自动补全，同时还减少的界面打扰
         call deoplete#custom#option({
                     \ 'auto_complete_popup' : 'manual',
                     \ 'auto_complete_delay' : 0,
@@ -462,16 +457,41 @@ if g:deoplete#enable_at_startup
     endfunction
 
     " Tab: 开始补全，选择候选词，snippets, Tab
-    inoremap <expr><Tab>
-                \ pumvisible() ? "\<C-N>" :
-                \ <SID>check_back_space() ? <SID>check_snippet_jump() :
-                \ deoplete#can_complete() ? deoplete#complete() :
-                \ <SID>check_snippet_jump()
+    function! SuperTab() abort
+        if pumvisible()                | return "\<C-N>"
+        elseif <sid>check_back_space() | return <sid>check_snippet_jump()
+        elseif deoplete#can_complete() | return deoplete#complete()
+        elseif neosnippet#jumpable()   | return <sid>check_snippet_jump()
+        else                           | return "\<Tab>"
+        endif
+    endfunction
 
-    " Enter: 选取候选词 + snippets
-    inoremap <expr><Enter>
-                \ neosnippet#expandable() ? "\<Plug>(neosnippet_expand)" :
-                \ pumvisible() ? "\<C-Y>" : "\<Enter>"
+    " Enter: snippets + complete
+    function! SuperEnter() abort
+        let comp = complete_info()
+        if neosnippet#expandable()     | return "\<Plug>(neosnippet_expand)"
+        elseif comp['selected'] >= 0   | return "\<C-Y>"
+        elseif comp['pum_visible']     | return "\<C-E>\<cr>"
+        else                           | return "\<cr>"
+        endif
+    endfunction
+
+    " Space: complete only
+    function! SuperSpace() abort
+        let comp = complete_info()
+        if comp['selected'] >= 0       | return "\<C-Y>\<Space>"
+        else                           | return "\<Space>"
+        endif
+    endfunction
+
+    " Backspace: cancel
+    function! SuperBack() abort
+        let comp = complete_info()
+        if comp['selected'] >= 0       | return "\<C-E>"
+        elseif comp['pum_visible']     | return "\<C-E>\<BS>"
+        else                           | return "\<BS>"
+        endif
+    endfunction
 endif
 " }}}
 
@@ -829,15 +849,10 @@ nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
 
 " 特殊按键
-" Space: 只选取候选词，区别于Enter，这样可以避免snippets
-noremap! <expr><Space>  pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
-" Backspace: 删除已经填充的部分
-"  => in auto complete mode: popup always, so Backspace insert the keycode.
-if g:pretty_autocomplete
-    noremap! <expr><BS> pumvisible() ? "\<C-E>\<BS>"    : "\<BS>"
-else
-    noremap! <expr><BS> pumvisible() ? "\<C-E>"         : "\<BS>"
-endif
+inoremap <expr><Tab>    exists("*SuperTab")   ? SuperTab()   : pumvisible() ? "\<C-N>"         : "\<BS>"
+inoremap <expr><Enter>  exists("*SuperEnter") ? SuperEnter() : pumvisible   ? "\<C-Y>"         : "\<cr>"
+inoremap <expr><BS>     exists("*SuperBack")  ? SuperBack()  : pumvisible   ? "\<C-E>"         : "\<cr>"
+noremap! <expr><Space>  exists("*SuperSpace") ? SuperSpace() : pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
 " ESC: 取消已经填充的部分并退出插入模式
 inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
 cnoremap <expr><ESC>    pumvisible() ? "\<C-E>"         : "\<C-C>"
