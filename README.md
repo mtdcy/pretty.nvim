@@ -28,10 +28,11 @@ cd pretty.nvim && ./install.sh
 ## Features
 
 - Preconfigured plugins and support/host binaries & neovim installer.
+- Linters & checkers & conf templates.
 - Sticky buffer for sidebars.
 - Seamless buffer switch with `C-n` & `C-p`, even in terminal mode.
-- Linters & checkers & conf templates.
 - Smart window & buffer close with `C-q`.
+- Full functional bufferline with mouse clickable.
 
 ## Settings
 
@@ -60,8 +61,6 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 - [n] `C-q` - Close windows and buffers, util the last one.
 
 #### Buffers
-
-[ ] FIXME: buffer line clickable is not working right now.
 
 - [n] `C-e` - Buffer Explorer
 - [n] `C-n` - Buffer Next
