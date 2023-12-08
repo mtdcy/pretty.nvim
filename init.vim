@@ -5,21 +5,21 @@
 let g:pretty_verbose      = 1   " 0 - silence
 let g:pretty_dark         = 1   " light or drak
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
-let g:pretty_singleclick  = 1   " mouse single click
+let g:pretty_singleclick  = 0   " mouse single click
 let g:pretty_delay        = 200 " in GUI mode, flicker less, shorten this value
 
 " {{{ => Advance
 let g:pretty_debug        = 1
 let g:pretty_home         = fnamemodify($MYVIMRC, ':p:h')
 let g:pretty_bar_height   = min([15, winheight(0) / 3])
-let g:pretty_bar_width    = min([20, winwidth(0) / 4])
+let g:pretty_bar_width    = min([30, winwidth(0) / 5])
 
 let $PATH = g:pretty_home .. '/node_modules/.bin:' .. $PATH
 let $PATH = g:pretty_home .. '/py3env/bin:'        .. $PATH
 
 " debugging
 if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
-else              | let g:pretty_cmdlet = ":silent! "
+else              | let g:pretty_cmdlet = ":normal! :silent "
 endif
 
 " window components id
@@ -499,6 +499,68 @@ if g:deoplete#enable_at_startup
 endif
 " }}}
 
+" {{{ => tabular
+" NOTHING HERE
+" }}}
+
+" }}}
+
+" {{{ => Windows Manager
+
+" NERDTree: {{{
+"  Bug: VCS will ignore submodule
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeNaturalSort = 1
+let g:NERDTreeMouseMode = g:pretty_singleclick + 1
+let g:NERDTreeShowHidden = 1
+let g:NERDTreeIgnore = ['\~$', '.git*', '.DS_Store' ]
+let g:NERDTreeRespectWildIgnore = 1
+let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeMinimalMenu=1
+let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+"" Netrw: disable for now, test later
+let g:NERDTreeHijackNetrw = 0
+"" cancel some key mappings: too much mappings won't help user
+""  => keep only: Enter, Space, Mouse, F1/?
+"let g:NERDTreeMapActivateNode = ''
+" }}}
+
+" Tagbar: use on fly tags {{{
+let g:tagbar_singleclick = g:pretty_singleclick
+let g:tagbar_position = 'botright vertical'
+let g:tagbar_left = 0   " right
+let g:tagbar_compact = 1
+let g:tagbar_autofocus = 1
+let g:tagbar_autoshowtag = 1
+let g:tagbar_show_data_type = 1
+let g:tagbar_width = min([30, winwidth(0) / 4])
+let g:tagbar_no_status_line = 1
+" cancel some key mappings: too much mappings won't help user
+"  => keep only: Enter, Space, Mouse, F1/?
+let g:tagbar_map_hidenonpublic = ''
+let g:tagbar_map_openallfolds = ''
+let g:tagbar_map_closeallfolds = ''
+let g:tagbar_map_incrementfolds = ''
+let g:tagbar_map_decrementfolds = ''
+let g:tagbar_map_togglesort = ''
+let g:tagbar_map_toggleautoclose = ''
+let g:tagbar_map_togglecaseinsensitive = ''
+let g:tagbar_map_zoomwin = ''
+let g:tagbar_map_close = ''
+let g:tagbar_map_preview = ''
+let g:tagbar_map_previewwin = ''
+let g:tagbar_map_nexttag = ''
+let g:tagbar_map_prevtag = ''
+let g:tagbar_map_nextfold = ''
+let g:tagbar_map_prevfold = ''
+let g:tagbar_map_togglefold = ''
+let g:tagbar_map_togglepause = ''
+" multiple key mapping to these one, can't disable single one
+"let g:tagbar_map_openfold = ''
+"let g:tagbar_map_closefold = ''
+"}}}
+
 " {{{ => lightline
 set laststatus=2
 set showtabline=2
@@ -569,68 +631,6 @@ function! RelativeFileName() abort
 endfunction
 " }}}
 
-" {{{ => tabular
-" NOTHING HERE
-" }}}
-
-" }}}
-
-" {{{ => Windows Manager
-
-" NERDTree: {{{
-"  Bug: VCS will ignore submodule
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeNaturalSort = 1
-let g:NERDTreeMouseMode = g:pretty_singleclick + 1
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = ['\~$', '.git*', '.DS_Store' ]
-let g:NERDTreeRespectWildIgnore = 1
-let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
-"" Netrw: disable for now, test later
-let g:NERDTreeHijackNetrw = 0
-"" cancel some key mappings: too much mappings won't help user
-""  => keep only: Enter, Space, Mouse, F1/?
-"let g:NERDTreeMapActivateNode = ''
-" }}}
-
-" Tagbar: use on fly tags {{{
-let g:tagbar_singleclick = g:pretty_singleclick
-let g:tagbar_position = 'botright vertical'
-let g:tagbar_left = 0   " right
-let g:tagbar_compact = 1
-let g:tagbar_autofocus = 1
-let g:tagbar_autoshowtag = 1
-let g:tagbar_show_data_type = 1
-let g:tagbar_width = min([30, winwidth(0) / 4])
-let g:tagbar_no_status_line = 1
-" cancel some key mappings: too much mappings won't help user
-"  => keep only: Enter, Space, Mouse, F1/?
-let g:tagbar_map_hidenonpublic = ''
-let g:tagbar_map_openallfolds = ''
-let g:tagbar_map_closeallfolds = ''
-let g:tagbar_map_incrementfolds = ''
-let g:tagbar_map_decrementfolds = ''
-let g:tagbar_map_togglesort = ''
-let g:tagbar_map_toggleautoclose = ''
-let g:tagbar_map_togglecaseinsensitive = ''
-let g:tagbar_map_zoomwin = ''
-let g:tagbar_map_close = ''
-let g:tagbar_map_preview = ''
-let g:tagbar_map_previewwin = ''
-let g:tagbar_map_nexttag = ''
-let g:tagbar_map_prevtag = ''
-let g:tagbar_map_nextfold = ''
-let g:tagbar_map_prevfold = ''
-let g:tagbar_map_togglefold = ''
-let g:tagbar_map_togglepause = ''
-" multiple key mapping to these one, can't disable single one
-"let g:tagbar_map_openfold = ''
-"let g:tagbar_map_closefold = ''
-"}}}
-
 set wildignore&
 set noequalalways
 set winheight=10
@@ -640,7 +640,7 @@ set winminwidth=20
 set cmdheight=1
 
 " check window parts, return filetype if it's sidebar.
-function! s:wm_part_check(buf)
+function! s:wm_part_check(buf) abort
     let ftype = getbufvar(bufnr(a:buf), '&ft')
     if win_getid(winnr()) == g:pretty_winids[0]
         return ''
@@ -649,12 +649,12 @@ function! s:wm_part_check(buf)
     elseif ftype == 'help' || ftype == 'man' || ftype =~ '\.*doc'
         return 'docs'
     elseif ftype == 'qf' || getbufvar(bufnr(a:buf), '&bt') == 'quickfix'
-        return ftype
+        return 'quickfix'
     endif
     return ''
-endfunction()
+endfunction
 
-function! s:wm_part_inspect()
+function! s:wm_part_inspect() abort
     echom 'perform hint @ buf:"' . bufname('%') . '"/alt:"' . bufname('#') . '"'
                 \ . '/bufnr:' . bufnr() . '#' . bufnr('$')
                 \ . '/ft:' . &ft . '/bt:' . &bt . '/mod:' . &mod . '/modi:'. &modifiable
@@ -662,80 +662,98 @@ function! s:wm_part_inspect()
                 \ . '/winnr:' . winnr() . '#' . winnr('$') . '/id:' . win_getid()
                 \ . '/type:' . win_gettype(winnr()) . '/winbufnr:' . winbufnr(winnr())
                 \ . '/list:' . &list . '/cpoptions:' . &cpoptions
-endfunction()
+endfunction
 if g:pretty_debug == 1 | nnoremap <C-I> :call <sid>wm_part_inspect()<cr> | endif
 
 " shorten the wincmd only, :h CTRL-W
-function! s:wmcmd(id, cmd)
+function! s:wmcmd(id, cmd) abort
     return ":" .. win_id2win(g:pretty_winids[a:id]) .. "wincmd " .. a:cmd .. "\<cr>"
 endfunction
+" return winnr if the window exists
+function! s:wmwin(id) abort
+    return win_id2win(g:pretty_winids[a:id])
+endfunction
 
-function! s:wm_on_win_update()
-    if win_getid() == g:pretty_winids[0] | return | endif
+function! s:wm_on_init() abort
+endfunction
+
+function! s:wm_on_win_update() abort
     "if g:pretty_debug | call <sid>wm_part_inspect() | endif
-    " 1. sticky buffer: never open buffer in sidebars
-    let l:buf = <sid>wm_part_check('%')
-    let l:alt = <sid>wm_part_check('#')
-    if l:alt != '' && l:buf != l:alt
-        let l:bufnr = bufnr('%') " save bufnr
-        echom "== open file in sidebar, swap it to main win."
-        exec g:pretty_cmdlet .. ":buffer#\<cr>"
-                    \ .. <sid>wmcmd(0, 'w')
-                    \ .. ":buffer " .. l:bufnr .. "\<cr>"
+    let bufnr = bufnr('%')
+    let win   = bufwinid(bufnr)
+    let type  = <sid>wm_part_check(bufnr)
+    let alt   = <sid>wm_part_check('#')
+    let i     = index(['nerdtree', 'docs', 'quickfix', 'tagbar'], type) + 1
+    "echom '== bufnr '..bufnr..' win '..win..' buffer type '..type..' alt '..alt..' wmid '..i
+    " 1. sticky buffer: never open windows/buffers in sidebars
+    "  a. open normal buffer in sidebars
+    "  b. open new window in sidebars
+    if index(g:pretty_winids, win) > 0 && alt != '' && type != alt
+        let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==bufnr')
+        if len(li) > 0
+            echom "== open buffer in sidebar, jump to exists window "..li[0]
+            exec g:pretty_cmdlet .. ":buffer#\<cr>:".li[0]."wincmd w\<cr>"
+        else
+            echom "== open buffer in sidebar, ship buffer "..bufnr.." to main window"
+            exec g:pretty_cmdlet .. ":buffer#\<cr>".<sid>wmcmd(0, 'w').":buffer ".bufnr."\<cr>"
+        endif
+    elseif alt != '' && (bufwinnr(bufnr('#')) > 0 || (i > 0 && g:pretty_winids[i] != win))
+        let j = i > 0 && g:pretty_winids[i] > 0 ? i : 0
+        echom "== open window in sidebar, ship it to win "..j
+        exec g:pretty_cmdlet .. ":quit\<cr>".<sid>wmcmd(j, 'w').":buffer ".bufnr."\<cr>"
     endif
 
     " 2. update winids
     " footbar & toc are quickfix|loclist, no way to tell here.
-    if l:buf == 'docs'
-        setlocal nobuflisted nolist nomodifiable
-        " multiple document window types? yes! > help|man|doc
-        if g:pretty_winids[2] > 0 && g:pretty_winids[2] != win_getid()
-            " document window can be opened in many ways
-            "  => move buffer to existing window
-            let bufnr = bufnr('%') " save bufnr
-            let nrbuf = len(filter(range(1, bufnr('$')), 'bufwinnr(v:val) == winnr('%')'))
-            if nrbuf > 1 | exec g:pretty_cmdlet .. ":buffer#\<cr>"
-            else         | exec g:pretty_cmdlet .. ":wincmd c\<cr>"
+    let win = bufwinid(bufnr('%')) " update again
+    let [ w, h ] = [ g:pretty_bar_width, g:pretty_bar_height ]
+    if i > 0
+        setlocal nobuflisted
+        " multiple document window type? yes! => help|man|doc
+        if win != g:pretty_winids[i]
+            "let w = winwidth(win_id2win(g:pretty_winids[i]))
+            "let h = winheight(win_id2win(g:pretty_winids[i]))
+            "exec g:pretty_cmdlet .. <sid>wmcmd(i, 'c')
+
+            " how to deal with the new window?
+            if g:pretty_winids[i] > 0
+                if bufwinnr(bufnr('#')) > 0     | exec g:pretty_cmdlet .. ":quit\<cr>"
+                    echom '== alt buffer is listed, close win ' . win
+                else                            | exec g:pretty_cmdlet .. ":buffer#\<cr>"
+                    echom '== swap to alt buffer for win '. win
+                endif
+                exec g:pretty_cmdlet .. <sid>wmcmd(i, 'w').":buffer".bufnr."\<cr>"
+            else
+                echom '== set new window ' . win . ' for type ' . type
+                let g:pretty_winids[i] = win
+                if type == 'docs' || type == 'quickfix'
+                    exec g:pretty_cmdlet .. ":resize ".h."\<cr>"
+                else
+                    exec g:pretty_cmdlet .. ":vertical resize ".w."\<cr>"
+                endif
             endif
-            exec g:pretty_cmdlet .. <sid>wmcmd(2, 'w')
-                \ .. ":buffer" .. bufnr .. "\<cr>"
-        elseif g:pretty_winids[2] <= 0
-            exec g:pretty_cmdlet .. ":resize " .. g:pretty_bar_height .. "\<cr>"
-            let g:pretty_winids[2] = win_getid()
         endif
-    elseif l:buf == 'tagbar'
-        let l:width = g:pretty_bar_width
-        if g:pretty_winids[5] > 0
+
+        if type == 'tagbar' && g:pretty_winids[5] > 0
             echom "== toc closed as tagbar shows."
-            let l:width = winwidth(win_id2win(g:pretty_winids[5]))
             exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
         endif
-        if g:pretty_winids[4] != win_getid()
-            exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
-            let g:pretty_winids[4] = win_getid()
-        endif
-    elseif l:buf == 'nerdtree'
-        let l:width = g:pretty_bar_width
-        if g:pretty_winids[1] != win_getid()
-            exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
-            let g:pretty_winids[1] = win_getid()
-        endif
+    elseif <sid>wmwin(0) <= 0
+        echom "== update main window id " .. win
+        let g:pretty_winids[0] = win
     endif
 endfunction
 
 " clean records on window close
-"  XXX: don't use win_getid here, as au may be called outside window
 function! s:wm_on_win_close(win) abort
-    let winid = expand(a:win)
-    if winid == g:pretty_winids[0]               | let g:pretty_winids[0] = -1
-        for i in range(1, winnr('$'))            | let winid = win_getid(i)
-            if index(g:pretty_winids, winid) < 0 | let g:pretty_winids[0] = winid | break
-            endif
-        endfor
-        echom "== new main window " .. winid
-    else                                         | let i = index(g:pretty_winids, expand('<amatch>'))
-        if i >= 0                                | let g:pretty_winids[i] = -1
-        endif
+    echom '== closed ' . a:win
+    let i = index(g:pretty_winids, a:win)
+    if i >= 0 | let g:pretty_winids[i] = -1 | endif
+
+    " find another main window
+    if g:pretty_winids[0] < 0
+        let li = filter(range(1, winnr('$')), "index(g:pretty_winids, win_getid(v:val)) < 0")
+        if len(li) > 0 | let g:pretty_winids[0] = win_getid(li[0]) | endif
     endif
 endfunction
 
@@ -745,9 +763,9 @@ function! s:wm_quit() abort
     else
         echohl WarningMsg
         let bufnr = bufnr('%') " save bufnr
-        let listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-        if listed > 1 | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. bufnr .. "\<cr>"
-        else          | echo "Last buffer, close it with :quit"
+        let li = filter(range(1, bufnr('$')), 'buflisted(v:val)')
+        if len(li) > 1 | exec g:pretty_cmdlet . ":bprev\<cr>:confirm bdelete".bufnr."\<cr>"
+        else           | echo "Last buffer, close it with :quit"
         endif
         echohl None
     endif
@@ -756,11 +774,12 @@ endfunction
 augroup pretty.windows
     autocmd!
     autocmd BufEnter    * call <sid>wm_on_win_update()
-    autocmd WinClosed   * call <sid>wm_on_win_close('<amatch>')
+    " WinClosed may be called out of box
+    autocmd WinClosed   * call <sid>wm_on_win_close(str2nr(expand('<amatch>')))
     " workarounds for NERDTree and Tagbar which set eventignore on creation
-    autocmd FileType nerdtree,tagbar call <sid>wm_on_win_update()
+    autocmd FileType    nerdtree,tagbar,man call <sid>wm_on_win_update()
     " quit window parts if main window went away
-    autocmd BufEnter    * if !win_id2win(g:pretty_winids[0]) && <sid>wm_part_check('%') != '' | quit | endif
+    autocmd WinEnter    * if g:pretty_winids[0] <= 0 && <sid>wm_part_check('%') != '' | quit | endif
 
     autocmd BufEnter    term://* startinsert
     autocmd BufLeave    term://* stopinsert
@@ -791,6 +810,8 @@ let g:mapleader = ';'
 " 编辑和加载.vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
+            \ :call lightline#update()<cr>
+            \ :call lightline#bufferline#reload()<cr>
 
 " Window
 nnoremap <F8>       :ToggleBufExplorer<cr>
