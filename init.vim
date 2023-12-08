@@ -760,6 +760,8 @@ augroup pretty.windows
     autocmd!
     autocmd BufEnter    * call <sid>wm_on_win_update()
     autocmd WinClosed   * call <sid>wm_on_win_close()
+    " workarounds for NERDTree and Tagbar which set eventignore on creation
+    autocmd FileType nerdtree,tagbar call <sid>wm_on_win_update()
     " quit window parts if main window went away
     autocmd BufEnter    * if !win_id2win(g:pretty_winids[0]) && <sid>wm_part_check('%') != '' | quit | endif
 
@@ -795,10 +797,8 @@ nnoremap <leader>ss :source $MYVIMRC<CR>
 
 " Window
 nnoremap <F8>       :ToggleBufExplorer<cr>
-nnoremap <F9>       :NERDTreeToggle<cr><C-W>p<C-W>w
-nnoremap <F10>      :TagbarToggle<cr><C-W>p<C-W>w
-" nerdtree & tagbar set eventignore in creation
-"  => <C-W>p<C-W>w move focus around to fix it
+nnoremap <F9>       :NERDTreeToggle<cr>
+nnoremap <F10>      :TagbarToggle<cr>
 
 noremap  <C-q>      :call <sid>wm_quit()<cr>
 tnoremap <C-q>      <C-\><C-N>:call <sid>wm_quit()<cr>
