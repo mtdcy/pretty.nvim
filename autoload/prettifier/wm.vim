@@ -8,16 +8,49 @@ set wildignore&
 set noequalalways
 set winheight=10
 set winwidth=20
-set winminheight=10
-set winminwidth=20
 set cmdheight=1
 
+" window components id
+
+if !exists('g:pretty_winids')
+    let g:pretty_winids = [ win_getid(), 0, 0, 0, 0, 0 ]
+endif
+" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
+
+" find current wmid => '-1' for unclassified
+function! s:wmid() abort
+    return index(g:pretty_winids, win_getid())
+endfunction
+
+function! s:wmwinid(wmid) abort
+    return g:pretty_winids[a:wmid]
+endfunction
+
+function! s:wmwinidset(wmid, winid) abort
+    let g:pretty_winids[a:wmid] = a:winid
+endfunction
+
+" find wmid for winid => '-1' for unclassified
+function! s:winid2wmid(winid) abort
+    return index(g:pretty_winids, a:winid)
+endfunction
+
+" return winnr if the window exists
+function! s:wmwinnr(wmid) abort
+    return win_id2win(s:wmwinid(a:wmid))
+endfunction
+
+" find wmid for winnr => '-1' for unclassified
+function! s:winnr2wmid(winnr) abort
+    return index(g:pretty_winids, win_getid(a:winnr))
+endfunction
+
 " check window parts, return filetype if it's sidebar.
-function! s:wm_buf_check(buf) abort
+function! s:wmtype(buf) abort
     " bufnr can accept self as input, but winnr can't.
     let ftype = getbufvar(bufnr(a:buf), '&ft')
-    " for developer: edit any file in man window
-    if win_getid(winnr()) == g:pretty_winids[0]
+    " for developer: edit any file in main window
+    if winnr() == s:wmwinnr(0)
         return ''
     elseif ftype == 'nerdtree' || ftype == 'tagbar'
         return ftype
@@ -29,134 +62,166 @@ function! s:wm_buf_check(buf) abort
     return ''
 endfunction
 
-function! s:wm_win_check(win) abort
-
+" find expect wmid for buffer type
+function! s:type2wmid(type) abort
+    return index(['nerdtree', 'docs', 'quickfix', 'tagbar'], a:type) + 1
 endfunction
 
-function! s:wm_inspect() abort
+" move buffer to the right window
+function! s:wmmove(buf) abort
+    let bufnr = bufnr(a:buf)
+    let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==' . bufnr)
+    " switch to alt buffer
+    exec 'buffer#'
+    " go to the right window
+    if len(li) | exec li[0] 'wincmd w'
+    else       | exec s:wmwinnr(0) 'wincmd w'
+    endif
+    exec 'buffer ' bufnr
+endfunction
+
+" create window if not exists
+function! s:wmcreate(wmid) abort
+    if a:wmid > 0 && s:wmwinid(a:wmid) <= 0
+        let saved = winnr()
+        exec s:wmwinnr(0) 'wincmd w'
+        let cmds = ['', ':NERDTree', 'help', 'lopen', ':TagbarOpen']
+        exec index(cmds, a:wmid)
+        let g:pretty_winids[a:wmid] = win_getid()
+        exec saved 'wincmd w'
+    endif
+endfunction
+
+" settle window to correct location
+function! s:wmsettle(wmid) abort
+    call s:wmcreate(a:wmid)
+    let  bufnr = bufnr('%')
+    exec 'wincmd c'
+    exec s:wmwinnr(a:wmid) 'wincmd w'
+    exec 'buffer ' bufnr
+endfunction
+
+function! prettifier#wm#inspect() abort
     echom '== window id:' . win_getid()
                 \ . '|winnr:' . winnr() . '#' . winnr('$')
                 \ . '|type:' . win_gettype() . '|winbufnr:' . winbufnr(0)
-                \ . '|list:' . &list . '|cpoptions:' . &cpoptions
+                \ . '|list:' . &list . '|cpoptionprettifier#wm#' . &cpoptions
                 \ . '|buf:' . bufname('%') . '|alt:' . bufname('#') . ''
-                \ . '|bufnr:' . bufnr() . '#' . bufnr('$')
+                \ . '|bufnr:' . bufnr('%') . '#' . bufnr('$')
+                \ . '|bufwinr:' . bufwinnr('%')
                 \ . '|ft:' . &ft . '|bt:' . &bt . '|mod:' . &mod . '|modi:'. &modifiable
                 \ . '|hide:' . &bufhidden . '|buflisted:' . &buflisted . '|swapfile:' . &swapfile
 endfunction
-if g:pretty_debug == 1 | nnoremap <C-I> :call s:wm_inspect()<cr> | endif
+if g:pretty_debug == 1 | nnoremap <C-I> :call prettifier#wm#inspect()<cr> | endif
 
-function! s:wmwinid(id) abort
-    return g:pretty_winids[a:id]
-endfunction
-" return winnr if the window exists
-function! s:wmwinnr(id) abort
-    return win_id2win(s:wmwinid(a:id))
-endfunction
-
-" shorten the wincmd only, :h CTRL-W
-function! s:wmcmd(id, cmd) abort
-    return ":" . s:wmwinnr(a:id) . "wincmd " . a:cmd . "\<cr>"
-endfunction
-
-function! s:wm_on_init() abort
-endfunction
-
-function! s:wm_on_win_update() abort
-    "if g:pretty_debug | call s:wm_inspect() | endif
+function! prettifier#wm#on_update() abort
+    if g:pretty_debug | call prettifier#wm#inspect() | endif
     let bufnr = bufnr('%')
-    let win   = bufwinid(bufnr)
-    let type  = s:wm_buf_check(bufnr)
-    let alt   = s:wm_buf_check('#')
-    let i     = index(['nerdtree', 'docs', 'quickfix', 'tagbar'], type) + 1
-    "echom '== bufnr ' . bufnr . ' win ' . win . ' buffer type ' . type . ' alt ' . alt . ' wmid ' . i
-    " 1. sticky buffer: never open windows/buffers in sidebars
-    "  a. open normal buffer in sidebars
-    "  b. open new window in sidebars
-    if index(g:pretty_winids, win) > 0 && alt != '' && type != alt
-        let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==bufnr')
-        if len(li) > 0
-            echom "== open buffer in sidebar, jump to exists window " . li[0]
-            exec g:pretty_cmdlet . ":buffer#\<cr>:" . li[0] . "wincmd w\<cr>"
+    let type  = s:wmtype(bufnr)
+
+    " 1. sticky buffer: buffer mis-placed?
+    let wmid = s:type2wmid(type)
+    if s:wmid() > 0 && wmid != s:wmid()
+        "echom '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
+        if bufwinnr('#') > 0
+            "echom '== settle window'
+            call s:wmsettle(wmid)
         else
-            echom "== open buffer in sidebar, ship buffer " . bufnr . " to main window"
-            exec g:pretty_cmdlet . ":buffer#\<cr>" . s:wmcmd(0, 'w') . ":buffer " . bufnr. "\<cr>"
+            "echom '== move buffer'
+            call s:wmmove(bufnr)
         endif
-    elseif alt != '' && (bufwinnr(bufnr('#')) > 0 || (i > 0 && g:pretty_winids[i] != win))
-        let j = i > 0 && s:wmwinnr(i) > 0 ? i : 0
-        echom "== open window in sidebar, ship it to win " . j
-        exec g:pretty_cmdlet . ":quit\<cr>" . s:wmcmd(j, 'w') . ":buffer " . bufnr . "\<cr>"
     endif
 
     " 2. update winids
     " footbar & toc are quickfix|loclist, no way to tell here.
-    let win = bufwinid(bufnr('%')) " update again
+    let winid = bufwinid(bufnr('%'))
     let [ w, h ] = [ g:pretty_bar_width, g:pretty_bar_height ]
-    if i > 0
+    if wmid > 0
         setlocal nobuflisted
         " multiple document window type? yes! => help|man|doc
-        if win != g:pretty_winids[i]
-            "let w = winwidth(win_id2win(g:pretty_winids[i]))
-            "let h = winheight(win_id2win(g:pretty_winids[i]))
-            "exec g:pretty_cmdlet . s:wmcmd(i, 'c')
-
+        if winid != s:wmwinid(wmid)
             " how to deal with the new window?
-            if g:pretty_winids[i] > 0
-                if bufwinnr(bufnr('#')) > 0     | exec g:pretty_cmdlet . ":quit\<cr>"
-                    echom '== alt buffer is listed, close win ' . win
-                else                            | exec g:pretty_cmdlet . ":buffer#\<cr>"
-                    echom '== swap to alt buffer for win '. win
-                endif
-                exec g:pretty_cmdlet . s:wmcmd(i, 'w'). ":buffer" . bufnr. "\<cr>"
+            if s:wmwinid(wmid) > 0
+                "echom '== move buffer to window ' . s:wmwinid(wmid)
+                call s:wmsettle(wmid)
             else
-                echom '== set new window ' . win . ' for type ' . type
-                let g:pretty_winids[i] = win
+                "echom '== set new window ' . winid . ' for type ' . type
+                call s:wmwinidset(wmid, winid)
                 if type == 'docs' || type == 'quickfix'
-                    exec g:pretty_cmdlet . ":resize " . h . "\<cr>"
+                    exec 'resize ' h
                 else
-                    exec g:pretty_cmdlet . ":vertical resize " . w . "\<cr>"
+                    exec 'vertical resize ' w
                 endif
             endif
         endif
 
-        if type == 'tagbar' && g:pretty_winids[5] > 0
+        if type == 'tagbar' && s:wmwinid(5) > 0
             echom "== toc closed as tagbar shows. "
-            exec g:pretty_cmdlet . s:wmcmd(5, 'c')
+            exec s:wmwinnr(5) 'wincmd c'
         endif
-    elseif s:wmwinnr(0) <= 0
-        echom "== update main window id " . win
-        let g:pretty_winids[0] = win
     endif
 endfunction
 
 " clean records on window close
-function! s:wm_on_win_close(win) abort
-    echom '== closed ' . a:win
-    let i = index(g:pretty_winids, a:win)
-    if i >= 0 | let g:pretty_winids[i] = -1 | endif
+function! prettifier#wm#on_winclose(winid) abort
+    let wmid = s:winid2wmid(a:winid)
+    if wmid >= 0
+        call s:wmwinidset(wmid, -1)
+    endif
 
     " find another main window
-    if g:pretty_winids[0] < 0
-        let li = filter(range(1, winnr('$')), "index(g:pretty_winids, win_getid(v:val)) < 0")
-        if len(li) > 0 | let g:pretty_winids[0] = win_getid(li[0]) | endif
+    if s:wmwinid(0) < 0
+        let li = filter(range(1, winnr('$')), "v:val != winnr() && s:winnr2wmid(v:val) < 0")
+        if len(li) > 0
+            echom '== main window closed, switch to ' . win_getid(li[0])
+            call s:wmwinidset(0, win_getid(li[0]))
+        endif
     endif
 endfunction
 
-function! s:wm_quit() abort
-    if win_getid() != g:pretty_winids[0]
-        exec g:pretty_cmdlet . ":confirm quit\<cr>"
+function! prettifier#wm#quit() abort
+    if win_getid() != s:wmwinid(0)
+        exec 'confirm quit'
     else
         echohl WarningMsg
         let bufnr = bufnr('%') " save bufnr
-        let li = filter(range(1, bufnr('$')), 'buflisted(v:val)')
-        if len(li) > 1 | exec g:pretty_cmdlet . ":bprev\<cr>:confirm bdelete" . bufnr. "\<cr>"
-        else           | echo "Last buffer, close it with :quit"
+        if len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) > 1
+            exec 'bnext'
+            exec 'confirm bwipeout ' bufnr
+        else
+            echo "Last buffer, close it with :quit"
         endif
         echohl None
     endif
 endfunction
 
-function! s:wm_keys() abort
-    " {{{ => Key Mappings
+function! prettifier#wm#next() abort
+    if s:wmid() > 0 | silent exec 'wincmd p' | endif
+    silent exec 'bnext'
+endfunction
+
+function! prettifier#wm#prev() abort
+    if s:wmid() > 0 | silent exec 'wincmd p' | endif
+    silent exec 'bprev'
+endfunction
+
+function! prettifier#wm#autocmds() abort
+    augroup prettifier.wm
+        autocmd!
+        autocmd BufEnter    * call prettifier#wm#on_update()
+        " workarounds for NERDTree and Tagbar which set eventignore on creation
+        autocmd FileType    * call prettifier#wm#on_update()
+        " WinClosed may be called out of box
+        autocmd WinClosed   * silent call prettifier#wm#on_winclose(str2nr(expand('<amatch>')))
+        " quit window parts if main window went away
+        autocmd WinEnter    * if g:pretty_winids[0] < 0 | quit | endif
+
+        autocmd BufEnter    term://* startinsert
+        autocmd BufLeave    term://* stopinsert
+    augroup END
+endfunction
+
+function! prettifier#wm#keymaps() abort
     " Help
     " :h map
     " :h mapclear
@@ -182,8 +247,8 @@ function! s:wm_keys() abort
     nnoremap <F9>       :NERDTreeToggle<cr>
     nnoremap <F10>      :TagbarToggle<cr>
 
-    noremap  <C-q>      :call s:wm_quit()<cr>
-    tnoremap <C-q>      <C-\><C-N>:call s:wm_quit()<cr>
+    noremap  <C-q>      :call prettifier#wm#quit()<cr>
+    tnoremap <C-q>      <C-\><C-N>:call prettifier#wm#quit()<cr>
 
     " Move focus
     nnoremap <C-j>      <C-W>j
@@ -196,11 +261,11 @@ function! s:wm_keys() abort
     tnoremap <C-l>      <C-\><C-N><C-W>l
 
     " Buffer
-    nnoremap <C-e>      :ToggleBufExplorer<cr>
-    nnoremap <C-n>      :bnext<cr>
-    nnoremap <C-p>      :bprev<cr>
-    tnoremap <C-n>      <C-\><C-N>:bnext<cr>
-    tnoremap <C-p>      <C-\><C-N>:bprev<cr>
+    nnoremap <silent> <C-e>     :ToggleBufExplorer<cr>
+    nnoremap <silent> <C-n>     :call prettifier#wm#next()<cr>
+    nnoremap <silent> <C-p>     :call prettifier#wm#prev()<cr>
+    tnoremap <silent> <C-n>     <C-\><C-N>:bnext<cr>
+    tnoremap <silent> <C-p>     <C-\><C-N>:bprev<cr>
 
     " 跳转 - Goto
     " Go to first line - `gg`
@@ -240,24 +305,7 @@ function! s:wm_keys() abort
     nnoremap U          :redo<cr>
 endfunction
 
-function! s:wm_autocmds() abort
-    augroup prettifier.wm
-        autocmd!
-        autocmd BufEnter    * call s:wm_on_win_update()
-        " WinClosed may be called out of box
-        autocmd WinClosed   * call s:wm_on_win_close(str2nr(expand('<amatch>')))
-        " workarounds for NERDTree and Tagbar which set eventignore on creation
-        autocmd FileType    nerdtree,tagbar,man call s:wm_on_win_update()
-        " quit window parts if main window went away
-        autocmd WinEnter    * if g:pretty_winids[0] <= 0 && s:wm_buf_check('%') != '' | quit | endif
-
-        autocmd BufEnter    term://* startinsert
-        autocmd BufLeave    term://* stopinsert
-    augroup END
-endfunction
-
 function! prettifier#wm#init()
-    call s:wm_autocmds()
-    call s:wm_keys()
+    call prettifier#wm#autocmds()
+    call prettifier#wm#keymaps()
 endfunction
-" }}}

@@ -2,7 +2,7 @@
 
 " {{{ => Settings
 
-let g:pretty_verbose      = 1   " 0 - silence
+let g:pretty_verbose      = 0   " 0 - silence
 let g:pretty_dark         = 1   " light or drak
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
 let g:pretty_singleclick  = 0   " mouse single click
@@ -21,10 +21,6 @@ let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
 if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
 else              | let g:pretty_cmdlet = ":normal! :silent "
 endif
-
-" window components id
-let g:pretty_winids = [ win_getid(), 0, 0, 0, 0, 0 ]
-" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
 
 " floating window config - ':h nvim_open_win'
 let g:pretty_window = {
