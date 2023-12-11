@@ -551,6 +551,8 @@ let g:lightline = {
             \   'linter_errors'     : 'error',
             \ }}
 
+let g:lightline#bufferline#shorten_path = 1
+let g:lightline#bufferline#smart_path = 0 " shorten path stop working if enabled
 let g:lightline#bufferline#clickable = 1
 let g:lightline.component_raw = {'buffers': 1}
 autocmd User LightlineBufferlinePreClick :echom "== clicked " . bufname('%')
