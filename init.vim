@@ -2,27 +2,25 @@
 
 " {{{ => Settings
 
-let g:pretty_debug        = 0
 let g:pretty_verbose      = 0   " 0 - silence
 let g:pretty_dark         = 1   " light or drak
 let g:pretty_autocomplete = 1   " 0 - manual complete with Tab
 let g:pretty_singleclick  = 0   " mouse single click
 let g:pretty_delay        = 200 " in GUI mode, flicker less, shorten this value
+
+" {{{ => Advance
+let g:pretty_debug        = 0
 let g:pretty_home         = fnamemodify($MYVIMRC, ':p:h')
 let g:pretty_bar_height   = min([15, winheight(0) / 3])
-let g:pretty_bar_width    = min([20, winwidth(0) / 4])
+let g:pretty_bar_width    = min([30, winwidth(0) / 5])
 
-let $PATH = g:pretty_home .. '/node_modules/.bin:' .. $PATH
-let $PATH = g:pretty_home .. '/py3env/bin:'        .. $PATH
+let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
+let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
 
 " debugging
 if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
-else              | let g:pretty_cmdlet = ":silent! "
+else              | let g:pretty_cmdlet = ":normal! :silent "
 endif
-
-" window components id
-let g:pretty_winids = [ win_getid(), 0, 0, 0, 0, 0 ]
-" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
 
 " floating window config - ':h nvim_open_win'
 let g:pretty_window = {
@@ -32,8 +30,10 @@ let g:pretty_window = {
             \ 'style'       : 'minimal'
             \ }
 " }}}
+" }}}
 
 " {{{ => General Options
+let mapleader = ';'
 " set color and theme
 set termguicolors
 if g:pretty_dark
@@ -45,6 +45,7 @@ colorscheme solarized8
 if !has('gui_running')
   set t_Co=256
 endif
+set guicursor=a:blinkwait5-blinkon5-blinkoff5
 
 " 字体
 if has('gui_running')
@@ -62,7 +63,7 @@ if has('gui_running')
 else
     " fix paste without gui, like ssh + vim
     "set paste => cause inoremap stop working
-    set pastetoggle=<F12>https://vi.stackexchange.com/questions/4493/what-is-the-order-of-winenter-bufenter-bufread-syntax-filetype-events
+    set pastetoggle=<F12>
 endif
 
 " 显示行号
@@ -172,12 +173,10 @@ augroup END
 
 function! s:jump_to_las_pos()
     if line("'\"") > 0 && line ("'\"") <= line('$') && &filetype !~# 'commit'
-        exec g:pretty_cmdlet .. "g'\""
+        exec g:pretty_cmdlet . "g'\""
     endif
 endfunction
 "}}}
-
-" {{{ => Plugins
 
 " {{{ => bufexplorer
 " NOTHING HERE
@@ -448,52 +447,67 @@ if g:deoplete#enable_at_startup
     " complete cross filetype
     call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
 
-    function! s:check_back_space() abort
-        let col = col('.') - 1
-        return !col || getline('.')[col - 1] =~# '\s'
-    endfunction
-    function! s:check_snippet_jump() abort
-        return neosnippet#jumpable() ? "\<Plug>(neosnippet_jump)" : "\<Tab>"
-    endfunction
-
-    " Tab: 开始补全，选择候选词，snippets, Tab
-    function! SuperTab() abort
-        if pumvisible()                | return "\<C-N>"
-        elseif <sid>check_back_space() | return <sid>check_snippet_jump()
-        elseif deoplete#can_complete() | return deoplete#complete()
-        elseif neosnippet#jumpable()   | return <sid>check_snippet_jump()
-        else                           | return "\<Tab>"
-        endif
-    endfunction
-
-    " Enter: snippets + complete
-    function! SuperEnter() abort
-        let comp = complete_info()
-        if neosnippet#expandable()     | return "\<Plug>(neosnippet_expand)"
-        elseif comp['selected'] >= 0   | return "\<C-Y>"
-        elseif comp['pum_visible']     | return "\<C-E>\<cr>"
-        else                           | return "\<cr>"
-        endif
-    endfunction
-
-    " Space: complete only
-    function! SuperSpace() abort
-        let comp = complete_info()
-        if comp['selected'] >= 0       | return "\<C-Y>\<Space>"
-        else                           | return "\<Space>"
-        endif
-    endfunction
-
-    " Backspace: cancel
-    function! SuperBack() abort
-        let comp = complete_info()
-        if comp['selected'] >= 0       | return "\<C-E>"
-        elseif comp['pum_visible']     | return "\<C-E>\<BS>"
-        else                           | return "\<BS>"
-        endif
-    endfunction
 endif
 " }}}
+
+" {{{ => tabular
+" NOTHING HERE
+" }}}
+
+" {{{ => NERDTree
+"  Bug: VCS will ignore submodule
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeNaturalSort = 1
+let g:NERDTreeMouseMode = g:pretty_singleclick + 1
+let g:NERDTreeShowHidden = 1
+let g:NERDTreeIgnore = ['\~$', '.git\.*', '.DS_Store' ]
+let g:NERDTreeRespectWildIgnore = 1
+let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeMinimalMenu=1
+let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+"" Netrw: disable for now, test later
+let g:NERDTreeHijackNetrw = 0
+"" cancel some key mappings: too much mappings won't help user
+""  => keep only: Enter, Space, Mouse, F1/?
+"let g:NERDTreeMapActivateNode = ''
+" }}}
+
+" {{{ => Tagbar
+" use on fly tags
+let g:tagbar_singleclick = g:pretty_singleclick
+let g:tagbar_position = 'botright vertical'
+let g:tagbar_left = 0   " right
+let g:tagbar_compact = 1
+let g:tagbar_autofocus = 1
+let g:tagbar_autoshowtag = 1
+let g:tagbar_show_data_type = 1
+let g:tagbar_width = min([30, winwidth(0) / 4])
+let g:tagbar_no_status_line = 1
+" cancel some key mappings: too much mappings won't help user
+"  => keep only: Enter, Space, Mouse, F1/?
+let g:tagbar_map_hidenonpublic = ''
+let g:tagbar_map_openallfolds = ''
+let g:tagbar_map_closeallfolds = ''
+let g:tagbar_map_incrementfolds = ''
+let g:tagbar_map_decrementfolds = ''
+let g:tagbar_map_togglesort = ''
+let g:tagbar_map_toggleautoclose = ''
+let g:tagbar_map_togglecaseinsensitive = ''
+let g:tagbar_map_zoomwin = ''
+let g:tagbar_map_close = ''
+let g:tagbar_map_preview = ''
+let g:tagbar_map_previewwin = ''
+let g:tagbar_map_nexttag = ''
+let g:tagbar_map_prevtag = ''
+let g:tagbar_map_nextfold = ''
+let g:tagbar_map_prevfold = ''
+let g:tagbar_map_togglefold = ''
+let g:tagbar_map_togglepause = ''
+" multiple key mapping to these one, can't disable single one
+"let g:tagbar_map_openfold = ''
+"let g:tagbar_map_closefold = ''
+"}}}
 
 " {{{ => lightline
 set laststatus=2
@@ -537,6 +551,11 @@ let g:lightline = {
             \   'linter_errors'     : 'error',
             \ }}
 
+let g:lightline#bufferline#shorten_path = 1
+let g:lightline#bufferline#smart_path = 0 " shorten path stop working if enabled
+let g:lightline#bufferline#clickable = 1
+let g:lightline.component_raw = {'buffers': 1}
+autocmd User LightlineBufferlinePreClick :echom "== clicked " . bufname('%')
 let g:lightline#bufferline#show_number = 2
 let g:lightline#bufferline#ordinal_number_map = {
             \ 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴',
@@ -549,7 +568,7 @@ function! GitBranch() abort
     let l:git = fnamemodify(finddir('.git', '.;'), ':~:h')
     let head = FugitiveHead()
     if head != ""
-        let head = l:git .. " \uf126 " . head
+        let head = l:git . " \uf126 " . head
     endif
     return head
 endfunction
@@ -560,235 +579,6 @@ function! RelativeFileName() abort
     else                                  | return expand('%:~:.')
     endif
 endfunction
-" }}}
-
-" {{{ => tabular
-" NOTHING HERE
-" }}}
-
-" }}}
-
-" {{{ => Windows Manager
-
-" NERDTree: {{{
-"  Bug: VCS will ignore submodule
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeNaturalSort = 1
-let g:NERDTreeMouseMode = g:pretty_singleclick + 1
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = ['\~$', '.git*', '.DS_Store' ]
-let g:NERDTreeRespectWildIgnore = 1
-let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
-"" Netrw: disable for now, test later
-let g:NERDTreeHijackNetrw = 0
-"" cancel some key mappings: too much mappings won't help user
-""  => keep only: Enter, Space, Mouse, F1/?
-"let g:NERDTreeMapActivateNode = ''
-" }}}
-
-" Tagbar: use on fly tags {{{
-let g:tagbar_singleclick = g:pretty_singleclick
-let g:tagbar_position = 'botright vertical'
-let g:tagbar_left = 0   " right
-let g:tagbar_compact = 1
-let g:tagbar_autofocus = 1
-let g:tagbar_autoshowtag = 1
-let g:tagbar_show_data_type = 1
-let g:tagbar_width = min([30, winwidth(0) / 4])
-let g:tagbar_no_status_line = 1
-" cancel some key mappings: too much mappings won't help user
-"  => keep only: Enter, Space, Mouse, F1/?
-let g:tagbar_map_hidenonpublic = ''
-let g:tagbar_map_openallfolds = ''
-let g:tagbar_map_closeallfolds = ''
-let g:tagbar_map_incrementfolds = ''
-let g:tagbar_map_decrementfolds = ''
-let g:tagbar_map_togglesort = ''
-let g:tagbar_map_toggleautoclose = ''
-let g:tagbar_map_togglecaseinsensitive = ''
-let g:tagbar_map_zoomwin = ''
-let g:tagbar_map_close = ''
-let g:tagbar_map_preview = ''
-let g:tagbar_map_previewwin = ''
-let g:tagbar_map_nexttag = ''
-let g:tagbar_map_prevtag = ''
-let g:tagbar_map_nextfold = ''
-let g:tagbar_map_prevfold = ''
-let g:tagbar_map_togglefold = ''
-let g:tagbar_map_togglepause = ''
-" multiple key mapping to these one, can't disable single one
-"let g:tagbar_map_openfold = ''
-"let g:tagbar_map_closefold = ''
-"}}}
-
-set wildignore&
-set noequalalways
-set winheight=10
-set winwidth=20
-set winminheight=10
-set winminwidth=20
-set cmdheight=1
-
-" check window parts, return filetype if it's sidebar.
-function! s:wm_part_check(buf)
-    let ftype = getbufvar(bufnr(a:buf), '&ft')
-    if win_getid(winnr()) == g:pretty_winids[0]
-        return ''
-    elseif ftype == 'nerdtree' || ftype == 'tagbar'
-        return ftype
-    elseif ftype == 'help' || ftype == 'man' || ftype =~ '\.*doc'
-        return 'docs'
-    elseif ftype == 'qf' || getbufvar(bufnr(a:buf), '&bt') == 'quickfix'
-        return ftype
-    endif
-    return ''
-endfunction()
-
-function! s:wm_part_inspect()
-    echom 'perform hint @ buf:"' . bufname('%') . '"/alt:"' . bufname('#') . '"'
-                \ . '/bufnr:' . bufnr() . '#' . bufnr('$')
-                \ . '/ft:' . &ft . '/bt:' . &bt . '/mod:' . &mod . '/modi:'. &modifiable
-                \ . '/hide:' . &bufhidden . '/buflisted:' . &buflisted . '/swapfile:' . &swapfile
-                \ . '/winnr:' . winnr() . '#' . winnr('$') . '/id:' . win_getid()
-                \ . '/type:' . win_gettype(winnr()) . '/winbufnr:' . winbufnr(winnr())
-                \ . '/list:' . &list . '/cpoptions:' . &cpoptions
-endfunction()
-if g:pretty_debug == 1 | nnoremap <C-I> :call <sid>wm_part_inspect()<cr> | endif
-
-" shorten the wincmd only, :h CTRL-W
-function! s:wmcmd(id, cmd)
-    return ":" .. win_id2win(g:pretty_winids[a:id]) .. "wincmd " .. a:cmd .. "\<cr>"
-endfunction
-
-function! s:wm_on_win_update()
-    if win_getid() == g:pretty_winids[0] | return | endif
-    if g:pretty_debug | call <sid>wm_part_inspect() | endif
-    " 1. sticky buffer: never open buffer in sidebars
-    let l:buf = <sid>wm_part_check('%')
-    let l:alt = <sid>wm_part_check('#')
-    if l:alt != '' && l:buf != l:alt
-        let l:bufnr = bufnr('%') " save bufnr
-        echom "== open file in sidebar, swap it to main win."
-        exec g:pretty_cmdlet .. ":buffer#\<cr>"
-                    \ .. <sid>wmcmd(0, 'w')
-                    \ .. ":buffer " .. l:bufnr .. "\<cr>"
-    endif
-
-    " 2. update winids
-    " footbar & toc are quickfix|loclist, no way to tell here.
-    if l:buf == 'docs'
-        setlocal nobuflisted nolist nomodifiable
-        " multiple document window types? yes! > help|man|doc
-        if g:pretty_winids[2] > 0 && g:pretty_winids[2] != win_getid()
-            " document window can be opened in many ways
-            "  => move buffer to existing window
-            let bufnr = bufnr('%') " save bufnr
-            let nrbuf = len(filter(range(1, bufnr('$')), 'bufwinnr(v:val) == winnr('%')'))
-            if nrbuf > 1 | exec g:pretty_cmdlet .. ":buffer#\<cr>"
-            else         | exec g:pretty_cmdlet .. ":wincmd c\<cr>"
-            endif
-            exec g:pretty_cmdlet .. <sid>wmcmd(2, 'w')
-                \ .. ":buffer" .. bufnr .. "\<cr>"
-        elseif g:pretty_winids[2] <= 0
-            exec g:pretty_cmdlet .. ":resize " .. g:pretty_bar_height .. "\<cr>"
-            let g:pretty_winids[2] = win_getid()
-        endif
-    elseif l:buf == 'tagbar'
-        let l:width = g:pretty_bar_width
-        if g:pretty_winids[5] > 0
-            echom "== toc closed as tagbar shows."
-            let l:width = winwidth(win_id2win(g:pretty_winids[5]))
-            exec g:pretty_cmdlet .. <sid>wmcmd(5, 'c')
-        endif
-        if g:pretty_winids[4] != win_getid()
-            exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
-            let g:pretty_winids[4] = win_getid()
-        endif
-    elseif l:buf == 'nerdtree'
-        let l:width = g:pretty_bar_width
-        if g:pretty_winids[1] != win_getid()
-            exec g:pretty_cmdlet .. ":vertical resize " .. l:width .. "\<cr"
-            let g:pretty_winids[1] = win_getid()
-        endif
-    endif
-endfunction
-
-" clean records on window close
-function! s:wm_on_win_close() abort
-    if g:pretty_debug | call <sid>wm_part_inspect() | endif
-    let l:found = index(g:pretty_winids, win_getid())
-    if l:found >= 0
-        let g:pretty_winids[l:found] = -1
-    endif
-endfunction
-
-function! s:wm_quit() abort
-    if win_getid() != g:pretty_winids[0]
-        exec g:pretty_cmdlet .. ":confirm quit\<cr>"
-    else
-        echohl WarningMsg
-        let bufnr = bufnr('%') " save bufnr
-        let listed = len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))
-        if listed > 1 | exec g:pretty_cmdlet .. ":bprev\<cr> :confirm bdelete " .. bufnr .. "\<cr>"
-        else          | echo "Last buffer, close it with :quit"
-        endif
-        echohl None
-    endif
-endfunction
-
-augroup pretty.windows
-    autocmd!
-    autocmd BufEnter    * call <sid>wm_on_win_update()
-    autocmd WinClosed   * call <sid>wm_on_win_close()
-    " quit window parts if main window went away
-    autocmd BufEnter    * if !win_id2win(g:pretty_winids[0]) && <sid>wm_part_check('%') != '' | quit | endif
-augroup END
-
-" {{{ => Key maps
-" 非必要不加<silent>，这样我们可以很好的看到具体执行的命令
-" 设置mapleader
-let mapleader = ';'
-let g:mapleader = ';'
-
-" 已经有定义的按键:
-"  - `w`, `b`   : word forward or backward
-"  - `e`,       : word forward end
-"  - `n`, `N`   : search next or prev
-"  - `r`        : replace
-"  - `i`, `I`   : insert, insert at line beginning
-"  - `a`, `A`   : append, append at line end
-"  - `o`, `O`   : new line after or before current line
-"  - `y`, `Y`   : yank
-"  - `p`, `P`   : paste after or before current cursor
-"  ...
-"  :h <char> 查看更多 => 最佳实践：使用<leader>
-"
-" About map - :h map-table
-" => 注释不要写在map的后面，vim不会处理中间的空格
-
-" 编辑和加载.vimrc/init.vim
-nnoremap <leader>se :e $MYVIMRC<CR>
-nnoremap <leader>ss :source $MYVIMRC<CR>
-
-" Window
-nnoremap <F8>       :ToggleBufExplorer<cr>
-nnoremap <F9>       :NERDTreeToggle<cr>
-nnoremap <F10>      :TagbarToggle<cr>
-
-noremap  <C-q>      :call <sid>wm_quit()<cr>
-
-nnoremap <C-j>      <C-W>j
-nnoremap <C-k>      <C-W>k
-nnoremap <C-h>      <C-W>h
-nnoremap <C-l>      <C-W>l
-
-" Buffer
-nnoremap <C-e>      :ToggleBufExplorer<cr>
-nnoremap <C-n>      :bnext<cr>
-nnoremap <C-p>      :bprev<cr>
 
 " have to use <leader>, as Ctrl-numbers are likely unavailable.
 nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
@@ -801,65 +591,9 @@ nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
 nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
 nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
 nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
-
-" Special keys
-inoremap <expr><Tab>    exists("*SuperTab")   ? SuperTab()   : pumvisible() ? "\<C-N>"         : "\<BS>"
-inoremap <expr><Enter>  exists("*SuperEnter") ? SuperEnter() : pumvisible   ? "\<C-Y>"         : "\<cr>"
-inoremap <expr><BS>     exists("*SuperBack")  ? SuperBack()  : pumvisible   ? "\<C-E>"         : "\<cr>"
-noremap! <expr><Space>  exists("*SuperSpace") ? SuperSpace() : pumvisible() ? "\<C-Y>\<Space>" : "\<Space>"
-" ESC: 取消已经填充的部分并退出插入模式
-inoremap <expr><ESC>    pumvisible() ? "\<C-E>\<ESC>"   : "\<ESC>"
-cnoremap <expr><ESC>    pumvisible() ? "\<C-E>"         : "\<C-C>"
-" Arrow Keys: 选择、选取、取消候选词
-noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
-noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"
-noremap! <expr><Left>   pumvisible() ? "\<C-E>"         : "\<Left>"
-noremap! <expr><Right>  pumvisible() ? "\<C-Y>"         : "\<Right>"
-noremap! <expr><S-Tab>  pumvisible() ? "\<C-E>\<C-D>"   : "\<C-D>"
-nnoremap <S-Tab>        <<
-
-" 跳转 - Goto
-" Go to first line - `gg`
-" Go to last line
-noremap  gG         G
-" Go to begin or end of code block
-noremap  g[         [{
-noremap  g]         ]}
-" Go to Define and Back(Top of stack)
-" TODO: map K,<C-]>,gD,... to one key
-nnoremap gd         <C-]>
-nnoremap gh         <C-T>
-" Go to man or doc
-nnoremap gk         K
-" Go to Type
-" nmap gt
-" Go to next error of ale
-nnoremap ge         <Plug>(ale_next_wrap)
-" Go to yank and paste
-vnoremap gy         "+y
-nnoremap gp         "+p
-vnoremap <C-c>      "+y
-" Go to list, FIXME: what about quickfix
-nnoremap gl         :lopen<CR>
-" Tabularize
-vnoremap /          :Tabularize /
-
-" 其他
-if g:pretty_debug
-inoremap <C-o>      <Plug>(neosnippet_expand_or_jump)
-snoremap <C-o>      <Plug>(neosnippet_expand_or_jump)
-endif
-
-" reasonable setting
-" 'u' = undo => 'U' = redo
-"  => like 'n' & 'N' in search mode
-nnoremap U          :redo<cr>
 " }}}
 
-" }}}
-
-" {{{ => Language Settings
-" Markdown:
+" {{{ => Markdown:
 let g:vim_markdown_no_default_key_mappings=1
 let g:vim_markdown_folding_level = 2
 let g:vim_markdown_toc_autofit = 1
@@ -868,7 +602,9 @@ let g:vim_markdown_autowrite = 1 " autowrite when follow link
 let g:vim_markdown_new_list_item_indent = 2
 let g:vim_markdown_conceal = 1
 set conceallevel=2
+" }}}
 
+" {{{ => Language Settings
 augroup pretty.languages
     autocmd!
     autocmd FileType go         nnoremap <buffer>gB     <Plug>(go-build)
@@ -888,3 +624,9 @@ augroup pretty.languages
                 \ :TagbarClose<cr>
 augroup END
 " }}}
+
+" 编辑和加载.vimrc/init.vim
+nnoremap <leader>se :e $MYVIMRC<CR>
+nnoremap <leader>ss :source $MYVIMRC<CR>
+            \ :call lightline#update()<cr>
+            \ :call lightline#bufferline#reload()<cr>

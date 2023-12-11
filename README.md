@@ -25,6 +25,15 @@ git clone https://github.com/mtdcy/pretty.nvim.git
 cd pretty.nvim && ./install.sh
 ```
 
+## Features
+
+- Preconfigured plugins and support/host binaries & neovim installer.
+- Linters & checkers & conf templates.
+- Sticky buffer for sidebars.
+- Seamless buffer switch with `C-n` & `C-p`, even in terminal mode.
+- Smart window & buffer close with `C-q`.
+- Full functional bufferline with mouse clickable.
+
 ## Settings
 
 - g:pretty_verbose - How many messages show on screen.
@@ -53,8 +62,6 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 
 #### Buffers
 
-[ ] FIXME: buffer line clickable is not working right now.
-
 - [n] `C-e` - Buffer Explorer
 - [n] `C-n` - Buffer Next
 - [n] `C-p` - Buffer Prev
@@ -69,6 +76,14 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 - [n] `<leader>8` - Select buffer 8
 - [n] `<leader>9` - Select buffer 9
 - [n] `<leader>0` - Select buffer 10
+
+#### About terminal buffers
+
+```vim
+:tnoremap <Esc>     <C-\><C-N>
+```
+
+After this, everything works like insert and normal mode.
 
 #### Goto/Jump
 
