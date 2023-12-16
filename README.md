@@ -33,6 +33,7 @@ cd pretty.nvim && ./install.sh
 - Seamless buffer switch with `C-n` & `C-p`, even in terminal mode.
 - Smart window & buffer close with `C-q`.
 - Full functional bufferline with mouse clickable.
+- Support copy text back from ssh session, [copyd](copyd.md)
 
 ## Settings
 
