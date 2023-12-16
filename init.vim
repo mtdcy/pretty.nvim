@@ -14,8 +14,22 @@ let g:pretty_home         = fnamemodify($MYVIMRC, ':p:h')
 let g:pretty_bar_height   = min([15, winheight(0) / 3])
 let g:pretty_bar_width    = min([30, winwidth(0) / 5])
 
+let $PATH = g:pretty_home . ':' . $PATH
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
 let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
+
+if exists('$SSH_CLIENT')
+    " only copy back
+    let g:clipboard = {
+                \   'name': 'CopyBack',
+                \   'copy': {
+                \      '+': 'pretty.rcopy.sh',
+                \      '*': 'pretty.rcopy.sh',
+                \    },
+                \   'paste': { '+': '', '*': '', },
+                \   'cache_enabled': 0,
+                \ }
+endif
 
 " debugging
 if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
