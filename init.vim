@@ -530,7 +530,7 @@ set noshowmode  " mode is displayed in the statusline
 " 把会跳变的元素放在左边最后一位或右边最前一位
 let g:lightline = {
             \ 'colorscheme'         : 'one',
-            \ 'separator'           : { 'left' : "\ue0b4",          'right' : "\ue0b6" },
+            \ 'separator'           : { 'left' : "\ue0b0",          'right' : "\ue0b2" },
             \ 'subseparator'        : { 'left' : "",                'right' : "" },
             \ 'tabline'             : { 'left' : [[ 'buffers' ]],   'right' : [] },
             \ 'inactive'            : { 'left' : [[ 'filename' ]],  'right' : [['filetype' ]]},
