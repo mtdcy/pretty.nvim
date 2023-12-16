@@ -136,6 +136,31 @@ After this, everything works like insert and normal mode.
 - Go       : [vim-go](https       : //github.com/fatih/vim-go)@973279275 - `       : GoInstallBinaries`
 - Rust     : [vim-racer](https    : //github.com/racer-rust/vim-racer)@d1aead98a
 
+### Howto Add Plugins 
+
+I don't like plugin managers as I won't upgrade plugins frequently.
+
+```shell
+git remote add bufexplorer https://github.com/jlanzarotta/bufexplorer.git
+git fetch bufexplorer
+git checkout -b bufexplorer --track bufexplorer/master
+# switch branch with: git branch bufexplorer --set-upstream-to=bufexplorer/xxxx
+git pull bufexplorer master
+
+git checkout main
+git merge bufexplorer --allow-unrelated-histories --no-commit --squash
+git checkout HEAD -- README.md .gitignore   # keep ours files 
+git mv LICENSE LICENSE.bufexplorer          # keep their license file
+git rm -rf <...>                            # delete unneeded 
+vim README.md                               # update README 
+git add README.md
+
+git commit -m "merged bufexplorer"
+git push origin main
+```
+
+Delete plugin with `git revert`
+
 ## Plugins Configurations
 
 ### ALE

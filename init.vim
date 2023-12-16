@@ -286,7 +286,7 @@ if g:ale_enabled
     "let g:ale_python_pylint_options = '--errors-only'
     let g:ale_python_pylint_options = '--ignore-docstrings'
 
-    let g:ale_fix_on_save=1
+    let g:ale_fix_on_save=0
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
                 \ 'sh'          : ['shfmt'],
@@ -630,3 +630,5 @@ nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
+
+highlight! Normal ctermbg=NONE guibg=NONE
