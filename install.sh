@@ -24,6 +24,7 @@ elif which apt >/dev/null  2>&1; then
         sudo apt update
         pkg="sudo apt -y"
     fi
+    $pkg install libfuse2
 else
     info "== Fixme, unsupported platform..."
 fi
