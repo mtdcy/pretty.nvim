@@ -1,9 +1,13 @@
 #!/bin/bash
 
-name=pretty-nvim
+name=pretty-nvim-builder
 
-docker start $name || docker run -itd -v '.:/data' --name $name ubuntu:jammy
+docker stop $name || true
+docker rm   $name || true
 
-sleep 3
-
-docker exec -it $name sh -c 'cd /data && ./install.sh'
+docker run --rm -it                                  \
+    --name $name                                     \
+    -v '.:/data'                                     \
+    -v '/etc/apt/sources.list:/etc/apt/sources.list' \
+    ubuntu:jammy                                     \
+    sh -c 'cd /data && ./install.sh'

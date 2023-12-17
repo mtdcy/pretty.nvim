@@ -13,7 +13,7 @@ RED="\\033[31m"
 info() { echo -e "$RED$*\\033[39m"; }
 
 # Host prepare
-pkg="brew"
+pkg=''
 if which brew >/dev/null 2>&1; then
     pkg="which brew"
 elif which apt >/dev/null  2>&1; then
@@ -28,11 +28,26 @@ elif which apt >/dev/null  2>&1; then
 else
     info "== Fixme, unsupported platform..."
 fi
+
+if [ -z "$pkg" ]; then
+    echo "FIXME: please add support for $(lsb_release -d | awk -F: '{ print $2 }')"
+    exit 1
+fi
+
+# install host tools 
 $pkg install git python3 npm curl
 python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
+pip=$(which pip3 2>/dev/null  || which pip)
+
+# speed up by mirrors 
+if true; then
+    pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    npm  config set registry https://registry.npmmirror.com 
+fi
 
 # nvim setup
 # install nvim
+[ -L /usr/local/bin/nvim ] && sudo rm -fv /usr/local/bin/nvim 
 if [ "$(uname -s)" = "Darwin" ]; then
     if [ ! -e nvim-macos/bin/nvim ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-macos.tar.gz
@@ -50,25 +65,26 @@ else
     [ ! -e /usr/local/bin/nvim ] &&
         sudo ln -svf "$(pwd)/nvim.appimage" /usr/local/bin/nvim ||
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
+
+    info "== Please make sure you have libfuse2 installed, or try to install with 'apt install libfuse2'."
 fi
 
-# nvim final prepare
+# setup nvim config path
 if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
-    [ -d "$HOME/.config/nvim" ] && mv "$HOME/.config/nvim" "$HOME/.config/nvim-$(date)"
+    [ -e "$HOME/.config/nvim" ] && mv "$HOME/.config/nvim" "$HOME/.config/nvim-$(date)"
+
     mkdir -p "$HOME/.config"
     ln -svfT "$(pwd)" ~/.config/nvim
 fi
 
-# install node modules
+# install node modules locally
 npm install
 
-# install python modules
+# install python modules with venv 
 #$pip install neovim cmakelint cmake-format yamllint yamlfix autopep8
-rm -rf py3env || true
-python3 -m venv py3env
-source py3env/bin/activate
-pip=$(which pip3 2>/dev/null  || which pip)
-$pip install -r requirements.txt
+python3 -m venv py3env && 
+source py3env/bin/activate &&
+$pip install -r requirements.txt &&
 deactivate
 
 # C/C++
@@ -103,4 +119,5 @@ if ! which hadolint; then
     info "** Please install hadolint for Dockerfile support"
 fi
 
+# nvim final prepare
 nvim -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
