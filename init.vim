@@ -579,7 +579,7 @@ let g:lightline#bufferline#ordinal_number_map = {
 " 所有模式使用同样长度字符，防止界面抖动
 let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
 function! GitBranch() abort
-    let l:git = fnamemodify(finddir('.git', '.;'), ':~:h')
+    let l:git = fnamemodify(finddir('.git', '.;'), ':~:h:t')
     let head = FugitiveHead()
     if head != ""
         let head = l:git . " \uf126 " . head
