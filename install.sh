@@ -35,7 +35,9 @@ if [ -z "$pkg" ]; then
 fi
 
 # install host tools 
-$pkg install git python3 npm curl
+for i in curl git python3 npm; do
+    which $i || $pkg install $i
+done
 python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
 
 # speed up by mirrors 
@@ -46,27 +48,26 @@ fi
 
 # nvim setup
 # install nvim
-[ -L /usr/local/bin/nvim ] && sudo rm -fv /usr/local/bin/nvim 
+INSTDIR="${INSTDIR:-$HOME/.local/bin}"
+[ -d "$INSTDIR" ] || mkdir -pv "$INSTDIR"
 if [ "$(uname -s)" = "Darwin" ]; then
     if [ ! -e nvim-macos/bin/nvim ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-macos.tar.gz
         tar xzf nvim-macos.tar.gz
         rm nvim-macos.tar.gz
     fi
-    [ ! -e /usr/local/bin/nvim ] &&
-        sudo ln -svf "$(pwd)/nvim-macos/bin/nvim" /usr/local/bin/nvim ||
+    ln -svf "$(pwd)/nvim-macos/bin/nvim" "$INSTDIR" || 
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim-macos/bin/nvim"
 else
     if [ ! -e nvim.appimage ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage
         chmod a+x nvim.appimage
     fi
-    [ ! -e /usr/local/bin/nvim ] &&
-        sudo ln -svf "$(pwd)/nvim.appimage" /usr/local/bin/nvim ||
+    ln -svf "$(pwd)/nvim.appimage" "$INSTDIR" ||
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
 
     info "== Please make sure you have libfuse2 installed, or try to install with 'apt install libfuse2'."
-fi
+fi 
 
 # setup nvim config path
 if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
