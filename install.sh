@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 cd $(dirname "$0")
 
@@ -15,7 +15,7 @@ info() { echo -e "$RED$*\\033[39m"; }
 # Host prepare
 pkg=''
 if which brew >/dev/null 2>&1; then
-    pkg="which brew"
+    pkg="$(which brew)"
 elif which apt >/dev/null  2>&1; then
     if [ $(id -u) -eq 0 ]; then
         apt update
