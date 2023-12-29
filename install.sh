@@ -41,9 +41,11 @@ done
 python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
 
 # speed up by mirrors 
-if true; then
-    pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-    npm  config set registry https://registry.npmmirror.com 
+if [ ! -z "$MIRRORS" ]; then
+    #pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    #npm  config set registry https://registry.npmmirror.com 
+    pip3 config set global.index-url $MIRRORS/pypi/web/simple
+    npm  config set registry $MIRRORS/npmjs
 fi
 
 # nvim setup
