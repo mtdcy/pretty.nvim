@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 cd $(dirname "$0")
 
@@ -44,7 +44,7 @@ python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
 if [ ! -z "$MIRRORS" ]; then
     #pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
     #npm  config set registry https://registry.npmmirror.com 
-    pip3 config set global.index-url $MIRRORS/pypi/web/simple
+    pip3 config set global.index-url $MIRRORS/pypi/simple
     npm  config set registry $MIRRORS/npmjs
 fi
 
