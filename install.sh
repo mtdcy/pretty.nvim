@@ -42,30 +42,35 @@ python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
 
 # speed up by mirrors 
 if [ ! -z "$MIRRORS" ]; then
-    #pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-    #npm  config set registry https://registry.npmmirror.com 
     pip3 config set global.index-url $MIRRORS/pypi/simple
     npm  config set registry $MIRRORS/npmjs
+else
+    pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    npm  config set registry https://registry.npmmirror.com 
 fi
 
 # nvim setup
 # install nvim
 INSTDIR="${INSTDIR:-$HOME/.local/bin}"
 [ -d "$INSTDIR" ] || mkdir -pv "$INSTDIR"
-if [ "$(uname -s)" = "Darwin" ]; then
+
+if which brew; then
+    brew install nvim
+    info "== Installed nvim with brew"
+elif [ "$(uname -s)" = "Darwin" ]; then
     if [ ! -e nvim-macos/bin/nvim ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-macos.tar.gz
         tar xzf nvim-macos.tar.gz
         rm nvim-macos.tar.gz
     fi
-    ln -svf "$(pwd)/nvim-macos/bin/nvim" "$INSTDIR" || 
+    ln -svf "$(pwd)/nvim-macos/bin/nvim" "$INSTDIR"/nvim || 
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim-macos/bin/nvim"
 else
     if [ ! -e nvim.appimage ]; then
         curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage
         chmod a+x nvim.appimage
     fi
-    ln -svf "$(pwd)/nvim.appimage" "$INSTDIR" ||
+    ln -svf "$(pwd)/nvim.appimage" "$INSTDIR"/nvim ||
         info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
 
     info "== Please make sure you have libfuse2 installed, or try to install with 'apt install libfuse2'."
@@ -73,10 +78,9 @@ fi
 
 # setup nvim config path
 if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
-    [ -e "$HOME/.config/nvim" ] && mv "$HOME/.config/nvim" "$HOME/.config/nvim-$(date)"
+    unlink "$HOME/.config/nvim" 2>&1 || true
 
-    mkdir -p "$HOME/.config"
-    ln -svfT "$(pwd)" ~/.config/nvim
+    mkdir -p "$HOME/.config" && ln -svfT "$(pwd)" "$HOME/.config/nvim"
 fi
 
 # install node modules locally
