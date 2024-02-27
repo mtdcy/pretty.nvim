@@ -38,7 +38,9 @@ fi
 for i in curl git python3 npm; do
     which $i || $pkg install $i
 done
-python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
+
+# deprecated: handle it in venv
+#python3 -m ensurepip --upgrade || $pkg install python3-pip python3-venv
 
 # speed up by mirrors 
 if [ ! -z "$MIRRORS" ]; then
@@ -90,8 +92,7 @@ npm install
 #$pip install neovim cmakelint cmake-format yamllint yamlfix autopep8
 python3 -m venv py3env && 
 source py3env/bin/activate &&
-pip=$(which pip3 2>/dev/null  || which pip) &&
-$pip install -r requirements.txt &&
+python3 -m pip install -r requirements.txt &&
 deactivate
 
 # C/C++
