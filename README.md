@@ -128,6 +128,7 @@ After this, everything works like insert and normal mode.
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
+- [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@774dcec
 
 ### Language Plugins
 
