@@ -109,6 +109,8 @@ if which go; then
     go install golang.org/x/tools/cmd/goimports@latest
     # shfmt, author provide new version through go only
     go install mvdan.cc/sh/v3/cmd/shfmt@latest
+    # Makefile
+    go install github.com/mrtazz/checkmake/cmd/checkmake@latest
 
     # vim-go
     nvim -c 'silent! GoInstallBinaries' +quit

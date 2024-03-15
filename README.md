@@ -180,6 +180,8 @@ Delete plugin with `git revert`
 - C/C++
   - [gcc]() or [clang]()
   - [clang-format]() - `npm install clang-format` - [参数](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
+- Make
+  - [checkmake](https://github.com/mrtazz/checkmake) - `go install github.com/mrtazz/checkmake/cmd/checkmake@latest`
 - CMake
   - [cmakelint]() - `pip3 install cmakelint`
   - [cmake-format]() - `pip3 install cmake-format`

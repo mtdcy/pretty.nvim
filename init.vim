@@ -149,12 +149,30 @@ set smartindent
 set cindent
 " 文本宽, 有些过时了
 set textwidth&
-" 用Tab和Space组合填充Tab => 比较邪恶
+" 用Tab和Space组合填充Tab => 比较邪恶, 经常导致显示错位
 set softtabstop&
 
 "set cinwords=if,else,while,do,for,switch
 "set cinkeys=0{,0},0(,0),0[,0],:,;,0#,~^F,o,O,0=if,e,0=switch,0=case,0=break,0=whilea,0=for,0=do
 "set cinoptions=>s,e0,n0,f0,{0,}0,^0,Ls,:s,=s,l1,b1,g0,hs,N-s,E-s,ps,t0,is,+-s,t0,cs,C0,/0,(0,us,U0,w0,W0,k0,m1,M0,#0,P0
+" 
+augroup pretty.files
+    au!
+    " 自动跳转到上一次打开的位置
+    au BufReadPost  * silent! call <SID>jump_to_las_pos()
+    " set extra properties for interest files
+    au FileType vim         setlocal foldmethod=marker
+    au FileType yaml        setlocal et ts=2 sw=2
+    au FileType python      setlocal expandtab&
+    au FileType make        setlocal expandtab&
+    au FileType markdown    setlocal et ts=2 sw=2
+augroup END
+
+function! s:jump_to_las_pos()
+    if line("'\"") > 0 && line ("'\"") <= line('$') && &filetype !~# 'commit'
+        exec g:pretty_cmdlet . "g'\""
+    endif
+endfunction
 
 " 文件编码
 set fileencoding=utf-8
@@ -164,32 +182,11 @@ set fileencodings=utf-8,gb18030,gbk,latin1
 set fileformat=unix
 set fileformats=unix,dos
 
-" Fold: 自动打开，但不自动关闭
-"  => 所以'zc'就没意义了，重新绑定到'zM'
-nnoremap zc zM
-nnoremap zC zM
-nnoremap zo zR
-set foldenable
-set foldopen=all
+" Fold: 自动折叠，手动打开关闭
 set foldmethod=syntax
+" auto fold level
 set foldlevel=0
 set foldnestmax=2
-
-augroup pretty.files
-    au!
-    " 自动跳转到上一次打开的位置
-    au BufReadPost  * silent! call <SID>jump_to_las_pos()
-    " set extra properties for interest files
-    au FileType vim setlocal foldmethod=marker
-    au FileType markdown,yaml setlocal ts=2 sw=2
-    au FileType python setlocal expandtab&
-augroup END
-
-function! s:jump_to_las_pos()
-    if line("'\"") > 0 && line ("'\"") <= line('$') && &filetype !~# 'commit'
-        exec g:pretty_cmdlet . "g'\""
-    endif
-endfunction
 "}}}
 
 " {{{ => bufexplorer
@@ -271,8 +268,9 @@ if g:ale_enabled
                 \ 'vim'         : ['vimls'],
                 \ 'go'          : ['gopls'],
                 \ 'rust'        : ['cargo', 'rustc'],
+                \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
-                \ 'dockerfile'  : ['hadolint'],
+                \ 'dockerfile'  : ['dprint', 'hadolint'],
                 \ 'html'        : ['htmlhint'],
                 \ 'java'        : ['javac'],
                 \ 'javascript'  : ['eslint'],
@@ -300,7 +298,9 @@ if g:ale_enabled
     "let g:ale_python_pylint_options = '--errors-only'
     let g:ale_python_pylint_options = '--ignore-docstrings'
 
+    " Manually fix with ':ALEFix'
     let g:ale_fix_on_save=0
+    " => refer to autoload/ale/fixers
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
                 \ 'sh'          : ['shfmt'],
@@ -614,7 +614,8 @@ let g:vim_markdown_toc_autofit = 1
 let g:vim_markdown_follow_anchor = 1
 let g:vim_markdown_autowrite = 1 " autowrite when follow link
 let g:vim_markdown_new_list_item_indent = 2
-let g:vim_markdown_conceal = 0
+let g:vim_markdown_conceal = 1
+let g:vim_markdown_conceal_code_blocks = 0
 set conceallevel=2
 " }}}
 
