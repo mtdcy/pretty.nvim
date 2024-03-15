@@ -14,6 +14,7 @@
         "htmlhint": "latest",
         "jsonlint": "latest",
         "markdownlint-cli": "latest",
+        "neovim": "^5.0.1",
         "node": "^21.2.0",
         "node.js": "^0.0.1-security",
         "prettier": "latest",
