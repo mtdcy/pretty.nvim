@@ -491,6 +491,7 @@ let g:NERDTreeHijackNetrw = 0
 " use on fly tags
 let g:tagbar_singleclick = g:pretty_singleclick
 let g:tagbar_position = 'botright vertical'
+let g:tagbar_sort = 0
 let g:tagbar_left = 0   " right
 let g:tagbar_compact = 1
 let g:tagbar_autofocus = 1
