@@ -620,6 +620,15 @@ let g:vim_markdown_conceal_code_blocks = 0
 set conceallevel=2
 " }}}
 
+" {{{ => Lazygit.nvim:
+let g:lazygit_floating_window_winblend = 0      " transparency of floating window
+let g:lazygit_floating_window_use_plenary = 0   " use plenary.nvim to manage floating window if available
+let g:lazygit_use_custom_config_file_path = 1   " custom config file first for nvim
+let g:lazygit_config_file_path = g:pretty_home . '/lazygit.yml'
+nnoremap <F12> :LazyGit<cr>
+" XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
+" }}}
+
 " {{{ => Language Settings
 augroup pretty.languages
     autocmd!

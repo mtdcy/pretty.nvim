@@ -78,7 +78,8 @@ function! prettifier#tab#init() abort
     " Esc: 取消已经填充的部分并退出插入模式
     inoremap <expr><Esc>    pumvisible() ? "\<C-E>\<Esc>"   : "\<Esc>"
     cnoremap <expr><Esc>    pumvisible() ? "\<C-E>"         : "\<C-C>"
-    tnoremap <Esc>          <C-\><C-N>
+    " => cuase floating window can't be closed by esc.
+    "tnoremap <Esc>          <C-\><C-N>
     " Arrow Keys: 选择、选取、取消候选词
     noremap! <expr><Down>   pumvisible() ? "\<C-N>"         : "\<Down>"
     noremap! <expr><Up>     pumvisible() ? "\<C-P>"         : "\<Up>"

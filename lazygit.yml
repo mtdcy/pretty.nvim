@@ -1,0 +1,17 @@
+# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+quitOnTopLevelReturn: true
+promptToReturnFromSubprocess: false
+keybinding:
+  quit: 'q'
+  return: '<esc>'
+
+git:
+  mainBranches: [main, master]
+
+gui:
+  nerdFontsVersion: 3
+  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
+  theme:
+    activeBorderColor:
+      - red
+      - bold
