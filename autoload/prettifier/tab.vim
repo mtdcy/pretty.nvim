@@ -45,8 +45,10 @@ endfunction
 " Enter: snippets + complete
 function! s:i_enter() abort
     let comp = complete_info()
-    if comp['selected'] >= 0              | return "\<C-Y>"
-    elseif neosnippet#expandable()        | return "\<Plug>(neosnippet_expand)"
+    if comp['selected'] >= 0 
+        if neosnippet#expandable()        | return "\<C-Y>\<Plug>(neosnippet_expand)"
+        else                              | return "\<C-Y>"
+        endif
     elseif comp['pum_visible']            | return "\<C-E>\<CR>"
     else                                  | return "\<CR>"
     endif
