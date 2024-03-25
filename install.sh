@@ -87,6 +87,7 @@ fi
 
 # install node modules locally
 npm install
+# install package with 'npm install <name>' && save with 'npm init'
 
 # install python modules with venv 
 #$pip install neovim cmakelint cmake-format yamllint yamlfix autopep8

@@ -1,41 +1,43 @@
 {
-    "name": "pretty-nvim",
-    "version": "0.0.1",
-    "description": "A collection of nvim plugins making nvim pretty.",
-    "main": "index.js",
-    "directories": {
-        "doc": "doc",
-        "lib": "lib"
-    },
-    "dependencies": {
-        "clang-format": "latest",
-        "dprint": "latest",
-        "eslint": "latest",
-        "htmlhint": "latest",
-        "jsonlint": "latest",
-        "markdownlint-cli": "latest",
-        "neovim": "^5.0.1",
-        "node": "^21.2.0",
-        "node.js": "^0.0.1-security",
-        "prettier": "latest",
-        "prettier-eslint-cli": "latest",
-        "shellcheck": "latest",
-        "vim-language-server": "latest"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/mtdcy/pretty.nvim.git"
-    },
-    "keywords": [
-        "nvim"
-    ],
-    "author": "Chen Fang",
-    "license": "BSD-2-Clause",
-    "bugs": {
-        "url": "https://github.com/mtdcy/pretty.nvim/issues"
-    },
-    "homepage": "https://github.com/mtdcy/pretty.nvim#readme"
+  "name": "pretty-nvim",
+  "version": "0.0.1",
+  "description": "A collection of nvim plugins making nvim pretty.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "dependencies": {
+    "clang-format": "latest",
+    "dprint": "latest",
+    "eslint": "latest",
+    "htmlhint": "latest",
+    "jsonlint": "latest",
+    "markdownlint-cli": "latest",
+    "neovim": "^5.0.1",
+    "node": "^21.2.0",
+    "node.js": "^0.0.1-security",
+    "prettier": "latest",
+    "prettier-eslint-cli": "latest",
+    "shellcheck": "latest",
+    "vim-language-server": "latest",
+    "vscode-langservers-extracted": "^4.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mtdcy/pretty.nvim.git"
+  },
+  "keywords": [
+    "nvim"
+  ],
+  "author": "Chen Fang",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/mtdcy/pretty.nvim/issues"
+  },
+  "homepage": "https://github.com/mtdcy/pretty.nvim#readme",
+  "devDependencies": {}
 }
