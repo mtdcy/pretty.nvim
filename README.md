@@ -137,7 +137,6 @@ After this, everything works like insert and normal mode.
 - Markdown : [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
 - Go       : [vim-go](https://github.com/fatih/vim-go)@973279275 - `:GoInstallBinaries`
 - Rust     : [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
-- Html5    : [html5.vim](https://github.com/othree/html5.vim.git)@ 485f2cd
 
 ### Howto Add Plugins 
 
