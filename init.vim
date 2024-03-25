@@ -277,7 +277,7 @@ if g:ale_enabled
                 \ 'json'        : ['jsonlint'],
                 \ 'markdown'    : ['markdownlint'],
                 \ 'yaml'        : ['yamllint'],
-                \ 'python'      : ['pylint'],
+                \ 'python'      : ['jedils', 'pylint'],
                 \ }
 
     function! CheckConfig(prefix, target)
@@ -316,8 +316,8 @@ if g:ale_enabled
                 \ 'markdown'    : ['prettier'],
                 \ 'yaml'        : ['yamlfix'],
                 \ 'python'      : ['autopep8'],
+                \ 'dockerfile'  : ['dprint'],
                 \ }
-                "\ 'dockerfile'  : ['dprint'],
 
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
@@ -434,6 +434,8 @@ if g:deoplete#enable_at_startup
                     \   'cpp'   : ['LanguageClient'],
                     \   'c'     : ['LanguageClient'],
                     \   'vim'   : ['vim'],
+                    \   'zsh'   : ['zsh'],
+                    \   'python': ['jedi'],
                     \ })
     endif
 
