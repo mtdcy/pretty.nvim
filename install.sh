@@ -94,6 +94,7 @@ python3 -m venv py3env &&
 source py3env/bin/activate &&
 python3 -m pip install -r requirements.txt &&
 deactivate
+# save with 'python3 -m pip freeze > requirements.txt' in venv
 
 # C/C++
 if ! which cc; then
