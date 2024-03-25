@@ -271,7 +271,7 @@ if g:ale_enabled
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
                 \ 'dockerfile'  : ['dprint', 'hadolint'],
-                \ 'html'        : ['vscodehtml', 'htmlhint'],
+                \ 'html'        : ['vscodehtml'],
                 \ 'css'         : ['vscodecss'],
                 \ 'java'        : ['javac'],
                 \ 'javascript'  : ['eslint'],
