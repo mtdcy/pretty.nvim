@@ -124,7 +124,6 @@ After this, everything works like insert and normal mode.
 - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@7d538b7
 - [ALE](https://github.com/dense-analysis/ale)@3.3.0
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
-  - [deoplete-jedi](https://github.com/deoplete-plugins/deoplete-jedi)@4a13930
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
