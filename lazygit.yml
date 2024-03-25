@@ -78,7 +78,7 @@ keybinding:
 
     pullFiles: 'p'                # pull rebase
     pushFiles: 'P'                # Push (force)
-    remove: 'D'                   # Delete
+    remove: 'd'                   # Delete
     new: 'n'
     edit: 'e'
     undo: 'u'
