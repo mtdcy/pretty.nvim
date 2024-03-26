@@ -632,6 +632,16 @@ nnoremap <F12> :LazyGit<cr>
 " XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
 " }}}
 
+" {{{ => vim-matchtags
+let g:vim_matchtag_enable_by_default = 1
+let g:vim_matchtag_files = '*.html,*.xml,*.js,*.jsx,*.ts,*.tsx,*.vue,*.svelte,*.jsp,*.php,*.erb'
+
+highlight link matchTag Search
+highlight link matchTag MatchParen
+highlight link matchTagError Todo
+highlight matchTag gui=reverse
+" }}}
+
 " {{{ => Language Settings
 augroup pretty.languages
     autocmd!

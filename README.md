@@ -129,6 +129,7 @@ After this, everything works like insert and normal mode.
 - [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
 - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@774dcec
+- [vim-matchtag](https://github.com/leafOfTree/vim-matchtag)@54357c0
 
 ### Language Plugins
 
