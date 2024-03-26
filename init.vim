@@ -163,6 +163,7 @@ augroup pretty.files
     " set extra properties for interest files
     au FileType vim         setlocal foldmethod=marker
     au FileType yaml        setlocal et ts=2 sw=2
+    au FileType html        setlocal et ts=2 sw=2
     au FileType python      setlocal et ts=4 sw=4
     au FileType make        setlocal expandtab&
     au FileType markdown    setlocal et ts=2 sw=2
