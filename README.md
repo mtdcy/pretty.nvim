@@ -51,7 +51,7 @@ There are only a few that cannot be done with the mouse, which marked as '[*]'.
 [x] Prefer using `C-q` instead of `:quit` or `:close`, as it is smarter.
 
 - [n] `F8` - Open bufexplorer on center screen. [*]
-- [n] `F9` - Open NERDTree (file brower) on left side. [*]
+- [n] `F9` - Open Neotree (file brower) on left side. [*]
 - [n] `F10` - Open Tagbar or TOC on right side. [*]
 
 - [n] `C-h` - Move focus to left window.

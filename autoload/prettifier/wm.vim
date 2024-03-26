@@ -85,7 +85,7 @@ function! s:wmcreate(wmid) abort
     if a:wmid > 0 && s:wmwinid(a:wmid) <= 0
         let saved = winnr()
         exec s:wmwinnr(0) 'wincmd w'
-        let cmds = ['', ':NERDTree', 'help', 'lopen', ':TagbarOpen']
+        let cmds = ['', ':Neotree', 'help', 'lopen', ':TagbarOpen']
         exec index(cmds, a:wmid)
         let g:pretty_winids[a:wmid] = win_getid()
         exec saved 'wincmd w'
@@ -209,7 +209,7 @@ function! prettifier#wm#autocmds() abort
     augroup prettifier.wm
         autocmd!
         autocmd BufEnter    * call prettifier#wm#on_update()
-        " workarounds for NERDTree and Tagbar which set eventignore on creation
+        " workarounds for NeoTree and Tagbar which set eventignore on creation
         autocmd FileType    * call prettifier#wm#on_update()
         " WinClosed may be called out of box
         autocmd WinClosed   * silent call prettifier#wm#on_winclose(str2nr(expand('<amatch>')))
@@ -244,7 +244,7 @@ function! prettifier#wm#keymaps() abort
 
     " Window
     nnoremap <F8>       :ToggleBufExplorer<cr>
-    nnoremap <F9>       :NERDTreeToggle<cr>
+    nnoremap <F9>       :Neotree toggle<cr>
     nnoremap <F10>      :TagbarToggle<cr>
 
     noremap  <C-q>      :call prettifier#wm#quit()<cr>
