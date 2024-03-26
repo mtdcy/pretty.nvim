@@ -18,6 +18,8 @@ let $PATH = g:pretty_home . ':' . $PATH
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
 let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
 
+let g:python3_host_prog = g:pretty_home . '/py3env/bin/python3'
+
 if exists('$SSH_CLIENT')
     " only copy back
     let g:clipboard = {
@@ -156,17 +158,36 @@ set softtabstop&
 "set cinkeys=0{,0},0(,0),0[,0],:,;,0#,~^F,o,O,0=if,e,0=switch,0=case,0=break,0=whilea,0=for,0=do
 "set cinoptions=>s,e0,n0,f0,{0,}0,^0,Ls,:s,=s,l1,b1,g0,hs,N-s,E-s,ps,t0,is,+-s,t0,cs,C0,/0,(0,us,U0,w0,W0,k0,m1,M0,#0,P0
 " 
+
+" Fold: 自动折叠，手动打开关闭
+set foldmethod=syntax
+" auto fold level
+set foldlevel=1
+set foldnestmax=2
+
+" 文件类型
+set fileformat=unix
+set fileformats=unix,dos
+
+" 文件编码
+set fileencoding=utf-8
+set fileencodings=utf-8,gb18030,gbk,latin1
+
 augroup pretty.files
     au!
     " 自动跳转到上一次打开的位置
     au BufReadPost  * silent! call <SID>jump_to_las_pos()
     " set extra properties for interest files
-    au FileType vim         setlocal foldmethod=marker
+    au FileType vim         setlocal fdm=marker
     au FileType yaml        setlocal et ts=2 sw=2
-    au FileType html        setlocal et ts=2 sw=2
-    au FileType python      setlocal et ts=4 sw=4
     au FileType make        setlocal expandtab&
     au FileType markdown    setlocal et ts=2 sw=2
+    
+    au BufNewFile,BufRead *.py
+                \ setlocal et ts=4 sw=4 fdm=indent
+
+    au BufNewFile,BufRead *.js,*.html,*.css
+                \ setlocal et ts=2 sw=2 fdm=syntax
 augroup END
 
 function! s:jump_to_las_pos()
@@ -174,20 +195,6 @@ function! s:jump_to_las_pos()
         exec g:pretty_cmdlet . "g'\""
     endif
 endfunction
-
-" 文件编码
-set fileencoding=utf-8
-set fileencodings=utf-8,gb18030,gbk,latin1
-
-" 文件类型
-set fileformat=unix
-set fileformats=unix,dos
-
-" Fold: 自动折叠，手动打开关闭
-set foldmethod=syntax
-" auto fold level
-set foldlevel=0
-set foldnestmax=2
 "}}}
 
 " {{{ => bufexplorer
@@ -424,9 +431,11 @@ if g:deoplete#enable_at_startup
 
     if g:ale_enabled
         " ALE as completion source for deoplete
+        "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'buffer', 'file', 'neosnippet'],
+                    \   '_'     : ['ale', 'file', 'neosnippet'],
+                    \   'python': ['jedi'],
                     \ })
     else
         " 为每个语言定义completion source
