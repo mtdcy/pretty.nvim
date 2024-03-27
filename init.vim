@@ -225,10 +225,10 @@ if g:ale_enabled
     " always set omnifunc here, can be used as source for others
     "  or be replaced by others later
     set omnifunc=ale#completion#OmniFunc " => 支持手动补全
-    let g:ale_completion_enabled = 0     " => prefer deoplete
+    let g:ale_completion_enabled = 1
     if g:ale_completion_enabled
         let g:ale_completion_autoimport = 1
-        let g:ale_completion_delay = g:pretty_delay
+        let g:ale_completion_delay = g:pretty_delay / 2
         set completeopt-=preview
         set paste& " ALE complete won't work with paste
     endif

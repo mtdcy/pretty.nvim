@@ -276,7 +276,8 @@ function! prettifier#wm#keymaps() abort
     noremap  g]         ]}
     " Go to Define and Back(Top of stack)
     " TODO: map K,<C-]>,gD,... to one key
-    nnoremap gd         <C-]>
+    "nnoremap gd         <C-]>
+    nnoremap gd         :ALEGoToDefinition<cr>
     nnoremap gh         <C-T>
     " Go to man or doc
     nnoremap gk         K
