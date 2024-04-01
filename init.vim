@@ -673,6 +673,10 @@ augroup pretty.languages
 augroup END
 " }}}
 
+" {{{ => Rainbow
+let g:rainbow_active = 1
+" }}}
+
 " 编辑和加载.vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
