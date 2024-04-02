@@ -111,7 +111,6 @@ After this, everything works like insert and normal mode.
 ### Window Plugins 
 
 - [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
-- [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
 - [NERDTree](https://github.com/preservim/nerdtree)@7.0.0
 - [Tagbar](https://github.com/preservim/tagbar)@3.1.1
 - [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
