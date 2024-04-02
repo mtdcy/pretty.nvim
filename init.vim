@@ -677,6 +677,13 @@ augroup END
 let g:rainbow_active = 1
 " }}}
 
+" {{{ => NERD Commenter
+let g:NERDCreateDefaultMappings = 0
+let g:NERDDefaultAlign = 'left'
+" 'CTRL-/' => 触发comment
+noremap <C-_> <Plug>NERDCommenterToggle
+" }}}
+
 " 编辑和加载.vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
