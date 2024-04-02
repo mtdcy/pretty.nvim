@@ -570,8 +570,8 @@ let g:lightline = {
             \ 'active'              : {
             \   'left'              : [
             \       [ 'mode', 'paste' ],
-            \       [ 'gitbranch', 'readonly' ],
-            \       [ 'filename', 'modified' ]
+            \       [ 'gitbranch' ],
+            \       [ 'readonly', 'filename', 'modified' ]
             \ ],
             \   'right'             : [
             \       [ 'percent' ],
@@ -579,8 +579,8 @@ let g:lightline = {
             \       [ 'linter_ok', 'linter_errors', 'linter_warnings', 'linter_infos' ]
             \ ]},
             \ 'component'           : {
-            \   'gitbranch'         : '%{&readonly ? "" : GitBranch()}',
-            \   'readonly'          : '%{&readonly ? "\ue0a2" : ""}',
+            \   'gitbranch'         : '%{GitBranch()}',
+            \   'readonly'          : '%{&readonly ? "" : ""}',
             \   'filename'          : '%{RelativeFileName()}',
             \ },
             \ 'component_expand'    : {
@@ -612,10 +612,10 @@ let g:lightline#bufferline#ordinal_number_map = {
 " 所有模式使用同样长度字符，防止界面抖动
 let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
 function! GitBranch() abort
-    let l:git = fnamemodify(finddir('.git', '.;'), ':~:h:t')
-    let head = FugitiveHead()
+    let head = trim(system("git branch --show-current 2>/dev/null"))
     if head != ""
-        let head = l:git . " \uf126 " . head
+        let l:git = fnamemodify(finddir('.git', '.;'), ':p:h:h:t')
+        let head = l:git . "  " . head
     endif
     return head
 endfunction
