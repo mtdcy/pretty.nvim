@@ -509,7 +509,9 @@ let g:NERDTreeRespectWildIgnore = 1
 let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
+let g:NERDTreeDirArrowCollapsible=''
+let g:NERDTreeDirArrowExpandable=''
 "" Netrw: disable for now, test later
 let g:NERDTreeHijackNetrw = 0
 "" cancel some key mappings: too much mappings won't help user
