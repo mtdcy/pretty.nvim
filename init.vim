@@ -701,6 +701,15 @@ let g:NERDDefaultAlign = 'left'
 noremap <C-_> <Plug>NERDCommenterToggle
 " }}}
 
+" {{{ => WebIcons
+let g:webdevicons_enable = 1
+let g:webdevicons_enable_nerdtree = 1
+let g:webdevicons_conceal_nerdtree_brackets = 1
+let g:WebDevIconsNerdTreeAfterGlyphPadding = ' '
+let g:WebDevIconsNerdTreeGitPluginForceVAlign = 1
+let g:webdevicons_enable_denite = 1
+" }}}
+
 " {{{ => Denite
 nnoremap <C-e> :Denite buffer file/rec<cr>
 autocmd FileType denite call s:denite_settings()
