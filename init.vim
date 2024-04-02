@@ -701,6 +701,16 @@ let g:NERDDefaultAlign = 'left'
 noremap <C-_> <Plug>NERDCommenterToggle
 " }}}
 
+" {{{ => Denite
+nnoremap <C-e> :Denite buffer file/rec<cr>
+autocmd FileType denite call s:denite_settings()
+function! s:denite_settings() abort
+    nnoremap <buffer><expr> <cr>    denite#do_map('do_action')
+    nnoremap <buffer><expr> D       denite#do_map('do_action', 'delete')
+    nnoremap <buffer><expr> Q       denite#do_map('quit')
+endfunction
+" }}}
+
 " 编辑和加载.vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<CR>
 nnoremap <leader>ss :source $MYVIMRC<CR>
