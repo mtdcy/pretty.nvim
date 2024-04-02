@@ -64,12 +64,14 @@ endif
 set guicursor=a:blinkwait5-blinkon5-blinkoff5
 
 " 字体
+if has('linux')
+    "set guifont=Droid\ Sans\ Mono\ 13
+    set guifont=DroidSansM\ Nerd\ Font\ Mono\ 12
+else
+    "set guifont=Droid\ Sans\ Mono:h13
+    set guifont=DroidSansM\ Nerd\ Font\ Mono:h12
+endif
 if has('gui_running')
-    if has('linux')
-        set guifont=Droid\ Sans\ Mono\ 13
-    else
-        set guifont=Droid\ Sans\ Mono:h13
-    endif
     if has('gui_win32')         " why this only work on win32 gui
         language en             " always English
         language messages en
