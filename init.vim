@@ -498,8 +498,23 @@ endif
 " NOTHING HERE
 " }}}
 
-" {{{ => neo-tree
-
+" {{{ => NERDTree
+"  Bug: VCS will ignore submodule
+let g:NERDTreeWinPos = 'left'
+let g:NERDTreeNaturalSort = 1
+let g:NERDTreeMouseMode = g:pretty_singleclick + 1
+let g:NERDTreeShowHidden = 1
+let g:NERDTreeIgnore = ['\~$', '.git\.*', '.DS_Store' ]
+let g:NERDTreeRespectWildIgnore = 1
+let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeMinimalMenu=1
+let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+"" Netrw: disable for now, test later
+let g:NERDTreeHijackNetrw = 0
+"" cancel some key mappings: too much mappings won't help user
+""  => keep only: Enter, Space, Mouse, F1/?
+"let g:NERDTreeMapActivateNode = ''
 " }}}
 
 " {{{ => Tagbar
@@ -604,7 +619,7 @@ function! GitBranch() abort
 endfunction
 function! RelativeFileName() abort
     let l:bufname = bufname()
-    if l:bufname =~ 'neo-tree filesystem' | return 'NeoTree'
+    if l:bufname =~ 'NERD_tree_\d\+'      | return 'NERDTree'
     elseif l:bufname =~ '__Tagbar__.\d\+' | return 'Tagbar'
     else                                  | return expand('%:~:.')
     endif
