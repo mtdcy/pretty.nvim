@@ -24,7 +24,7 @@ git merge "$name" --allow-unrelated-histories --no-commit --squash # conflicts
 git checkout HEAD -- README.md .gitignore
 
 # remove unneeded
-git rm -rf .github test tests CONTRIBUTING.md
+git rm -rf .github test tests CONTRIBUTING.md --ignore-unmatch
 
 [ -f LICENSE ] && mv LICENSE "LICENSE.$name"
 [ -f LICENSE.txt ] && mv LICENSE.txt "LICENSE.$name"
