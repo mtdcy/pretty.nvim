@@ -1,0 +1,14 @@
+#!/bin/bash
+
+case "$OSTYPE" in
+    darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
+    *)          ARCH="$(uname -m)-$OSTYPE"      ;;
+esac
+
+# a symlink nvim -> . is needed
+#  `:h startup` for details
+WORKDIR="$(dirname "$(realpath "$0")")"
+
+export XDG_CONFIG_HOME="$WORKDIR"
+
+exec "$WORKDIR/prebuilts/$ARCH/app/nvim/nvim" "$@"

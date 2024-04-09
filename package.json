@@ -4,21 +4,19 @@
   "description": "A collection of nvim plugins making nvim pretty.",
   "main": "index.js",
   "directories": {
-    "doc": "docs",
-    "lib": "lib"
+    "doc": "doc",
+    "lib": "lib",
+    "test": "test"
   },
   "dependencies": {
-    "clang-format": "latest",
+    "bash-language-server": "latest",
     "dprint": "latest",
     "eslint": "latest",
-    "htmlhint": "latest",
     "jsonlint": "latest",
     "markdownlint-cli": "latest",
-    "neovim": "^5.0.1",
+    "neovim": "^5.1.0",
     "node": "^21.2.0",
     "node.js": "^0.0.1-security",
-    "prettier": "latest",
-    "prettier-eslint-cli": "latest",
     "shellcheck": "latest",
     "vim-language-server": "latest",
     "vscode-langservers-extracted": "^4.8.0"
@@ -38,6 +36,5 @@
   "bugs": {
     "url": "https://github.com/mtdcy/pretty.nvim/issues"
   },
-  "homepage": "https://github.com/mtdcy/pretty.nvim#readme",
-  "devDependencies": {}
+  "homepage": "https://github.com/mtdcy/pretty.nvim#readme"
 }

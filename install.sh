@@ -56,34 +56,34 @@ fi
 INSTDIR="${INSTDIR:-$HOME/.local/bin}"
 [ -d "$INSTDIR" ] || mkdir -pv "$INSTDIR"
 
-if which brew; then
-    brew install nvim
-    info "== Installed nvim with brew"
-elif [ "$(uname -s)" = "Darwin" ]; then
-    if [ ! -e nvim-macos/bin/nvim ]; then
-        curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-macos.tar.gz
-        tar xzf nvim-macos.tar.gz
-        rm nvim-macos.tar.gz
-    fi
-    ln -svf "$(pwd)/nvim-macos/bin/nvim" "$INSTDIR"/nvim || 
-        info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim-macos/bin/nvim"
-else
-    if [ ! -e nvim.appimage ]; then
-        curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage
-        chmod a+x nvim.appimage
-    fi
-    ln -svf "$(pwd)/nvim.appimage" "$INSTDIR"/nvim ||
-        info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
-
-    info "== Please make sure you have libfuse2 installed, or try to install with 'apt install libfuse2'."
-fi 
+#if which brew; then
+#    brew install nvim
+#    info "== Installed nvim with brew"
+#elif [ "$(uname -s)" = "Darwin" ]; then
+#    if [ ! -e nvim-macos/bin/nvim ]; then
+#        curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-macos.tar.gz
+#        tar xzf nvim-macos.tar.gz
+#        rm nvim-macos.tar.gz
+#    fi
+#    ln -svf "$(pwd)/nvim-macos/bin/nvim" "$INSTDIR"/nvim || 
+#        info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim-macos/bin/nvim"
+#else
+#    if [ ! -e nvim.appimage ]; then
+#        curl -LO https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage
+#        chmod a+x nvim.appimage
+#    fi
+#    ln -svf "$(pwd)/nvim.appimage" "$INSTDIR"/nvim ||
+#        info "== Create symlink for nvim failed, try to link nvim -> $(pwd)/nvim.appimage"
+#
+#    info "== Please make sure you have libfuse2 installed, or try to install with 'apt install libfuse2'."
+#fi 
 
 # setup nvim config path
-if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
-    unlink "$HOME/.config/nvim" 2>&1 || true
-
-    mkdir -p "$HOME/.config" && ln -svfT "$(pwd)" "$HOME/.config/nvim"
-fi
+#if [ "$(pwd)" != "$HOME/.config/nvim" ]; then
+#    unlink "$HOME/.config/nvim" 2>&1 || true
+#
+#    mkdir -p "$HOME/.config" && ln -svfT "$(pwd)" "$HOME/.config/nvim"
+#fi
 
 # install node modules locally
 npm install
@@ -97,39 +97,39 @@ python3 -m pip install -r requirements.txt &&
 deactivate
 # save with 'python3 -m pip freeze > requirements.txt' in venv
 
-# C/C++
-if ! which cc; then
-    info "== Please install host toolchain 'gcc' or 'clang' for C/C++ support."
-fi
-
-# Go
-if which go; then
-    [ -z "$GOPATH" ] && info "== Please set GOPATH properly" ||
-        echo "$PATH" | grep "$GOPATH" || info "== Please add $GOPATH/bin to PATH properly"
-
-    go install golang.org/x/tools/gopls@latest
-    go install golang.org/x/tools/cmd/goimports@latest
-    # shfmt, author provide new version through go only
-    go install mvdan.cc/sh/v3/cmd/shfmt@latest
-    # Makefile
-    go install github.com/mrtazz/checkmake/cmd/checkmake@latest
-
-    # vim-go
-    nvim -c 'silent! GoInstallBinaries' +quit
-else
-    info "== Please install host toolchain 'golang' for Go support"
-fi
-
-# Rust
-if which rustup; then
-    rustup component add rustfmt
-else
-    info "== Please install host toolchain 'cargo|rustc' for Rust support"
-fi
-
-if ! which hadolint; then
-    info "** Please install hadolint for Dockerfile support"
-fi
+## C/C++
+#if ! which cc; then
+#    info "== Please install host toolchain 'gcc' or 'clang' for C/C++ support."
+#fi
+#
+## Go
+#if which go; then
+#    [ -z "$GOPATH" ] && info "== Please set GOPATH properly" ||
+#        echo "$PATH" | grep "$GOPATH" || info "== Please add $GOPATH/bin to PATH properly"
+#
+#    go install golang.org/x/tools/gopls@latest
+#    go install golang.org/x/tools/cmd/goimports@latest
+#    # shfmt, author provide new version through go only
+#    go install mvdan.cc/sh/v3/cmd/shfmt@latest
+#    # Makefile
+#    go install github.com/mrtazz/checkmake/cmd/checkmake@latest
+#
+#    # vim-go
+#    nvim -c 'silent! GoInstallBinaries' +quit
+#else
+#    info "== Please install host toolchain 'golang' for Go support"
+#fi
+#
+## Rust
+#if which rustup; then
+#    rustup component add rustfmt
+#else
+#    info "== Please install host toolchain 'cargo|rustc' for Rust support"
+#fi
+#
+#if ! which hadolint; then
+#    info "** Please install hadolint for Dockerfile support"
+#fi
 
 # nvim final prepare
 nvim -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit

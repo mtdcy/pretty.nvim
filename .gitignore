@@ -5,3 +5,7 @@ doc/tags
 nvim.appimage
 nvim-macos/
 .DS_Store
+prebuilts/
+cmdlets.sh
+nvim
+package-lock.json
