@@ -449,7 +449,7 @@ if g:deoplete#enable_at_startup
         "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'file', 'neosnippet'],
+                    \   '_'     : ['file', 'buffer', 'ale', 'neosnippet'],
                     \ })
     else
         " 为每个语言定义completion source
