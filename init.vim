@@ -88,7 +88,7 @@ endif
 set number
 
 " 不备份文件
-set nobackup" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
+set nobackup
 set nowritebackup
 
 " 上下移动时，留1行
@@ -214,10 +214,6 @@ function! s:jump_to_las_pos()
     endif
 endfunction
 "}}}
-
-" {{{ => bufexplorer
-" NOTHING HERE
-" }}}
 
 " {{{ => echodoc
 let g:echodoc#enable_at_startup = 1
