@@ -198,7 +198,8 @@ augroup pretty.files
     au FileType vim         setlocal fdm=marker foldlevel=0
     au FileType yaml        setlocal et ts=2 sw=2
     au FileType make        setlocal expandtab&
-    au FileType markdown    setlocal et ts=2 sw=2
+    au FileType markdown    setlocal et ts=2 sw=2 foldlevel=99
+    " => Markdown插件有点问题，总是不断折叠
    
     " Python 通过indent折叠总在折叠在函数的第二行
     au BufNewFile,BufRead *.py
