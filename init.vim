@@ -18,6 +18,8 @@ let $PATH = g:pretty_home . ':' . $PATH
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
 let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
 
+let g:python3_host_prog = g:pretty_home . '/py3env/bin/python3'
+
 if exists('$SSH_CLIENT')
     " only copy back
     let g:clipboard = {
@@ -62,12 +64,14 @@ endif
 set guicursor=a:blinkwait5-blinkon5-blinkoff5
 
 " 字体
+if has('linux')
+    "set guifont=Droid\ Sans\ Mono\ 13
+    set guifont=DroidSansM\ Nerd\ Font\ Mono\ 12
+else
+    "set guifont=Droid\ Sans\ Mono:h13
+    set guifont=DroidSansM\ Nerd\ Font\ Mono:h12
+endif
 if has('gui_running')
-    if has('linux')
-        set guifont=Droid\ Sans\ Mono\ 13
-    else
-        set guifont=Droid\ Sans\ Mono:h13
-    endif
     if has('gui_win32')         " why this only work on win32 gui
         language en             " always English
         language messages en
@@ -84,7 +88,7 @@ endif
 set number
 
 " 不备份文件
-set nobackup" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
+set nobackup
 set nowritebackup
 
 " 上下移动时，留1行
@@ -146,26 +150,63 @@ set tabstop=4 shiftwidth=4
 set expandtab
 set autoindent
 set smartindent
-set cindent
 " 文本宽, 有些过时了
 set textwidth&
 " 用Tab和Space组合填充Tab => 比较邪恶, 经常导致显示错位
 set softtabstop&
 
+set cindent
 "set cinwords=if,else,while,do,for,switch
 "set cinkeys=0{,0},0(,0),0[,0],:,;,0#,~^F,o,O,0=if,e,0=switch,0=case,0=break,0=whilea,0=for,0=do
 "set cinoptions=>s,e0,n0,f0,{0,}0,^0,Ls,:s,=s,l1,b1,g0,hs,N-s,E-s,ps,t0,is,+-s,t0,cs,C0,/0,(0,us,U0,w0,W0,k0,m1,M0,#0,P0
 " 
+
+" Fold: 默认折叠，手动开关
+set foldmethod=syntax
+set foldlevel=1
+set foldnestmax=2
+" fold text
+set foldtext=FoldText()
+set fillchars+=fold:\       " 隐藏v:folddashes. note: there is a space after \
+set foldminlines=3          " don't fold smallest if-else statement
+
+" fold column
+"set foldcolumn=1            " 显示fold栏，可鼠标开关 => 与git状态有些冲突
+"set fillchars+=foldclose:
+"set fillchars+=foldopen:
+"set fillchars+=foldsep:
+
+function FoldText()
+    let text = getline(v:foldstart)
+    let lines = v:foldend - v:foldstart
+    return text .. " 󰍻 " .. lines .. " more lines "
+endfunction
+
+" 文件类型
+set fileformat=unix
+set fileformats=unix,dos
+
+" 文件编码
+set fileencoding=utf-8
+set fileencodings=utf-8,gb18030,gbk,latin1
+
 augroup pretty.files
     au!
     " 自动跳转到上一次打开的位置
     au BufReadPost  * silent! call <SID>jump_to_las_pos()
     " set extra properties for interest files
-    au FileType vim         setlocal foldmethod=marker
+    au FileType vim         setlocal fdm=marker foldlevel=0
     au FileType yaml        setlocal et ts=2 sw=2
-    au FileType python      setlocal expandtab&
     au FileType make        setlocal expandtab&
-    au FileType markdown    setlocal et ts=2 sw=2
+    au FileType markdown    setlocal et ts=2 sw=2 foldlevel=99
+    " => Markdown插件有点问题，总是不断折叠
+   
+    " Python 通过indent折叠总在折叠在函数的第二行
+    au BufNewFile,BufRead *.py
+                \ setlocal et ts=4 sw=4 fdm=indent
+
+    au BufNewFile,BufRead *.js,*.html,*.css
+                \ setlocal et ts=2 sw=2 fdm=syntax
 augroup END
 
 function! s:jump_to_las_pos()
@@ -173,25 +214,7 @@ function! s:jump_to_las_pos()
         exec g:pretty_cmdlet . "g'\""
     endif
 endfunction
-
-" 文件编码
-set fileencoding=utf-8
-set fileencodings=utf-8,gb18030,gbk,latin1
-
-" 文件类型
-set fileformat=unix
-set fileformats=unix,dos
-
-" Fold: 自动折叠，手动打开关闭
-set foldmethod=syntax
-" auto fold level
-set foldlevel=0
-set foldnestmax=2
 "}}}
-
-" {{{ => bufexplorer
-" NOTHING HERE
-" }}}
 
 " {{{ => echodoc
 let g:echodoc#enable_at_startup = 1
@@ -216,13 +239,13 @@ let g:ale_enabled = 1
 if g:ale_enabled
     " always set omnifunc here, can be used as source for others
     "  or be replaced by others later
-    set omnifunc=ale#completion#OmniFunc " => 支持手动补全
-    let g:ale_completion_enabled = 0     " => prefer deoplete
+    let g:ale_completion_enabled = 0
     if g:ale_completion_enabled
         let g:ale_completion_autoimport = 1
-        let g:ale_completion_delay = g:pretty_delay
+        let g:ale_completion_delay = g:pretty_delay / 2
         set completeopt-=preview
         set paste& " ALE complete won't work with paste
+        set omnifunc=ale#completion#OmniFunc " => 支持手动补全
     endif
 
     " 默认：只显示左侧图标，不显示virtualtext，
@@ -271,13 +294,14 @@ if g:ale_enabled
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
                 \ 'dockerfile'  : ['dprint', 'hadolint'],
-                \ 'html'        : ['htmlhint'],
+                \ 'html'        : ['vscodehtml'],
+                \ 'css'         : ['vscodecss'],
                 \ 'java'        : ['javac'],
                 \ 'javascript'  : ['eslint'],
-                \ 'json'        : ['jsonlint'],
+                \ 'json'        : ['vscodejson', 'jsonlint'],
                 \ 'markdown'    : ['markdownlint'],
                 \ 'yaml'        : ['yamllint'],
-                \ 'python'      : ['pylint'],
+                \ 'python'      : ['jedils', 'pylint'],
                 \ }
 
     function! CheckConfig(prefix, target)
@@ -316,8 +340,8 @@ if g:ale_enabled
                 \ 'markdown'    : ['prettier'],
                 \ 'yaml'        : ['yamlfix'],
                 \ 'python'      : ['autopep8'],
+                \ 'dockerfile'  : ['dprint'],
                 \ }
-                "\ 'dockerfile'  : ['dprint'],
 
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
@@ -422,9 +446,10 @@ if g:deoplete#enable_at_startup
 
     if g:ale_enabled
         " ALE as completion source for deoplete
+        "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'buffer', 'file', 'neosnippet'],
+                    \   '_'     : ['file', 'buffer', 'ale', 'neosnippet'],
                     \ })
     else
         " 为每个语言定义completion source
@@ -434,6 +459,8 @@ if g:deoplete#enable_at_startup
                     \   'cpp'   : ['LanguageClient'],
                     \   'c'     : ['LanguageClient'],
                     \   'vim'   : ['vim'],
+                    \   'zsh'   : ['zsh'],
+                    \   'python': ['jedi'],
                     \ })
     endif
 
@@ -474,12 +501,14 @@ let g:NERDTreeWinPos = 'left'
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeMouseMode = g:pretty_singleclick + 1
 let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = ['\~$', '.git\.*', '.DS_Store' ]
+let g:NERDTreeIgnore = ['\~$', '.git\.*', '.DS_Store', '__pycache__']
 let g:NERDTreeRespectWildIgnore = 1
 let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1    " drop invalid buffer after rename or delete
+let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
+let g:NERDTreeDirArrowCollapsible=''
+let g:NERDTreeDirArrowExpandable=''
 "" Netrw: disable for now, test later
 let g:NERDTreeHijackNetrw = 0
 "" cancel some key mappings: too much mappings won't help user
@@ -538,8 +567,8 @@ let g:lightline = {
             \ 'active'              : {
             \   'left'              : [
             \       [ 'mode', 'paste' ],
-            \       [ 'gitbranch', 'readonly' ],
-            \       [ 'filename', 'modified' ]
+            \       [ 'gitbranch' ],
+            \       [ 'readonly', 'filename', 'modified' ]
             \ ],
             \   'right'             : [
             \       [ 'percent' ],
@@ -547,8 +576,8 @@ let g:lightline = {
             \       [ 'linter_ok', 'linter_errors', 'linter_warnings', 'linter_infos' ]
             \ ]},
             \ 'component'           : {
-            \   'gitbranch'         : '%{&readonly ? "" : GitBranch()}',
-            \   'readonly'          : '%{&readonly ? "\ue0a2" : ""}',
+            \   'gitbranch'         : '%{GitBranch()}',
+            \   'readonly'          : '%{&readonly ? "" : ""}',
             \   'filename'          : '%{RelativeFileName()}',
             \ },
             \ 'component_expand'    : {
@@ -580,10 +609,10 @@ let g:lightline#bufferline#ordinal_number_map = {
 " 所有模式使用同样长度字符，防止界面抖动
 let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
 function! GitBranch() abort
-    let l:git = fnamemodify(finddir('.git', '.;'), ':~:h:t')
-    let head = FugitiveHead()
+    let head = trim(system("git branch --show-current 2>/dev/null"))
     if head != ""
-        let head = l:git . " \uf126 " . head
+        let l:git = fnamemodify(finddir('.git', '.;'), ':p:h:h:t')
+        let head = l:git . "  " . head
     endif
     return head
 endfunction
@@ -629,6 +658,16 @@ nnoremap <F12> :LazyGit<cr>
 " XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
 " }}}
 
+" {{{ => vim-matchtags
+let g:vim_matchtag_enable_by_default = 1
+let g:vim_matchtag_files = '*.html,*.xml,*.js,*.jsx,*.ts,*.tsx,*.vue,*.svelte,*.jsp,*.php,*.erb'
+
+highlight link matchTag Search
+highlight link matchTag MatchParen
+highlight link matchTagError Todo
+highlight matchTag gui=reverse
+" }}}
+
 " {{{ => Language Settings
 augroup pretty.languages
     autocmd!
@@ -648,6 +687,27 @@ augroup pretty.languages
                 \ :setlocal nobuflisted nolist nomodifiable<cr>
                 \ :TagbarClose<cr>
 augroup END
+" }}}
+
+" {{{ => Rainbow
+let g:rainbow_active = 1
+" }}}
+
+" {{{ => NERD Commenter
+let g:NERDCreateDefaultMappings = 0
+let g:NERDDefaultAlign = 'left'
+" 'CTRL-/' => 触发comment
+noremap <C-_> <Plug>NERDCommenterToggle
+" }}}
+
+" {{{ => Denite
+nnoremap <C-e> :Denite buffer file/rec<cr>
+autocmd FileType denite call s:denite_settings()
+function! s:denite_settings() abort
+    nnoremap <buffer><expr> <cr>    denite#do_map('do_action')
+    nnoremap <buffer><expr> D       denite#do_map('do_action', 'delete')
+    nnoremap <buffer><expr> Q       denite#do_map('quit')
+endfunction
 " }}}
 
 " 编辑和加载.vimrc/init.vim

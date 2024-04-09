@@ -111,7 +111,6 @@ After this, everything works like insert and normal mode.
 ### Window Plugins 
 
 - [solarized8](https://github.com/lifepillar/vim-solarized8)@bde9cab3d
-- [bufexplorer](https://github.com/jlanzarotta/bufexplorer)@7.4.26
 - [NERDTree](https://github.com/preservim/nerdtree)@7.0.0
 - [Tagbar](https://github.com/preservim/tagbar)@3.1.1
 - [lightline.vim](https://github.com/itchyny/lightline.vim)@1c6b455c0
@@ -126,17 +125,17 @@ After this, everything works like insert and normal mode.
 - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@62dd019
 - [Neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a615d
   - [neosnippet-snippets](https://github.com/Shougo/neosnippet-snippets)@725c989f1
-- [fugitive](https://github.com/tpope/vim-fugitive)@46eaf8918
 - [Tabular](https://github.com/godlygeek/tabular)@339091ac4
 - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@774dcec
+- [vim-matchtag](https://github.com/leafOfTree/vim-matchtag)@54357c0
 
 ### Language Plugins
 
 [ ] FIXME: `vim-markdown` is pretty good but the toc does not work so well.
 
-- Markdown : [vim-markdown](https : //github.com/preservim/vim-markdown)@46add6c30
-- Go       : [vim-go](https       : //github.com/fatih/vim-go)@973279275 - `       : GoInstallBinaries`
-- Rust     : [vim-racer](https    : //github.com/racer-rust/vim-racer)@d1aead98a
+- Markdown : [vim-markdown](https://github.com/preservim/vim-markdown)@46add6c30
+- Go       : [vim-go](https://github.com/fatih/vim-go)@973279275 - `:GoInstallBinaries`
+- Rust     : [vim-racer](https://github.com/racer-rust/vim-racer)@d1aead98a
 
 ### Howto Add Plugins 
 

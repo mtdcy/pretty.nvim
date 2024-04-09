@@ -15,30 +15,39 @@ function! s:typed_line() abort
     return c > 0 ? getline('.')[:c-1] : ''
 endfunction
 
+" new line? => insert indent => :h i_CTRL-T
 function! s:check_new_line() abort
-    if &ft == 'markdown' | return <sid>typed_line() =~# '\s*\(-\|\*\|\d\+\)\s\+$'
-    else | return 0
+    let typed_line = <sid>typed_line()
+    " :h expr4 for compare op help
+    if &ft == 'markdown'                    | return typed_line =~ '\s*\(-\|\*\|\d\+\)\s\+$'
+    elseif &ft == 'yaml'                    | return typed_line =~ '\s*.*\(-\|:\)\s*$'
+    else                                    | return typed_line == ''
     endif
 endfunction
 
-function! s:snippet_try_jump(def) abort
-    return neosnippet#jumpable() ? "\<Plug>(neosnippet_jump)" : a:def
-endfunction
-
-function! s:snippet_expand(def) abort
-endfunction
-
-function! s:complete(def) abort
-    return deoplete#complete()
+" new start? => insert tab
+function! s:check_new_start() abort
+    let typed_line = <sid>typed_line()
+    " space before cursor?
+    return typed_line[-1:] =~ '\s'
 endfunction
 
 " Tab: 开始补全，选择候选词，snippets, Tab
 function! s:i_tab() abort
-    if pumvisible()                       | return "\<C-N>"
-    elseif <sid>check_new_line()          | return "\<C-T>"
-    elseif <sid>typed_line()[-1] =~# '\s' | return <sid>snippet_try_jump("\<Tab>")
-    elseif deoplete#can_complete()        | return deoplete#complete()
-    else                                  | return <sid>snippet_try_jump("\<Tab>")
+    if pumvisible()                         | return "\<C-N>"
+    elseif <sid>check_new_line()            | return "\<C-T>"
+    elseif <sid>check_new_start()
+        if exists('*neosnippet#jumpable')
+            if neosnippet#jumpable()        | return "\<Plug>(neosnippet_jump)"
+            else                            | return "\<Tab>"
+            endif
+        else                                | return "\<Tab>"
+        endif
+    elseif exists('g:deoplete#enable_at_startup') && g:deoplete#enable_at_startup
+        if deoplete#can_complete()          | return deoplete#complete()
+        else                                | return "\<Tab>"
+        endif
+    else                                    | return "\<C-X>\<C-O>"
     endif
 endfunction
 
@@ -46,13 +55,16 @@ endfunction
 function! s:i_enter() abort
     let comp = complete_info()
     if comp['selected'] >= 0 
-        if neosnippet#expandable()        | return "\<C-Y>\<Plug>(neosnippet_expand)"
-        else                              | return "\<C-Y>"
+        if exists('*neosnippet#expandable')
+            if neosnippet#expandable()      | return "\<C-Y>\<Plug>(neosnippet_expand)"
+            else                            | return "\<C-Y>"
+            endif
+        else                                | return "\<C-Y>"
         endif
-    elseif comp['pum_visible']            | return "\<C-E>\<CR>"
-    else                                  | return "\<CR>"
+    elseif comp['pum_visible']              | return "\<C-E>\<CR>"
+    else                                    | return "\<CR>"
     endif
-endfunction
+endfunction  
 
 " Space: complete only
 function! s:i_space() abort
@@ -73,6 +85,7 @@ function! s:i_backspace() abort
 endfunction
 
 function! prettifier#tab#init() abort
+    inoremap <expr><C-L>    <sid>typed_line()
     inoremap <expr><Tab>    <sid>i_tab()
     inoremap <expr><Enter>  <sid>i_enter()
     noremap! <expr><Space>  <sid>i_space()

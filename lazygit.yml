@@ -2,6 +2,21 @@
 quitOnTopLevelReturn: true
 promptToReturnFromSubprocess: false
 
+gui:
+  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
+  windowSize: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'
+  mainPanelSplitMode: 'flexible' # one of 'horizontal' | 'flexible' | 'vertical'
+  enlargedSideViewLocation: 'left' # one of 'left' | 'top'
+  nerdFontsVersion: 3
+  showFileIcons: false
+  showPanelJumps: true
+  theme:
+    activeBorderColor:
+      - red
+      - bold
+    selectedLineBgColor:
+      - reverse
+
 git:
   mainBranches: [main, master]
   autoFetch: true
@@ -10,10 +25,8 @@ git:
   disableForcePushing: false
   parseEmoji: true
   overrideGpg: false # prevents lazygit from spawning a separate process when using GPG
-  #branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=medium {{branchName}} --'
-  #allBranchesLogCmd: 'git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium'
-  branchesLogCmd: 'git log --color --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %cr)"'
-  allBranchesLogCmd: 'git log --color --graph --all --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %cr)"'
+  branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
+  allBranchesLogCmd: 'git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=oneline'
   paging:
     colorArg: always
     useConfig: false
@@ -31,19 +44,6 @@ git:
     showGraph: 'always'
     # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)
     showWholeGraph: true
-
-gui:
-  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
-  windowSize: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'
-  nerdFontsVersion: 3
-  showFileIcons: false
-  showPanelJumps: true
-  theme:
-    activeBorderColor:
-      - red
-      - bold
-    selectedLineBgColor:
-      - reverse
 
 # don't delete keybinding lines, bind to '' instead.
 keybinding:
@@ -78,7 +78,7 @@ keybinding:
 
     pullFiles: 'p'                # pull rebase
     pushFiles: 'P'                # Push (force)
-    remove: 'D'                   # Delete
+    remove: 'd'                   # Delete
     new: 'n'
     edit: 'e'
     undo: 'u'

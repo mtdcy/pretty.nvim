@@ -243,7 +243,6 @@ function! prettifier#wm#keymaps() abort
     "  ...
 
     " Window
-    nnoremap <F8>       :ToggleBufExplorer<cr>
     nnoremap <F9>       :NERDTreeToggle<cr>
     nnoremap <F10>      :TagbarToggle<cr>
 
@@ -261,7 +260,6 @@ function! prettifier#wm#keymaps() abort
     tnoremap <C-l>      <C-\><C-N><C-W>l
 
     " Buffer
-    nnoremap <silent> <C-e>     :ToggleBufExplorer<cr>
     nnoremap <silent> <C-n>     :call prettifier#wm#next()<cr>
     nnoremap <silent> <C-p>     :call prettifier#wm#prev()<cr>
     tnoremap <silent> <C-n>     <C-\><C-N>:bnext<cr>
@@ -276,7 +274,8 @@ function! prettifier#wm#keymaps() abort
     noremap  g]         ]}
     " Go to Define and Back(Top of stack)
     " TODO: map K,<C-]>,gD,... to one key
-    nnoremap gd         <C-]>
+    "nnoremap gd         <C-]>
+    nnoremap gd         :ALEGoToDefinition<cr>
     nnoremap gh         <C-T>
     " Go to man or doc
     nnoremap gk         K
