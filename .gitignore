@@ -1,0 +1,7 @@
+*.py[cod]
+node_modules/
+py3env/
+doc/tags
+nvim.appimage
+nvim-macos/
+.DS_Store
