@@ -1,0 +1,217 @@
+# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+quitOnTopLevelReturn: true
+promptToReturnFromSubprocess: false
+
+gui:
+  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
+  windowSize: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'
+  mainPanelSplitMode: 'flexible' # one of 'horizontal' | 'flexible' | 'vertical'
+  enlargedSideViewLocation: 'left' # one of 'left' | 'top'
+  nerdFontsVersion: 3
+  showFileIcons: false
+  showPanelJumps: true
+  theme:
+    activeBorderColor:
+      - red
+      - bold
+    selectedLineBgColor:
+      - reverse
+
+git:
+  mainBranches: [main, master]
+  autoFetch: true
+  autoRefresh: true
+  fetchAll: true    # Pass --all flag when running git fetch. Set to false to fetch only origin (or the current branch's upstream remote if there is one)
+  disableForcePushing: false
+  parseEmoji: true
+  overrideGpg: false # prevents lazygit from spawning a separate process when using GPG
+  branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
+  allBranchesLogCmd: 'git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=oneline'
+  paging:
+    colorArg: always
+    useConfig: false
+  commit:
+    signOff: false
+    autoWrapCommitMessage: true # automatic WYSIWYG wrapping of the commit message as you type
+    autoWrapWidth: 72 # if autoWrapCommitMessage is true, the width to wrap to
+  merging:
+    # only applicable to unix users
+    manualCommit: false
+    # extra args passed to `git merge`, e.g. --no-ff
+    args: ''
+  log:
+    # Deprecated: Configure this with `Log menu -> Show git graph` (<c-l> in the commits window by default).
+    showGraph: 'always'
+    # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)
+    showWholeGraph: true
+
+# don't delete keybinding lines, bind to '' instead.
+keybinding:
+  universal:
+    jumpToBlock: ['', '1', '2', '3', '4'] # goto the Nth block / panel
+    quit: 'Q'                     # use return instead
+    quit-alt1: ''                 # alternative/alias of quit
+    return: '<esc>'               # return to previous menu, will quit if there's nowhere to return
+    togglePanel: '<tab>'          # goto the next panel
+    prevItem: '<up>'              # go one line up
+    nextItem: '<down>'            # go one line down
+    prevBlock: '<left>'           # goto the previous block / panel
+    nextBlock: '<right>'          # goto the next block / panel
+    prevBlock-alt: 'h'            # goto the previous block / panel
+    nextBlock-alt: 'l'            # goto the next block / panel
+    prevItem-alt: 'k'             # go one line up
+    nextItem-alt: 'j'             # go one line down
+    prevPage: '<pgup>'            #','  # go to next page in list
+    nextPage: '<pgdown>'          #'.'  # go to previous page in list
+    gotoTop: '<home>'             #'<'  # go to top of list
+    gotoBottom: '<end>'           #'>'  # go to bottom of list
+    nextTab: ']'
+    prevTab: '['
+
+    optionMenu: '?'               # show help menu
+    extrasMenu: '@'
+
+    select: '<space>'             #
+    goInto: '<enter>'
+    confirm: '<enter>'
+    submitEditorText: '<enter>'
+
+    pullFiles: 'p'                # pull rebase
+    pushFiles: 'P'                # Push (force)
+    remove: 'd'                   # Delete
+    new: 'n'
+    edit: 'e'
+    undo: 'u'
+    redo: 'U'
+    refresh: 'r'
+    nextMatch: 'n'
+    prevMatch: 'N'
+    openRecentRepos: 'O'          #'<c-r>'
+    toggleRangeSelect: 'v'        #'v'
+    executeCustomCommand: ':'
+
+    # ...
+    scrollLeft: ''                #'H'        # scroll left within list view
+    scrollRight: ''               #'L'        # scroll right within list view
+    copyToClipboard: ''           #'<c-o>'
+    scrollUpMain: ''              #'<pgup>'   # main panel scroll up
+    scrollDownMain: ''            #'<pgdown>' # main panel scroll down
+    scrollUpMain-alt1: ''         #'K'        # main panel scroll up
+    scrollDownMain-alt1: ''       #'J'        # main panel scroll down
+
+    openFile: ''                  #'o'
+    createRebaseOptionsMenu: ''   #'m'
+    createPatchOptionsMenu: ''    #'<c-p>'
+    nextScreenMode: ''            #'+'
+    prevScreenMode: ''            #'_'
+    filteringMenu: ''             #'<c-s>'
+    diffingMenu: ''               #'W'
+    diffingMenu-alt: ''           #'<c-e>'    # deprecated
+    rangeSelectUp: ''             #'<s-up>'
+    rangeSelectDown: ''           #'<s-down>'
+    increaseContextInDiffView: '' #'}'
+    decreaseContextInDiffView: '' #'{'
+    toggleWhitespaceInDiffView: '' #'<c-w>'
+    quitWithoutChangingDirectory: '' # 'Q'
+
+  status:
+    checkForUpdate: ''            #'u'
+    recentRepos: ''               #'<enter>'
+
+  files:
+    ignoreFile: 'i'
+    # commit & amend is enough for files.
+    commitChanges: 'c'            # commit
+    amendLastCommit: 'A'          # amend
+    toggleStagedAll: 's'          # stage/unstage all
+
+    fetch: 'f'                    #'f'      # = branches:fetchRemote
+
+    # ...
+    refreshFiles: ''              #'R'
+    openMergeTool: ''             #'M'
+    confirmDiscard: ''            #'x'
+    toggleTreeView: ''            #'`'
+    stashAllChanges: ''           #'s'
+    viewStashOptions: ''          #'S'
+    viewResetOptions: ''          #'D'
+    openStatusFilter: ''          #'<c-b>'
+    findBaseCommitForFixup: ''    #'<c-f>'
+    commitChangesWithEditor: ''   #'C'
+    commitChangesWithoutHook: ''  #'w'      # commit changes without pre-commit hook
+
+  branches:
+    # use universal keybinding if possible.
+    checkoutBranchByName: 'c'     #'c'
+    forceCheckoutBranch: 'C'      #'F'      # normal checkout = universal:select
+
+    renameBranch: 'e'             #'R'      # = universal:edit
+    rebaseBranch: 'r'             #'r'
+    fetchRemote: 'f'              #'f'      # fetch @ remote tab
+    fastForward: 'f'              #'f'      # fast-forward @ branch tab
+    mergeIntoCurrentBranch: 'M'   #'M'
+
+    # Tags
+    createTag: 'T'                #'T'
+    pushTag: 'P'                  #'P'      # push(force) won't push tags. = universal:Push
+
+    setUpstream: 'U'              #'u'      # set as upstream of checked-out branch
+
+    # ...
+    createPullRequest: ''         #'o'
+    viewPullRequestOptions: ''    #'O'
+    viewGitFlowOptions: ''        #'i'
+
+  commits:
+    checkoutCommit: 'c'           #'<space>'# = branches:checkoutBranchByName
+    renameCommit: 'e'             #'r'      # = universal:edit (TUI: reword commit, **wired**)
+    revertCommit: 'r'             #'t'      # revert/remove commit
+    openLogMenu: 'l'              #'<c-l>'  # log/list commits options
+    viewResetOptions: 'R'         #'g'      # Reset soft/mixed/hard
+
+    # Fixup ...
+    createFixupCommit: 'f'        #'f'      # create fixup commit for this commit
+    squashAboveCommits: 'F'       #'S'      # squash fixup commits into one (must be together)
+    # two choice for fix & amend
+    markCommitAsFixup: 's'        #'f'      # mark as fixup & amend
+    squashDown: ''                #'s'
+
+    # Move commits up & down in the same branch
+    moveUpCommit: 'K'             #'<c-k>'  # move commit up one
+    moveDownCommit: 'J'           #'<c-j>'  # move commit down one
+
+    # Cherry-Pick: two steps
+    cherryPickCopy: 'C'           #'C'      # pick commits in one branch
+    pickCommit: 'c'               #'p'      # pick commit (when mid-rebase)
+    pasteCommits: 'V'             #'V'      # paste in another
+
+    # Tags
+    tagCommit: 'T'                #'T'      # = branches:createTag
+
+    # SHA
+    copyCommitMessageToClipboard: 'c-c'     #'<c-y>'
+
+    # ...
+    amendToCommit: ''             #'A'
+    renameCommitWithEditor: ''    #'R'
+    amendAttributeMenu: ''        #'a'
+    resetCherryPick: ''           #'<c-R>'
+    viewBisectOptions: ''         #'b'
+  stash:
+    popStash: 'u'                 #'g'      # = universal:undo
+    renameStash: 'e'              #'r'      # = universal:edit
+  commitFiles:
+    checkoutCommitFile: ''        #'c'
+  main:
+    toggleSelectHunk: ''          #'a'
+    pickBothHunks: ''             #'b'
+  submodules:
+    init: 'i'
+    update: 'p'                   #'u'
+    bulkMenu: ''                  #'b'
+  commitMessage:
+    commitMenu: ''                #'<c-o>'
+  amendAttribute:
+    addCoAuthor: ''               #'c'
+    resetAuthor: ''               #'a'
+    setAuthor: ''                 #'A'

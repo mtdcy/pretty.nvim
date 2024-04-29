@@ -1,0 +1,97 @@
+"=============================================================================
+" FILE: prettifier-wm.vim
+" AUTHOR:  Chan Fang <mtdcy.chen at gmail.com>
+" License: BSD 2-Clause
+"=============================================================================
+
+" Help
+" :h map
+" :h mapclear
+" :h map-table      : map command vs mode
+" :h map-comments   : no comments behind map commands
+" :h <Char>         : map a character by its decimal
+"  => 非必要不加<silent>，这样我们可以很好的看到具体执行的命令
+
+" 已经有定义的按键:
+"  - `w`, `b`   : word forward or backward
+"  - `e`,       : word forward end
+"  - `n`, `N`   : search next or prev
+"  - `r`        : replace
+"  - `i`, `I`   : insert, insert at line beginning
+"  - `a`, `A`   : append, append at line end
+"  - `o`, `O`   : new line after or before current line
+"  - `y`, `Y`   : yank
+"  - `p`, `P`   : paste after or before current cursor
+"  ...
+
+" Window
+nnoremap <F9>       :NERDTreeToggle<cr>
+nnoremap <F10>      :TagbarToggle<cr>
+" no F11 here, as macOS has global define
+nnoremap <F12>      :LazyGit<cr>
+
+nnoremap <C-e>      :Denite file/rec<cr>
+noremap  <C-q>      :call BufferClose()<cr>
+tnoremap <C-q>      <C-\><C-N>:call BufferClose()<cr>
+" 'CTRL-/' => 触发comment
+noremap  <C-_>      <Plug>NERDCommenterToggle
+
+" Move focus
+nnoremap <C-j>      <C-W>j
+nnoremap <C-k>      <C-W>k
+nnoremap <C-h>      <C-W>h
+nnoremap <C-l>      <C-W>l
+tnoremap <C-j>      <C-\><C-N><C-W>j
+tnoremap <C-k>      <C-\><C-N><C-W>k
+tnoremap <C-h>      <C-\><C-N><C-W>h
+tnoremap <C-l>      <C-\><C-N><C-W>l
+
+" Buffer
+nnoremap <silent> <C-n>     :call BufferNext()<cr>
+nnoremap <silent> <C-p>     :call BufferPrev()<cr>
+tnoremap <silent> <C-n>     <C-\><C-N>:bnext<cr>
+tnoremap <silent> <C-p>     <C-\><C-N>:bprev<cr>
+
+" 跳转 - Goto
+" Go to first line - `gg`
+" Go to last line
+noremap  gG         G
+" Go to begin or end of code block
+noremap  g[         [{
+noremap  g]         ]}
+" Go to Define and Back(Top of stack)
+" TODO: map K,<C-]>,gD,... to one key
+"nnoremap gd         <C-]>
+nnoremap gd         :ALEGoToDefinition<cr>
+nnoremap gh         <C-T>
+" Go to man or doc
+nnoremap gk         K
+" Go to Type
+" nmap gt
+" Go to next error of ale
+nnoremap ge         <Plug>(ale_next_wrap)
+" Go to yank and paste
+vnoremap gy         "+y
+nnoremap gp         "+p
+vnoremap <C-c>      "+y
+" Go to list, FIXME: what about quickfix
+nnoremap gl         :lopen<CR>
+" Tabularize
+vnoremap /          :Tabularize /
+
+" reasonable setting
+" 'u' = undo => 'U' = redo
+"  => like 'n' & 'N' in search mode
+nnoremap U          :redo<cr>
+
+" have to use <leader>, as Ctrl-numbers are likely unavailable.
+nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
+nnoremap <leader>2  <Plug>lightline#bufferline#go(2)
+nnoremap <leader>3  <Plug>lightline#bufferline#go(3)
+nnoremap <leader>4  <Plug>lightline#bufferline#go(4)
+nnoremap <leader>5  <Plug>lightline#bufferline#go(5)
+nnoremap <leader>6  <Plug>lightline#bufferline#go(6)
+nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
+nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
+nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
+nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
