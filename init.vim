@@ -312,6 +312,7 @@ let g:lightline = {
             \ ],
             \   'right'             : [
             \       [ 'percent' ],
+            \       [ 'datetime'],
             \       [ 'fileformat', 'fileencoding', 'filetype'],
             \       [ 'linter_ok', 'linter_errors', 'linter_warnings', 'linter_infos' ]
             \ ]},
@@ -319,6 +320,7 @@ let g:lightline = {
             \   'gitbranch'         : '%{GitBranch()}',
             \   'readonly'          : '%{&readonly ? "" : ""}',
             \   'filename'          : '%{RelativeFileName()}',
+            \   'datetime'          : '%{strftime("%m-%d %H:%M:%S")}',
             \ },
             \ 'component_expand'    : {
             \   'buffers'           : 'lightline#bufferline#buffers',
