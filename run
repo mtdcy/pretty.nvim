@@ -7,8 +7,11 @@ esac
 
 # a symlink nvim -> . is needed
 #  `:h startup` for details
-WORKDIR="$(dirname "$(realpath "$0")")"
+WORKDIR="$(dirname "$(readlink -f "$0")")"
 
 export XDG_CONFIG_HOME="$WORKDIR"
 
-exec "$WORKDIR/prebuilts/$ARCH/app/nvim/nvim" "$@"
+# hack: nvim config: $XDG_CONFIG_HOME/nvim
+[ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
+
+exec "$WORKDIR/prebuilts/$ARCH/nvim" "$@"
