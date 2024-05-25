@@ -16,6 +16,7 @@ done
 [ -n "$MIRRORS" ] && npm  config set registry $MIRRORS/npmjs
 npm install
 # install package with 'npm install <name>' && save with 'npm init'
+npm cache clean --force
 
 # install python modules with venv
 # always remove py3env as interpretor is hardcoded in venv
@@ -28,6 +29,7 @@ if [ -n "$MIRRORS" ]; then
 fi
 
 python3 -m pip install -r requirements.txt
+python3 -m pip cache purge
 
 # python3 -m pip install <package>
 # save with 'python3 -m pip freeze > requirements.txt' in venv
@@ -56,8 +58,8 @@ INSTBIN=/usr/local/bin/nvim
 if [ -f "$INSTBIN" ]; then
     info "== Please link nvim manually: ln -svf $PWD/run /path/to/bin/nvim"
 else
-    ln -svf "$PWD/run" "$INSTBIN"
+    unlink "$INSTBIN" &> /dev/null || true
+    sudo ln -svf "$PWD/run" "$INSTBIN"
+    # nvim final prepare
+    $INSTBIN -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
 fi
-
-# nvim final prepare
-$INSTBIN -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
