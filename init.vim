@@ -28,8 +28,8 @@ if exists('$SSH_CLIENT')
     let g:clipboard = {
                 \   'name': 'RemoteCopy',
                 \   'copy': {
-                \      '+': g:pretty_home . '/scripts/nvim.rcopy.sh',
-                \      '*': g:pretty_home . '/scripts/nvim.rcopy.sh',
+                \      '+': g:pretty_home . '/scripts/ncopyc.sh',
+                \      '*': g:pretty_home . '/scripts/ncopyc.sh',
                 \    },
                 \   'paste': { '+': '', '*': '', },
                 \   'cache_enabled': 0,
