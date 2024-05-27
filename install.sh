@@ -54,12 +54,9 @@ else
 fi
 
 # install symlinks
-INSTBIN=/usr/local/bin/nvim
-if [ -f "$INSTBIN" ]; then
-    info "== Please link nvim manually: ln -svf $PWD/run /path/to/bin/nvim"
-else
-    unlink "$INSTBIN" &> /dev/null || true
-    sudo ln -svf "$PWD/run" "$INSTBIN"
-    # nvim final prepare
-    $INSTBIN -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
-fi
+INSTBIN=/usr/local/bin
+sudo ln -svf "$PWD/run" "$INSTBIN/nvim"
+sudo ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
+sudo ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
+# nvim final prepare
+$INSTBIN/nvim -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
