@@ -215,6 +215,15 @@ function! s:jump_to_las_pos()
         exec g:pretty_cmdlet . "g'\""
     endif
 endfunction
+
+" trigger `autoread` when files changes on disk
+set autoread
+autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+" notification after file change
+autocmd FileChangedShellPost *
+            \ echohl WarningMsg |
+            \ echo "File changed on disk. Buffer reloaded." |
+            \ echohl None
 "}}}
 
 " {{{ => NERDTree
@@ -223,7 +232,11 @@ let g:NERDTreeWinPos = 'left'
 let g:NERDTreeNaturalSort = 1
 let g:NERDTreeMouseMode = g:pretty_singleclick + 1
 let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = ['\~$', '.git\.*', '.DS_Store', '__pycache__']
+let g:NERDTreeIgnore = [
+            \ '\~$', '.DS_Store', '*.pyc',
+            \ '.git$', '__pycache__',
+            \ '#recycle', '@eaDir'
+            \ ]
 let g:NERDTreeRespectWildIgnore = 1
 let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
 let g:NERDTreeMinimalUI = 1
@@ -388,19 +401,20 @@ if g:ale_enabled
     let g:ale_set_highlights = 1
     let g:ale_sign_highlight_linenrs = 1
     let g:ale_sign_column_always = 1
-    let g:ale_virtualtext_delay = g:pretty_delay
-    let g:ale_virtualtext_cursor = 'current'
     let g:ale_set_loclist = 1
     let g:ale_open_list = 0
+    let g:ale_virtualtext_delay = g:pretty_delay
+    let g:ale_virtualtext_cursor = 'current'
     if g:pretty_verbose
         let g:ale_virtualtext_cursor = 'all'
         let g:ale_open_list = 'on_save' " loclist for errors and warnings
     endif
 
-    " Errors:
-    let g:ale_echo_cursor = 0       " error message to statusline
+    " Errors: 显示光标处错误信息
+    let g:ale_echo_cursor = 1       " error message to statusline
     let g:ale_cursor_detail = 0     " error message to preview window
     let g:ale_floating_preview = 0  " error message to floating preview
+    let g:ale_echo_msg_format='%linter% %code%: %s'
 
     " Hover: 显示光标处函数签名
     let g:ale_hover_cursor = 1      " to statusline by default
@@ -415,6 +429,7 @@ if g:ale_enabled
     let g:ale_lint_on_insert_leave = 1
     " BUG: 'never' never work
     let g:ale_lint_on_text_changed = 'never'
+    let g:ale_lint_on_filetype_changed = 1
 
     " ALEFix => 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
     let g:ale_fix_on_save=1
@@ -424,8 +439,8 @@ if g:ale_enabled
     let g:ale_linters_explicit = 1
     " prefer language servers
     let g:ale_linters = {
+                \ 'sh'          : ['shellcheck'],
                 \ 'vim'         : ['vimls'],
-                \ 'sh'          : ['language_server'],
                 \ 'python'      : ['jedils'],
                 \ 'c'           : ['cc'],
                 \ 'cpp'         : ['cc'],
