@@ -11,14 +11,15 @@ A collection of pre-configured nvim plugins, plug and play ready.
 ## Requirements
 
 - [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.9.4 embedded**
-- [python3](): latest +pip +venv
+- [python3](): latest +pip +venv ==> **python3.12 preferred**
 - [npm](https://www.npmjs.com/): latest
 
 ## Quick Start
 
 ```shell
-git clone https://github.com/mtdcy/pretty.nvim.git
-cd pretty.nvim && ./install.sh
+cd ~
+git clone https://github.com/mtdcy/pretty.nvim.git .nvim
+cd .nvim && ./install.sh
 ```
 
 ==> **Dependencies are installed locally in pretty.nvim.**
