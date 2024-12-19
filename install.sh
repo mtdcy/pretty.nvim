@@ -6,6 +6,8 @@ cd $(dirname "$0")
 
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
+MIRRORS=${MIRRORS:-https://mirrors.mtdcy.top}
+
 # Host prepare
 requirements=(curl npm python3)
 for x in "${requirements[@]}"; do
@@ -13,7 +15,7 @@ for x in "${requirements[@]}"; do
 done
 
 # install node modules locally
-[ -n "$MIRRORS" ] && npm  config set registry $MIRRORS/npmjs
+npm  config set registry $MIRRORS/npmjs
 npm install
 # install package with 'npm install <name>' && save with 'npm init'
 npm cache clean --force
@@ -27,15 +29,12 @@ else
 fi
 
 source py3env/bin/activate
-if [ -n "$MIRRORS" ]; then
-    python3 -m pip config set global.index-url $MIRRORS/pypi/simple
-fi
+pip config set global.index-url $MIRRORS/pypi/simple
+pip install -r requirements.txt
+pip cache purge
 
-python3 -m pip install -r requirements.txt
-python3 -m pip cache purge
-
-# python3 -m pip install <package>
-# save with 'python3 -m pip freeze > requirements.txt' in venv
+# pip install <package>
+# save with 'pip freeze > requirements.txt' in venv
 deactivate
 
 which go &> /dev/null || info "== Please install host toolchain 'golang' for Go support"

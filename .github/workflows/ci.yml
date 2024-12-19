@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: https://git.mtdcy.top/actions/checkout@v4
+        with:
+          submodules: false
+          fetch-depth: 1
+
+      - name: Install
+        run: |
+          npm --version
+          python3 --version
+          MIRRORS=https://${{ vars.MIRRORS }} ./install.sh
+        shell: bash
