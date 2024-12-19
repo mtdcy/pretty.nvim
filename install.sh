@@ -19,10 +19,13 @@ npm install
 npm cache clean --force
 
 # install python modules with venv
-# always remove py3env as interpretor is hardcoded in venv
-rm -rf py3env || true
-#$pip install neovim cmakelint cmake-format yamllint yamlfix autopep8
-python3 -m venv py3env
+#  python3.13 has problems to install modules.
+if which python3.12; then
+    python3.12 -m venv --copies --clear py3env
+else
+    python3 -m venv --copies --clear py3env
+fi
+
 source py3env/bin/activate
 if [ -n "$MIRRORS" ]; then
     python3 -m pip config set global.index-url $MIRRORS/pypi/simple
@@ -55,6 +58,7 @@ fi
 
 # install symlinks
 INSTBIN=/usr/local/bin
+info "== install nvim to $INSTBIN"
 sudo ln -svf "$PWD/run" "$INSTBIN/nvim"
 sudo ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
 sudo ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
