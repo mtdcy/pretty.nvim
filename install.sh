@@ -30,6 +30,7 @@ fi
 
 source py3env/bin/activate
 pip config set global.index-url $MIRRORS/pypi/simple
+pip install -U pip # update before install modules
 pip install -r requirements.txt
 pip cache purge
 
