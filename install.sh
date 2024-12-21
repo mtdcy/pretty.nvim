@@ -15,7 +15,7 @@ for x in "${requirements[@]}"; do
 done
 
 # install node modules locally
-npm  config set registry $MIRRORS/npmjs
+npm config set registry $MIRRORS/npmjs
 npm install
 # install package with 'npm install <name>' && save with 'npm init'
 npm cache clean --force
