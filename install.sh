@@ -46,7 +46,7 @@ case "$OSTYPE" in
     darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
     *)          ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
-URL="https://pub.mtdcy.top/cmdlets/latest/$ARCH/app/nvim/nvim.tar.gz"
+URL="https://pub.mtdcy.top:8443/cmdlets/latest/$ARCH/app/nvim/nvim-0.10.3-1.tar.gz"
 
 if curl --fail -sI -o /dev/null "$URL"; then
     mkdir -pv "prebuilts/$ARCH"
