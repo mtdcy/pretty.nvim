@@ -1,12 +1,44 @@
 #!/bin/bash
 
-set -eo pipefail
+echo "$0 $@"
 
-cd $(dirname "$0")
+set -eo pipefail
 
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
-MIRRORS=${MIRRORS:-https://mirrors.mtdcy.top}
+# install prebuilts
+case "$OSTYPE" in
+    darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
+    *)          ARCH="$(uname -m)-$OSTYPE"      ;;
+esac
+
+# no public repo of cmdlets
+cmdlets="https://git.mtdcy.top:8443/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
+
+locally=0
+if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
+    locally=1
+fi
+
+if [ "$0" = "install" ] || [ "$0" = "bash" ]; then
+    if [ -d "$HOME/.nvim" ]; then
+        info "== update pretty.nvim @ ~/.nvim"
+        cd "$HOME/.nvim"
+        git pull --rebase --force
+    else
+        info "== clone pretty.nvim => ~/.nvim"
+        if [ "$locally" -eq 1 ]; then
+            git clone https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
+        else
+            git clone https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
+        fi
+        cd "$HOME/.nvim"
+    fi
+fi
+
+if [ "$locally" -eq 1 ]; then
+    MIRRORS=https://mirrors.mtdcy.top
+fi
 
 # Host prepare
 requirements=(curl npm python3)
@@ -15,7 +47,7 @@ for x in "${requirements[@]}"; do
 done
 
 # install node modules locally
-npm config set registry $MIRRORS/npmjs
+npm config set registry "$MIRRORS/npmjs"
 npm install
 # install package with 'npm install <name>' && save with 'npm init'
 npm cache clean --force
@@ -29,9 +61,8 @@ else
 fi
 
 source py3env/bin/activate
-pip config set global.index-url $MIRRORS/pypi/simple
-pip install -U pip # update before install modules
-pip install -r requirements.txt
+pip install -i "$MIRRORS/pypi/simple" -U pip # update before install modules
+pip install -i "$MIRRORS/pypi/simple" -r requirements.txt
 pip cache purge
 
 # pip install <package>
@@ -41,26 +72,36 @@ deactivate
 which go &> /dev/null || info "== Please install host toolchain 'golang' for Go support"
 which rustc &> /dev/null || info "== Please install host toolchain 'cargo|rustc' for Rust support"
 
-# install prebuilts
-case "$OSTYPE" in
-    darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
-    *)          ARCH="$(uname -m)-$OSTYPE"      ;;
-esac
-URL="https://pub.mtdcy.top:8443/cmdlets/latest/$ARCH/app/nvim/nvim-0.10.3-1.tar.gz"
-
-if curl --fail -sI -o /dev/null "$URL"; then
-    mkdir -pv "prebuilts/$ARCH"
-    curl -sL "$URL" | tar -x -C "prebuilts/$ARCH"
-    # => gunzip applied automatically
+if curl --fail -sIL -o /dev/null "$cmdlets"; then
+    info "== fetch nvim"
+    rm -rf prebuilts
+    bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
 else
     info "== Please install nvim manually"
 fi
 
 # install symlinks
 INSTBIN=/usr/local/bin
+if [[ "$PATH" =~ $HOME/.bin ]]; then
+    INSTBIN="$HOME/.bin"
+fi
 info "== install nvim to $INSTBIN"
-sudo ln -svf "$PWD/run" "$INSTBIN/nvim"
-sudo ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
-sudo ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
+if [ -w "$INSTBIN" ]; then
+    ln -svf "$PWD/run" "$INSTBIN/nvim"
+    ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
+    ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
+else
+    sudo ln -svf "$PWD/run" "$INSTBIN/nvim"
+    sudo ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
+    sudo ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
+fi
+
 # nvim final prepare
-$INSTBIN/nvim -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+"$INSTBIN/nvim" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+
+"$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
+
+[ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
+    info "== Something went wrong with pritty.nvim"
+    exit 1
+}

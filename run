@@ -1,10 +1,5 @@
 #!/bin/bash
 
-case "$OSTYPE" in
-    darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
-    *)          ARCH="$(uname -m)-$OSTYPE"      ;;
-esac
-
 # a symlink nvim -> . is needed
 #  `:h startup` for details
 WORKDIR="$(dirname "$(readlink -f "$0")")"
@@ -14,4 +9,4 @@ export XDG_CONFIG_HOME="$WORKDIR"
 # hack: nvim config: $XDG_CONFIG_HOME/nvim
 [ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
 
-exec "$WORKDIR/prebuilts/$ARCH/nvim" "$@"
+exec "$(find "$WORKDIR/prebuilts" -type f -name nvim | head -n1)" "$@"
