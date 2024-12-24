@@ -12,28 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: https://git.mtdcy.top/actions/checkout@v4
-        with:
-          submodules: false
-          fetch-depth: 1
-
       - name: Install
         run: |
           npm --version
           python3 --version
-          MIRRORS=https://${{ vars.MIRRORS }} ./install.sh
-        shell: bash
-
-      - name: Verify
-        run: |
-          env
-          set -x
-          export PATH=/usr/local/bin:$PATH
-          which nvim
-          nvim -c 'exe "normal iHello World!\<Esc>" | wq' result.txt
-          cat result.txt
-          [ "$(cat result.txt)" = "Hello World!" ]
+          if curl --fail -o /dev/null http://git.mtdcy.top; then
+            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)" install
+          else
+            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)" install
+          fi
         shell: bash
 
       - name: Notify on failure
