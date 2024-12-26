@@ -41,9 +41,9 @@ if [ "$0" = "install" ] || [ "$0" = "bash" ]; then
     else
         info "== clone pretty.nvim => ~/.nvim"
         if [ "$locally" -eq 1 ]; then
-            git clone https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
+            git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
         else
-            git clone https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
+            git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
         fi
         cd "$HOME/.nvim"
     fi
