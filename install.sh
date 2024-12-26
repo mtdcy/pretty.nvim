@@ -12,8 +12,21 @@ case "$OSTYPE" in
     *)          ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
-# no public repo of cmdlets
-cmdlets="https://git.mtdcy.top:8443/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
+# no public repo of cmdlets => install locally
+if [ "$1" = "cmdlets" ]; then
+    cmdlets="https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
+    archs=(
+        x86_64-linux-gnu
+        x86_64-linux-musl
+        x86_64-apple-darwin
+    )
+
+    rm -rf prebuilts
+    for x in "${archs[@]}"; do
+        CMDLETS_ARCH="$x" bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
+    done
+    exit
+fi
 
 locally=0
 if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
@@ -71,14 +84,6 @@ deactivate
 
 which go &> /dev/null || info "== Please install host toolchain 'golang' for Go support"
 which rustc &> /dev/null || info "== Please install host toolchain 'cargo|rustc' for Rust support"
-
-if curl --fail -sIL -o /dev/null "$cmdlets"; then
-    info "== fetch nvim"
-    rm -rf prebuilts
-    bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
-else
-    info "== Please install nvim manually"
-fi
 
 # install symlinks
 INSTBIN=/usr/local/bin
