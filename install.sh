@@ -110,3 +110,7 @@ fi
     info "== Something went wrong with pritty.nvim"
     exit 1
 }
+
+# install lazygit config
+info "== install lazygit config"
+ln -sfv "$PWD/lazygit.yml" "$HOME/.lazygit.yml"
