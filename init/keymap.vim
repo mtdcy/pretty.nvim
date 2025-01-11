@@ -52,6 +52,9 @@ nnoremap <silent> <C-p>     :call BufferPrev()<cr>
 tnoremap <silent> <C-n>     <C-\><C-N>:bnext<cr>
 tnoremap <silent> <C-p>     <C-\><C-N>:bprev<cr>
 
+nnoremap <silent> <Tab>     :call BufferNext()<cr>
+nnoremap <silent> <S-Tab>   :call BufferPrev()<cr>
+
 " 跳转 - Goto
 " Go to first line - `gg`
 " Go to last line
