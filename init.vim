@@ -350,6 +350,7 @@ let g:lightline = {
             \   'linter_errors'     : 'error',
             \ }}
 
+let g:lightline#bufferline#enable_devicons = 1
 let g:lightline#bufferline#unicode_symbols = 1
 let g:lightline#bufferline#shorten_path = 1
 let g:lightline#bufferline#smart_path = 0 " shorten path stop working if enabled
