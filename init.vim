@@ -397,53 +397,51 @@ if g:ale_enabled
         set omnifunc=ale#completion#OmniFunc " => 支持手动补全
     endif
 
-    " 默认：只显示左侧图标，不显示virtualtext，
-    "   => ale对floating window的控制逻辑有点乱，这里只使用virtualtext
-    let g:ale_set_signs = 0
-    let g:ale_sign_priority = 100
-    let g:ale_set_highlights = 1
-    let g:ale_sign_highlight_linenrs = 1
-    let g:ale_sign_column_always = 1
-    let g:ale_set_loclist = 1
-    let g:ale_open_list = 0
+    " 悬浮窗：Hover(函数签名)
+    let g:ale_hover_cursor = 0              " to statusline by default
+    let g:ale_hover_to_preview = 0          " to preview window
+    let g:ale_hover_to_floating_preview = 1 " to floating preview
+
+    " fix cursor hover
+    augroup ALEHoverCursor
+        autocmd!
+        autocmd CursorHold * ALEHover
+    augroup END
+
+    " Hover after completion
+    augroup ALEHoverAfterComplete
+        autocmd!
+        autocmd User ALECompletePost ALEHover
+    augroup END
+
+    " 错误: virtualtext only
+    let g:ale_echo_cursor = 0 " no error message to statusline
+    let g:ale_set_signs = 0 " no signs which cause window changes
     let g:ale_virtualtext_delay = g:pretty_delay
-    let g:ale_virtualtext_cursor = 'current'
-    if g:pretty_verbose
-        let g:ale_virtualtext_cursor = 'all'
-        let g:ale_open_list = 'on_save' " loclist for errors and warnings
-    endif
-
-    " Errors: 显示光标处错误信息
-    let g:ale_echo_cursor = 1       " error message to statusline
-    let g:ale_cursor_detail = 0     " error message to preview window
-    let g:ale_floating_preview = 0  " error message to floating preview
-    let g:ale_echo_msg_format='%linter% %code%: %s'
-
-    " Hover: 显示光标处函数签名
-    let g:ale_hover_cursor = 1      " to statusline by default
-    let g:ale_hover_to_preview = 0  " preview window
-    let g:ale_hover_to_floating_preview = 0 " to floating preview
-    " => 使用语言特定插件的功能更好一些
+    let g:ale_virtualtext_cursor = 'all'
+    let g:ale_virtualtext_prefix = '%code%: '
+    
+    " 错误列表：loclist
+    let g:ale_set_loclist = 1           " loclist instead of quickfix 
+    let g:ale_open_list = 0             " don't open error list 
+    let g:ale_keep_list_window_open = 0 " close list after error cleared
 
     " Linters:
-    let g:ale_lint_delay = 1000     " see following BUG
-    let g:ale_lint_on_enter = 1
-    let g:ale_lint_on_save = 1
-    let g:ale_lint_on_insert_leave = 1
-    " BUG: 'never' never work
-    let g:ale_lint_on_text_changed = 'never'
+    let g:ale_lint_on_text_changed = 1  " Not all linter support this
+    let g:ale_lint_on_insert_leave = 0 
     let g:ale_lint_on_filetype_changed = 1
+    let g:ale_lint_delay = 100
 
-    " ALEFix => 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
-    let g:ale_fix_on_save=0
+    " 显式指定linter和fixer => 更直观也更容易调试
+    " Fixer: 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
+    let g:ale_fix_on_save=1
     let g:ale_fixers = {
                 \ '*' : ['remove_trailing_lines', 'trim_whitespace'],
                 \ 'go' : ['gopls']
                 \ }
-    " 显式指定linter和fixer => 更直观也更容易调试
-    "  => 通常情况均为一个，防止竞争的情况出现
+
+    " Linter: 通常情况均为一个，防止竞争的情况出现
     let g:ale_linters_explicit = 1
-    " prefer language servers
     let g:ale_linters = {
                 \ 'sh'          : ['shellcheck'],
                 \ 'vim'         : ['vimls'],
