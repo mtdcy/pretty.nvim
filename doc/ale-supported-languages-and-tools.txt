@@ -23,6 +23,7 @@ Notes:
 * API Blueprint
   * `drafter`
 * APKBUILD
+  * `apkbuild-fixer`
   * `apkbuild-lint`
   * `secfixes-check`
 * AsciiDoc
@@ -37,6 +38,9 @@ Notes:
 * ASM
   * `gcc`
   * `llvm-mc`
+* Astro
+  * `eslint`
+  * `prettier`
 * AVRA
   * `avra`
 * Awk
@@ -101,6 +105,8 @@ Notes:
   * `flawfinder`
   * `gcc` (`cc`)
   * `uncrustify`
+* C3
+  * `c3lsp`
 * Cairo
   * `scarb`!!
   * `starknet`
@@ -109,6 +115,7 @@ Notes:
   * `foodcritic`!!
 * Clojure
   * `clj-kondo`
+  * `cljfmt`
   * `joker`
 * CloudFormation
   * `cfn-python-lint`
@@ -182,11 +189,13 @@ Notes:
   * `erblint`
   * `erubi`
   * `erubis`
+  * `htmlbeautifier`
   * `ruumba`
 * Erlang
   * `SyntaxErl`
   * `dialyzer`!!
   * `elvis`!!
+  * `erlang-mode` (The Erlang mode for Emacs)
   * `erlang_ls`
   * `erlc`
   * `erlfmt`
@@ -313,6 +322,7 @@ Notes:
   * `xo`
 * JSON
   * `VSCode JSON language server`
+  * `biome`
   * `clang-format`
   * `cspell`
   * `dprint`
@@ -325,6 +335,7 @@ Notes:
 * JSON5
   * `eslint`
 * JSONC
+  * `biome`
   * `eslint`
 * Jsonnet
   * `jsonnet-lint`
@@ -571,6 +582,7 @@ Notes:
   * `solargraph`
   * `sorbet`
   * `standardrb`
+  * `steep`
   * `syntax_tree`
 * Rust
   * `cargo`!!
@@ -720,6 +732,7 @@ Notes:
   * `yamlfix`
   * `yamlfmt`
   * `yamllint`
+  * `yq`
 * YANG
   * `yang-lsp`
 * Zeek
