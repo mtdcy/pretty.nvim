@@ -193,8 +193,6 @@ set fileencodings=utf-8,gb18030,gbk,latin1
 
 augroup pretty.files
     au!
-    " 自动跳转到上一次打开的位置
-    au BufReadPost  * silent! call <SID>jump_to_las_pos()
     " set extra properties for interest files
     au FileType vim         setlocal fdm=marker foldlevel=0
     au FileType yaml        setlocal et ts=2 sw=2
@@ -208,13 +206,13 @@ augroup pretty.files
 
     au BufNewFile,BufRead *.js,*.html,*.css
                 \ setlocal et ts=2 sw=2 fdm=syntax
-augroup END
 
-function! s:jump_to_las_pos()
-    if line("'\"") > 0 && line ("'\"") <= line('$') && &filetype !~# 'commit'
-        exec g:pretty_cmdlet . "g'\""
-    endif
-endfunction
+    " 自动跳转到上一次打开的位置
+    autocmd BufReadPost *
+                \ if line("'\"") >= 1 && line("'\"") <= line("$") && &filetype !~# 'commit'
+                \ | exe "normal! g`\""
+                \ | endif
+augroup END
 
 " trigger `autoread` when files changes on disk
 set autoread
@@ -420,15 +418,15 @@ if g:ale_enabled
     let g:ale_virtualtext_delay = g:pretty_delay
     let g:ale_virtualtext_cursor = 'all'
     let g:ale_virtualtext_prefix = '%code%: '
-    
+
     " 错误列表：loclist
-    let g:ale_set_loclist = 1           " loclist instead of quickfix 
-    let g:ale_open_list = 0             " don't open error list 
+    let g:ale_set_loclist = 1           " loclist instead of quickfix
+    let g:ale_open_list = 0             " don't open error list
     let g:ale_keep_list_window_open = 0 " close list after error cleared
 
     " Linters:
     let g:ale_lint_on_text_changed = 1  " Not all linter support this
-    let g:ale_lint_on_insert_leave = 0 
+    let g:ale_lint_on_insert_leave = 0
     let g:ale_lint_on_filetype_changed = 1
     let g:ale_lint_delay = 100
 
@@ -503,8 +501,6 @@ if g:ale_enabled
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
     let g:ale_markdown_markdownlint_options = CheckConfig('--config ', '.markdownlint.yaml')
     let g:ale_yaml_yamllint_options = '-d relaxed'
-    "let g:ale_python_pylint_options = '--errors-only'
-    let g:ale_python_pylint_options = '--ignore-docstrings'
 
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
