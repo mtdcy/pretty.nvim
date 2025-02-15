@@ -169,6 +169,8 @@ Delete plugin with `git revert`
   - [shellcheck](https://github.com/koalaman/shellcheck) - `npm install shellcheck`
 - Go
   - [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - `go install golang.org/x/tools/gopls@latest`
+  - [gofmt](https://pkg.go.dev/cmd/gofmt)
+  - [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) - `go install golang.org/x/tools/cmd/goimports@latest`
 - Rust
   - [cargo|rustc](https://www.rust-lang.org) - [Installation](https://www.rust-lang.org/tools/install)
 - C/C++

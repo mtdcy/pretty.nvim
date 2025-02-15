@@ -82,7 +82,13 @@ pip cache purge
 # save with 'pip freeze > requirements.txt' in venv
 deactivate
 
-which go &> /dev/null || info "== Please install host toolchain 'golang' for Go support"
+if which go; then
+    go install golang.org/x/tools/gopls@latest
+    go install golang.org/x/tools/cmd/goimports@latest
+else
+    info "== Please install host toolchain 'golang' for Go support"
+fi
+
 which rustc &> /dev/null || info "== Please install host toolchain 'cargo|rustc' for Rust support"
 
 # install symlinks

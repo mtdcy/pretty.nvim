@@ -437,7 +437,7 @@ if g:ale_enabled
     let g:ale_fix_on_save=1
     let g:ale_fixers = {
                 \ '*' : ['remove_trailing_lines', 'trim_whitespace'],
-                \ 'go' : ['gopls']
+                \ 'go' : ['goimports', 'gofmt']
                 \ }
 
     " Linter: 通常情况均为一个，防止竞争的情况出现
@@ -470,6 +470,9 @@ if g:ale_enabled
         endif
         return ''
     endfunction
+
+    " gopls & gofmt
+    let g:ale_go_gofmt_options = '-s'
 
     " vimls: https://github.com/iamcco/vim-language-server
     let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'

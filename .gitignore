@@ -2,6 +2,7 @@
 node_modules/
 py3env/
 doc/tags
+go/
 .DS_Store
 cmdlets.sh
 nvim
