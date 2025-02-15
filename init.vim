@@ -385,14 +385,15 @@ endfunction
 " {{{ => ALE
 let g:ale_enabled = 1
 if g:ale_enabled
-    " always set omnifunc here, can be used as source for others
-    "  or be replaced by others later
+    " You should not turn this setting on if you wish to use ALE as a completion
     let g:ale_completion_enabled = 0
     if g:ale_completion_enabled
         let g:ale_completion_autoimport = 1
         let g:ale_completion_delay = g:pretty_delay / 2
         set completeopt-=preview
         set paste& " ALE complete won't work with paste
+
+        " always set omnifunc here, can be used as source for others or be replaced by others later
         set omnifunc=ale#completion#OmniFunc " => 支持手动补全
     endif
 
@@ -434,8 +435,11 @@ if g:ale_enabled
     let g:ale_lint_on_filetype_changed = 1
 
     " ALEFix => 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
-    let g:ale_fix_on_save=1
-    let g:ale_fixers = { '*' : ['remove_trailing_lines', 'trim_whitespace'] }
+    let g:ale_fix_on_save=0
+    let g:ale_fixers = {
+                \ '*' : ['remove_trailing_lines', 'trim_whitespace'],
+                \ 'go' : ['gopls']
+                \ }
     " 显式指定linter和fixer => 更直观也更容易调试
     "  => 通常情况均为一个，防止竞争的情况出现
     let g:ale_linters_explicit = 1
@@ -533,12 +537,13 @@ if g:deoplete#enable_at_startup
     set pumheight=10
     " wish to have 'longest', but deoplete can work with it.
 
+    " 注意补全source的顺序
     if g:ale_enabled
         " ALE as completion source for deoplete
         "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['file', 'buffer', 'ale', 'neosnippet'],
+                    \   '_'     : ['ale', 'buffer', 'file', 'neosnippet'],
                     \ })
     else
         " 为每个语言定义completion source
