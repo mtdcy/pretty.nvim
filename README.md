@@ -181,8 +181,7 @@ Delete plugin with `git revert`
   - [cmakelint]() - `pip3 install cmakelint`
   - [cmake-format]() - `pip3 install cmake-format`
 - Dockerfile
-  - [haoolint](https://github.com/hadolint/hadolint) - `brew install hadolint`
-  - [dprint](https://dprint.dev/) - `npm install dprint`
+  - [haoolint](https://github.com/hadolint/hadolint) - `pip3 install hadolint-bin`
 - Html
   - [htmlhint](https://github.com/htmlhint/HTMLHint) - `npm install htmlhint`
     - [.htmlhintrc](lintrc/htmlhintrc)
