@@ -6,7 +6,6 @@ cattrs==23.2.3
 chardet==5.2.0
 clang-format==19.1.7
 click==8.1.7
-cmake-format==0.6.13
 cmakelang==0.6.13
 cmakelint==1.4.3
 dill==0.3.8

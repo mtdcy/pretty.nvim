@@ -181,8 +181,8 @@ Delete plugin with `git revert`
 - Make
   - [checkmake](https://github.com/mrtazz/checkmake) - `go install github.com/mrtazz/checkmake/cmd/checkmake@latest`
 - CMake
-  - [cmakelint]() - `pip3 install cmakelint`
-  - [cmake-format]() - `pip3 install cmake-format`
+  - [cmakelint](https://github.com/cmake-lint/cmake-lint) - `pip3 install cmakelint`
+    - [.cmakelintrc](.cmakelintrc)
 - Dockerfile
   - [haoolint](https://github.com/hadolint/hadolint) - `pip3 install hadolint-bin`
     - [.hadolint.yaml](.hadolint.yaml)

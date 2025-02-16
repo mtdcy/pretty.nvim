@@ -522,6 +522,10 @@ if g:ale_enabled
     let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint'
     let g:ale_dockerfile_hadolint_options = '--ignore DL3059' . FindLinterConfig(' -c ', '.hadolint.yaml:.hadolint.yml:.hadolintrc')
 
+    " cmake:
+    let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint'
+    let g:ale_cmake_cmakelint_options = '--filter=-whitespace/extra' . FindLinterConfig(' --config=', '.cmakelintrc')
+
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
     let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
@@ -532,8 +536,6 @@ if g:ale_enabled
     let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
     let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
     let g:ale_rust_rustfmt_options = '--force --write-mode replace'
-    "let g:ale_cmake_cmakeformat_executable = 'cmake-format'
-    let g:ale_cmake_cmakeformat_options = ''
     let g:ale_yaml_yamlfix_options = ''
     " }}}
 endif

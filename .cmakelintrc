@@ -1,0 +1,4 @@
+# https://github.com/cmake-lint/cmake-lint?tab=readme-ov-file#usage
+
+# default: no extra whitespace warning
+filter=-whitespace/extra
