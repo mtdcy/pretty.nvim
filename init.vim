@@ -583,16 +583,16 @@ endif
 
 " 辅助插件
 " => echodoc
-let g:echodoc#enable_at_startup = 1
-if g:echodoc#enable_at_startup
-    if has('nvim')
-        " BUG: 'floating' won't show again after complete.
-        let g:echodoc#type = 'virtual'
-    else
-        let g:echodoc#type = 'popup'
-    endif
-    highlight link EchoDocFloat Pmenu
-endif
+"let g:echodoc#enable_at_startup = 1
+"if g:echodoc#enable_at_startup
+"    if has('nvim')
+"        " BUG: 'floating' won't show again after complete.
+"        let g:echodoc#type = 'virtual'
+"    else
+"        let g:echodoc#type = 'popup'
+"    endif
+"    highlight link EchoDocFloat Pmenu
+"endif
 " }}}
 
 " {{{ => LazyGit
