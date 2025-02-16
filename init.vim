@@ -564,6 +564,37 @@ if g:ale_enabled
     let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
     let g:ale_rust_rustfmt_options = '--force --write-mode replace'
     " }}}
+
+    " {{{ => complete type unicode
+    let g:ale_completion_symbols = {
+                \ 'text'            : '',
+                \ 'method'          : '',
+                \ 'function'        : '',
+                \ 'constructor'     : '',
+                \ 'field'           : '',
+                \ 'variable'        : '',
+                \ 'class'           : '',
+                \ 'interface'       : '',
+                \ 'module'          : '',
+                \ 'property'        : '',
+                \ 'unit'            : 'v',
+                \ 'value'           : 'v',
+                \ 'enum'            : 't',
+                \ 'keyword'         : 'v',
+                \ 'snippet'         : 'v',
+                \ 'color'           : 'v',
+                \ 'file'            : 'v',
+                \ 'reference'       : 'v',
+                \ 'folder'          : 'v',
+                \ 'enum_member'     : 'm',
+                \ 'constant'        : 'm',
+                \ 'struct'          : 't',
+                \ 'event'           : 'v',
+                \ 'operator'        : 'f',
+                \ 'type_parameter'  : 'p',
+                \ '<default>'       : 'v'
+                \ }
+    " }}}
 endif
 " }}}
 
