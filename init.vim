@@ -514,7 +514,10 @@ if g:ale_enabled
                 \   },
                 \ }}
 
-    "let g:ale_sh_shellcheck_executable = g:pretty_home . '/node_modules/.bin/shellcheck'
+    " shell:
+    let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck'
+    " shellcheck look for .shellcheckrc automatically unless `--norc' provided
+
     "let g:ale_dockerfile_hadolint_options = '--ignore DL3059'
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'

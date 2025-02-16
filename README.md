@@ -168,7 +168,8 @@ Delete plugin with `git revert`
   - [vint](https://github.com/Vimjas/vint) - `pip3 install vim-vint`
     - [.vintrc](.vintrc.yaml)
 - Sh
-  - [shellcheck](https://github.com/koalaman/shellcheck) - `npm install shellcheck`
+  - [shellcheck](https://github.com/koalaman/shellcheck) - `pip3 install shellcheck-py`
+    - [.shellcheckrc](.shellcheckrc)
 - Go
   - [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - `go install golang.org/x/tools/gopls@latest`
   - [gofmt](https://pkg.go.dev/cmd/gofmt)
