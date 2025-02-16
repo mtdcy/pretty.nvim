@@ -32,6 +32,11 @@ case "$1" in
     --update)
         cd "$WORKDIR" && exec ./install.sh
         ;;
+    --help|-h)
+        "$WORKDIR/prebuilts/$ARCH/app/nvim/nvim" --help
+        echo -e "\n---\nTry update pretty.nvim with \`nvim --update'"
+        exit
+        ;;
 esac
 
 exec "$WORKDIR/prebuilts/$ARCH/app/nvim/nvim" "$@"
