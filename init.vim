@@ -462,6 +462,18 @@ if g:ale_enabled
                 \ 'yaml'        : ['yamllint'],
                 \ }
 
+    augroup ALELinterAlternatives
+        autocmd!
+        " enable vint linter if vintrc exists, vimls preferred
+        autocmd FileType vim
+                    \ if findfile(".vintrc.yaml", ".;") != ''
+                    \ || findfile(".vintrc.yml", ".;") != ''
+                    \ || findfile(".vintrc", ".;") != ''
+                    \ || exepath('vim-language-server') ==# ''
+                    \ | let b:ale_linters = { 'vim' : ['vint'] }
+                    \ | endif
+    augroup END
+
     " {{{ => linter config
     function! CheckConfig(prefix, target)
         let l:found=findfile(a:target, ".;")
@@ -473,6 +485,11 @@ if g:ale_enabled
 
     " gopls & gofmt
     let g:ale_go_gofmt_options = '-s'
+
+    " {{{ => vim linters
+    " vint:
+    let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
+    let g:ale_vim_vint_show_style_issues = 1
 
     " vimls: https://github.com/iamcco/vim-language-server
     let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'

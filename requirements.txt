@@ -1,7 +1,9 @@
 annotated-types==0.6.0
+ansicolor==0.3.2
 astroid==3.1.0
 attrs==23.2.0
 cattrs==23.2.3
+chardet==5.2.0
 clang-format==19.1.7
 click==8.1.7
 cmake-format==0.6.13
@@ -37,4 +39,5 @@ toml==0.10.2
 tomli==2.0.1
 tomlkit==0.12.4
 typing_extensions==4.10.0
+vim-vint==0.3.21
 yamllint==1.35.1

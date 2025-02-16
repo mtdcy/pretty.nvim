@@ -165,6 +165,8 @@ Delete plugin with `git revert`
 
 - Vim
   - [vimls](https://github.com/iamcco/vim-language-server) - `npm install vim-language-server`
+  - [vint](https://github.com/Vimjas/vint) - `pip3 install vim-vint`
+    - [.vintrc](.vintrc.yaml)
 - Sh
   - [shellcheck](https://github.com/koalaman/shellcheck) - `npm install shellcheck`
 - Go
