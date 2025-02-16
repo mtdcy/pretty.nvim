@@ -478,8 +478,9 @@ if g:ale_enabled
     function! FindLinterConfig(prefix, targets)
         for i in split(a:targets, ':')
             let l:config = findfile(i, ".;")
-            return a:prefix . config
-        endif
+            if config != ''
+                return a:prefix . fnamemodify('.', ':p') . config
+            endif
         return ''
     endfunction
 
