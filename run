@@ -28,4 +28,10 @@ case "$OSTYPE" in
         ;;
 esac
 
+case "$1" in 
+    --update)
+        cd "$WORKDIR" && exec ./install.sh
+        ;;
+esac
+
 exec "$WORKDIR/prebuilts/$ARCH/app/nvim/nvim" "$@"
