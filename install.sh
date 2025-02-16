@@ -54,16 +54,10 @@ if [ "$locally" -eq 1 ]; then
 fi
 
 # Host prepare
-requirements=(curl npm python3)
+requirements=(curl python3)
 for x in "${requirements[@]}"; do
     which "$x" || { info "== Please install host tool $x first"; exit 1; }
 done
-
-# install node modules locally
-npm config set registry "$MIRRORS/npmjs"
-npm install
-# install package with 'npm install <name>' && save with 'npm init'
-npm cache clean --force
 
 # install python modules with venv
 #  python3.13 has problems to install modules.
@@ -82,6 +76,17 @@ pip cache purge
 # save with 'pip freeze > requirements.txt' in venv
 deactivate
 
+# install node modules locally
+if which npm; then
+    npm config set registry "$MIRRORS/npmjs"
+    npm install
+    # install package with 'npm install <name>' && save with 'npm init'
+    npm cache clean --force
+else
+    info "== Please install npm|nodejs for full features"
+fi
+
+# install go tools
 if which go; then
     go install golang.org/x/tools/gopls@latest
     go install golang.org/x/tools/cmd/goimports@latest
