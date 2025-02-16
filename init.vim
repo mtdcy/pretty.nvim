@@ -526,17 +526,22 @@ if g:ale_enabled
     let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint'
     let g:ale_cmake_cmakelint_options = '--filter=-whitespace/extra' . FindLinterConfig(' --config=', '.cmakelintrc')
 
+    " yaml:
+    let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint'
+    let g:ale_yaml_yamllint_options = FindLinterConfig(' -c ', '.yamllint.yaml')
+    if g:ale_yaml_yamllint_options ==# ''
+        let g:ale_yaml_yamllint_options = '-d default'
+    endif
+
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
     let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
-    let g:ale_yaml_yamllint_options = '-d relaxed'
 
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
     let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
     let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
     let g:ale_rust_rustfmt_options = '--force --write-mode replace'
-    let g:ale_yaml_yamlfix_options = ''
     " }}}
 endif
 " }}}

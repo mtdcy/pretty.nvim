@@ -201,6 +201,7 @@ Delete plugin with `git revert`
     - [.markdownlint.yaml](.markdownlint.yaml)
 - Yaml
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
+    - [.yamllint.yaml](.yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
 - Python
   - [pylint]() - `pip3 install pylint`
 
