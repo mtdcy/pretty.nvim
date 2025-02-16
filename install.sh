@@ -35,7 +35,11 @@ if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
     locally=1
 fi
 
-if [ -d "$HOME/.nvim" ]; then
+if [ -f "$(dirname "$0")/init.vim" ]; then
+    cd "$(dirname "$0")"
+    info "== update pretty.nvim @ $PWD"
+    git pull --rebase --force
+elif [ -d "$HOME/.nvim" ]; then
     info "== update pretty.nvim @ ~/.nvim"
     cd "$HOME/.nvim"
     git pull --rebase --force
