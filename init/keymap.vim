@@ -26,15 +26,37 @@
 
 " Window
 nnoremap <F9>       :NERDTreeToggle<cr>
+inoremap <F9>       <C-o>:NERDTreeToggle<cr>
 nnoremap <F10>      :TagbarToggle<cr>
+inoremap <F10>      <C-o>:TagbarToggle<cr>
 " no F11 here, as macOS has global define
 nnoremap <F12>      :LazyGit<cr>
+inoremap <F12>      <C-o>:LazyGit<cr>
 
 nnoremap <C-e>      :Denite file/rec<cr>
-noremap  <C-q>      :call BufferClose()<cr>
-tnoremap <C-q>      <C-\><C-N>:call BufferClose()<cr>
+inoremap <C-e>      <C-o>:Denite file/rec<cr>
+
+nnoremap <C-n>      :call BufferNext()<cr>
+inoremap <C-n>      <C-o>:call BufferNext()<cr>
+tnoremap <C-n>      <C-\><C-N>:bnext<cr>
+nnoremap <Tab>      :call BufferNext()<cr>
+
+nnoremap <C-p>      :call BufferPrev()<cr>
+inoremap <C-p>      <C-o>:call BufferPrev()<cr>
+tnoremap <C-p>      <C-\><C-N>:bprev<cr>
+nnoremap <S-Tab>    :call BufferPrev()<cr>
+
+nnoremap  <C-w>     :call BufferClose()<cr>
+inoremap  <C-w>     <C-o>:call BufferClose()<cr>
+tnoremap <C-w>      <C-\><C-N>:call BufferClose()<cr>
+
 " 'CTRL-/' => 触发comment
-noremap  <C-_>      <Plug>NERDCommenterToggle
+nnoremap  <C-_>     <Plug>NERDCommenterToggle
+inoremap  <C-_>     <C-o><Plug>NERDCommenterToggle
+
+" ALE hover manually
+nnoremap <C-d>      :ALEHover<cr>
+inoremap <C-d>      <C-o>:ALEHover<cr>
 
 " Move focus
 nnoremap <C-j>      <C-W>j
@@ -45,15 +67,6 @@ tnoremap <C-j>      <C-\><C-N><C-W>j
 tnoremap <C-k>      <C-\><C-N><C-W>k
 tnoremap <C-h>      <C-\><C-N><C-W>h
 tnoremap <C-l>      <C-\><C-N><C-W>l
-
-" Buffer
-nnoremap <silent> <C-n>     :call BufferNext()<cr>
-nnoremap <silent> <C-p>     :call BufferPrev()<cr>
-tnoremap <silent> <C-n>     <C-\><C-N>:bnext<cr>
-tnoremap <silent> <C-p>     <C-\><C-N>:bprev<cr>
-
-nnoremap <silent> <Tab>     :call BufferNext()<cr>
-nnoremap <silent> <S-Tab>   :call BufferPrev()<cr>
 
 " 跳转 - Goto
 " Go to first line - `gg`
