@@ -328,17 +328,17 @@ function! s:InitTypes() abort
         let type_go = tagbar#prototypes#typeinfo#new()
         let type_go.ctagstype = 'go'
         let type_go.kinds = [
-            \ {'short' : 'p', 'long' : 'package',      'fold' : 0, 'stl' : 0},
-            \ {'short' : 'i', 'long' : 'imports',      'fold' : 1, 'stl' : 0},
+            \ {'short' : 'p', 'long' : 'package',      'fold' : 0, 'stl' : 1},
+            \ {'short' : 'i', 'long' : 'imports',      'fold' : 1, 'stl' : 1},
             \ {'short' : 'c', 'long' : 'constants',    'fold' : 0, 'stl' : 0},
             \ {'short' : 'v', 'long' : 'variables',    'fold' : 0, 'stl' : 0},
-            \ {'short' : 't', 'long' : 'types',        'fold' : 0, 'stl' : 0},
+            \ {'short' : 't', 'long' : 'types',        'fold' : 0, 'stl' : 1},
             \ {'short' : 'n', 'long' : 'intefaces',    'fold' : 0, 'stl' : 0},
-            \ {'short' : 'w', 'long' : 'fields',       'fold' : 0, 'stl' : 0},
+            \ {'short' : 'w', 'long' : 'fields',       'fold' : 0, 'stl' : 1},
             \ {'short' : 'e', 'long' : 'embedded',     'fold' : 0, 'stl' : 0},
-            \ {'short' : 'm', 'long' : 'methods',      'fold' : 0, 'stl' : 0},
+            \ {'short' : 'm', 'long' : 'methods',      'fold' : 0, 'stl' : 1},
             \ {'short' : 'r', 'long' : 'constructors', 'fold' : 0, 'stl' : 0},
-            \ {'short' : 'f', 'long' : 'functions',    'fold' : 0, 'stl' : 0},
+            \ {'short' : 'f', 'long' : 'functions',    'fold' : 0, 'stl' : 1},
         \ ]
         let type_go.sro        = '.'
         let type_go.kind2scope = {
@@ -771,19 +771,18 @@ endfunction
 
 " s:CheckFTCtags() {{{2
 function! s:CheckFTCtags(bin, ftype) abort
-    if executable(a:bin)
-        return a:bin
-    endif
-
     if exists('g:tagbar_type_' . a:ftype)
         let userdef = g:tagbar_type_{a:ftype}
-        if has_key(userdef, 'ctagsbin')
-            return userdef.ctagsbin
-        else
+        if has_key(userdef, 'kinds')
             return ''
+        elseif has_key(userdef, 'ctagsbin')
+            return userdef.ctagsbin
         endif
     endif
 
+    if executable(a:bin)
+        return a:bin
+    endif
     return ''
 endfunction
 
@@ -1320,7 +1319,7 @@ function! s:ProcessFile(fname, ftype) abort
 
         let seen[line] = 1
 
-        let parts = split(line, ';"')
+        let parts = split(line, ';"\t')
         if len(parts) == 2 " Is a valid tag line
             call s:ParseTagline(parts[0], parts[1], typeinfo, fileinfo)
         endif
@@ -1510,7 +1509,7 @@ function! s:ParseTagline(part1, part2, typeinfo, fileinfo) abort
 
     " When splitting fields make sure not to create empty keys or values in
     " case a value illegally contains tabs
-    let fields = split(a:part2, '^\t\|\t\ze\w\+:')
+    let fields = split(a:part2, '\t\ze\w\+:')
     let fielddict = {}
     if fields[0] !~# ':'
         let fielddict.kind = remove(fields, 0)
@@ -3835,6 +3834,9 @@ endfunction
 " tagbar#Update() {{{2
 " Trigger an AutoUpdate() of the currently opened file
 function! tagbar#Update() abort
+    if s:init_done == 0
+        call s:Init(0)
+    endif
     call s:AutoUpdate(fnamemodify(expand('%'), ':p'), 0)
 endfunction
 
@@ -4097,6 +4099,9 @@ endfunction
 
 " tagbar#jump() {{{2
 function! tagbar#jump() abort
+    if s:init_done == 0
+        call tagbar#Update()
+    endif
     if &filetype !=# 'tagbar'
         " Not in tagbar window - ignore this function call
         return
@@ -4111,6 +4116,9 @@ endfun
 "   [flags] = list of flags (as a string) to control behavior
 "       's' - use the g:tagbar_scroll_offset setting when jumping
 function! tagbar#jumpToNearbyTag(direction, ...) abort
+    if s:init_done == 0
+        call tagbar#Update()
+    endif
     let search_method = a:0 >= 1 ? a:1 : 'nearest-stl'
     let flags = a:0 >= 2 ? a:2 : ''
 
