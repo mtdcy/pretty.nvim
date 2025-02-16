@@ -415,7 +415,7 @@ if g:ale_enabled
     augroup END
 
     " 错误: virtualtext only
-    let g:ale_echo_cursor = 0 " no error message to statusline
+    let g:ale_echo_cursor = 1 " error code to statusline
     let g:ale_set_signs = 0 " no signs which cause window changes
     let g:ale_virtualtext_delay = g:pretty_delay
     let g:ale_virtualtext_cursor = 'all'
@@ -434,10 +434,11 @@ if g:ale_enabled
 
     " 显式指定linter和fixer => 更直观也更容易调试
     " Fixer: 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
-    let g:ale_fix_on_save=1
+    let g:ale_fix_on_save = 0   " try call ALEFix explicitly
     let g:ale_fixers = {
-                \ '*' : ['remove_trailing_lines', 'trim_whitespace'],
-                \ 'go' : ['goimports', 'gofmt']
+                \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
+                \ 'go'          : ['goimports', 'gofmt'],
+                \ 'python'      : ['black']
                 \ }
 
     " Linter: 通常情况均为一个，防止竞争的情况出现
@@ -461,6 +462,7 @@ if g:ale_enabled
                 \ 'markdown'    : ['markdownlint'],
                 \ 'yaml'        : ['yamllint'],
                 \ }
+    " => jedils: how to set linter rules? use with pylint now.
 
     augroup ALELinterAlternatives
         autocmd!
@@ -471,6 +473,14 @@ if g:ale_enabled
                     \ || findfile(".vintrc", ".;") != ''
                     \ || exepath('vim-language-server') ==# ''
                     \ | let b:ale_linters = { 'vim' : ['vint'] }
+                    \ | endif
+        " enable language server & linter for python
+        autocmd FileType python
+                    \ if findfile(".pylintrc", ".;") != ''
+                    \ || findfile("pylintrc", ".;") != ''
+                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
+                    \ | else
+                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
                     \ | endif
     augroup END
 
@@ -533,10 +543,21 @@ if g:ale_enabled
         let g:ale_yaml_yamllint_options = '-d default'
     endif
 
-    "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
+    " python: flake8 is more popular
+    " Black has deliberately only one option (line length) to ensure consistency across many projects
+    let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
+    let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
+    let g:ale_python_flake8_options = '--ignore=E501'
+    let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
+    let g:ale_python_pylint_options = FindLinterConfig('--rcfile ', '.pylintrc:pylintrc')
+    let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
+    let g:ale_python_black_options = '--line-length 999'
+
+    " markdown:
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
     let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
 
+    "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
     let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'

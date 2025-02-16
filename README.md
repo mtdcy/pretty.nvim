@@ -159,9 +159,9 @@ Delete plugin with `git revert`
 
 ### ALE
 
-> Try to use python to install packages, because nvim has a stronger dependence on python.
+> Try to use python to install packages, because nvim has a stronger dependency on python.
 
-> No fixer unless it is the same as linter.
+> Try to find configurations on [codeac](https://www.codeac.io/documentation/index.html)
 
 - Vim
   - [vimls](https://github.com/iamcco/vim-language-server) - `npm install vim-language-server`
@@ -203,7 +203,12 @@ Delete plugin with `git revert`
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
     - [.yamllint.yaml](.yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
 - Python
-  - [pylint]() - `pip3 install pylint`
+  - [jedils](https://github.com/pappasam/jedi-language-server) - `pip3 install jedi-language-server`
+  - [pylint](https://github.com/pylint-dev/pylint) - `pip3 install pylint`
+    - [.pylintrc](.pylintrc) - `pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile`
+  - [flake8](https://github.com/PyCQA/flake8) - `pip3 install flake8`
+    - [setup.cfg]()/[tox.ini](tox.ini)/[.flake8]()
+  - [black](https://github.com/psf/black) - `pip3 install black`
 
 ## Mirror
 
