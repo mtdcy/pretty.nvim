@@ -97,7 +97,7 @@ After this, everything works like insert and normal mode.
 - [n] `g[` - Goto start of code block
 - [n] `g]` - Goto end of code block
 - [n] `gd` - Goto symbols' definition
-- [n] `gh` - Goto top of stack (home)
+- [n] `gb` - Goto back to previous position
 - [n] `gk` - Goto keyword's man page
 - [n] `ge` - Goto next error
 - [v] `gy` - Goto yank
@@ -125,7 +125,6 @@ After this, everything works like insert and normal mode.
   - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
 - Completor
   - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@43d7457
-  - [echodoc.vim](https://github.com/Shougo/echodoc.vim)@8c7e99e
 - VCS
   - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@0ada6c6
   - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@8670143
