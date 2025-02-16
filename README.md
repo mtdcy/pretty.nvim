@@ -18,9 +18,9 @@ A collection of pre-configured nvim plugins, plug and play ready.
 
 ```shell
 # Github
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)" install
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
 # CN
-bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)" install
+bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
 ```
 
 ==> **Dependencies are installed locally in pretty.nvim.**

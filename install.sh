@@ -12,41 +12,41 @@ case "$OSTYPE" in
     *)          ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
-# no public repo of cmdlets => install locally
-if [ "$1" = "cmdlets" ]; then
-    cmdlets="https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
-    archs=(
-        x86_64-linux-gnu
-        x86_64-linux-musl
-        x86_64-apple-darwin
-    )
+case "$1" in 
+    --prepare)
+        # no public repo of cmdlets => install locally
+        cmdlets="https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
+        archs=(
+            x86_64-linux-gnu
+            x86_64-linux-musl
+            x86_64-apple-darwin
+        )
 
-    rm -rf prebuilts
-    for x in "${archs[@]}"; do
-        CMDLETS_ARCH="$x" bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
-    done
-    exit
-fi
+        rm -rf prebuilts
+        for x in "${archs[@]}"; do
+            CMDLETS_ARCH="$x" bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
+        done
+        exit
+        ;;
+esac
 
 locally=0
 if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
     locally=1
 fi
 
-if [ "$0" = "install" ] || [ "$0" = "bash" ]; then
-    if [ -d "$HOME/.nvim" ]; then
-        info "== update pretty.nvim @ ~/.nvim"
-        cd "$HOME/.nvim"
-        git pull --rebase --force
+if [ -d "$HOME/.nvim" ]; then
+    info "== update pretty.nvim @ ~/.nvim"
+    cd "$HOME/.nvim"
+    git pull --rebase --force
+else
+    info "== clone pretty.nvim => ~/.nvim"
+    if [ "$locally" -eq 1 ]; then
+        git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
     else
-        info "== clone pretty.nvim => ~/.nvim"
-        if [ "$locally" -eq 1 ]; then
-            git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
-        else
-            git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
-        fi
-        cd "$HOME/.nvim"
+        git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
     fi
+    cd "$HOME/.nvim"
 fi
 
 if [ "$locally" -eq 1 ]; then
