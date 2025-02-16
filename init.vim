@@ -41,13 +41,17 @@ if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
 else              | let g:pretty_cmdlet = ":normal! :silent "
 endif
 
-" floating window config - ':h nvim_open_win'
-let g:pretty_window = {
-            \ 'border'      : 'single',
-            \ 'title'       : 'pretty.nvim',
-            \ 'title_pos'   : 'center',
-            \ 'style'       : 'minimal'
-            \ }
+" position floating window to the bottom right => :h nvim_open_win
+function! FloatingWindowBottomRight() abort
+    return {
+                \ 'border'      : ['+', '-', '+', '|', '+', '-', '+', '|'],
+                \ 'style'       : 'minimal',
+                \ 'relative'    : 'win',
+                \ 'anchor'      : 'SE',
+                \ 'row'         : winheight('.'),
+                \ 'col'         : winwidth('.')
+                \ }
+endfunction
 
 " {{{ => General Options
 let mapleader = ';'
@@ -399,16 +403,14 @@ if g:ale_enabled
     let g:ale_hover_cursor = 0              " to statusline by default
     let g:ale_hover_to_preview = 0          " to preview window
     let g:ale_hover_to_floating_preview = 1 " to floating preview
+    let g:ale_floating_preview_popup_opts = 'g:FloatingWindowBottomRight'
 
-    " fix cursor hover
-    augroup ALEHoverCursor
+    augroup ALEHoverEnhanced
         autocmd!
-        autocmd CursorHold * ALEHover
-    augroup END
-
-    " Hover after completion
-    augroup ALEHoverAfterComplete
-        autocmd!
+        " Hover on cursor hold
+        "   => hover manually with <C-d>
+        "autocmd CursorHold,CursorHoldI * ALEHover
+        " Hover after completion
         autocmd User ALECompletePost ALEHover
     augroup END
 
