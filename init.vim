@@ -452,7 +452,7 @@ if g:ale_enabled
                 \ 'rust'        : ['cargo', 'rustc'],
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
-                \ 'dockerfile'  : ['dprint', 'hadolint'],
+                \ 'dockerfile'  : ['hadolint'],
                 \ 'html'        : ['vscodehtml'],
                 \ 'css'         : ['vscodecss'],
                 \ 'java'        : ['javac'],
@@ -475,10 +475,10 @@ if g:ale_enabled
     augroup END
 
     " {{{ => linter config
-    function! CheckConfig(prefix, target)
-        let l:found=findfile(a:target, ".;")
-        if l:found != ''
-            return a:prefix . found
+    function! FindLinterConfig(prefix, targets)
+        for i in split(a:targets, ':')
+            let l:config = findfile(i, ".;")
+            return a:prefix . config
         endif
         return ''
     endfunction
@@ -486,7 +486,6 @@ if g:ale_enabled
     " gopls & gofmt
     let g:ale_go_gofmt_options = '-s'
 
-    " {{{ => vim linters
     " vint:
     let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
     let g:ale_vim_vint_show_style_issues = 1
@@ -518,10 +517,13 @@ if g:ale_enabled
     let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck'
     " shellcheck look for .shellcheckrc automatically unless `--norc' provided
 
-    "let g:ale_dockerfile_hadolint_options = '--ignore DL3059'
+    " Dockerfiles:
+    let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint'
+    let g:ale_dockerfile_hadolint_options = '--ignore DL3059' . FindLinterConfig(' -c ', '.hadolint.yaml:.hadolint.yml:.hadolintrc')
+
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
-    let g:ale_markdown_markdownlint_options = CheckConfig('--config ', '.markdownlint.yaml')
+    let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
     let g:ale_yaml_yamllint_options = '-d relaxed'
 
     " autoload/afe/fixers/clangformat.vim can not handle path properly
