@@ -113,10 +113,19 @@ fi
 "$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
-    info "== Something went wrong with pritty.nvim"
+    info "== Something went wrong with pretty.nvim"
     exit 1
 }
 
-# install lazygit config
-info "== install lazygit config"
+# install lazygit
+info "== install lazygit"
 ln -sfv "$PWD/lazygit.yml" "$HOME/.lazygit.yml"
+if ! which lazygit; then
+    if which go; then
+        go install github.com/jesseduffield/lazygit@latest
+    elif which brew; then
+        brew install jesseduffield/lazygit/lazygit
+    else
+        info "== Please install lazygit manually"
+    fi
+fi
