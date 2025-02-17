@@ -229,28 +229,31 @@ autocmd FileChangedShellPost *
 "}}}
 
 " {{{ => NERDTree
-"  Bug: VCS will ignore submodule
-let g:NERDTreeWinPos = 'left'
-let g:NERDTreeNaturalSort = 1
-let g:NERDTreeMouseMode = g:pretty_singleclick + 1
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeIgnore = [
-            \ '\~$', '.DS_Store', '*.pyc',
-            \ '.git$', '__pycache__',
-            \ '#recycle', '@eaDir'
-            \ ]
-let g:NERDTreeRespectWildIgnore = 1
-let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeMinimalMenu=1
-let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
-let g:NERDTreeDirArrowCollapsible=''
-let g:NERDTreeDirArrowExpandable=''
-"" Netrw: disable for now, test later
-let g:NERDTreeHijackNetrw = 0
-"" cancel some key mappings: too much mappings won't help user
-""  => keep only: Enter, Space, Mouse, F1/?
-"let g:NERDTreeMapActivateNode = ''
+let g:nerdtree_enabled = 1
+if g:nerdtree_enabled
+    "  Bug: VCS will ignore submodule
+    let g:NERDTreeWinPos = 'left'
+    let g:NERDTreeNaturalSort = 1
+    let g:NERDTreeMouseMode = g:pretty_singleclick + 1
+    let g:NERDTreeShowHidden = 1
+    let g:NERDTreeIgnore = [
+                \ '\~$', '.DS_Store', '*.pyc',
+                \ '.git$', '__pycache__',
+                \ '#recycle', '@eaDir'
+                \ ]
+    let g:NERDTreeRespectWildIgnore = 1
+    let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
+    let g:NERDTreeMinimalUI = 1
+    let g:NERDTreeMinimalMenu=1
+    let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
+    let g:NERDTreeDirArrowCollapsible=''
+    let g:NERDTreeDirArrowExpandable=''
+    "" Netrw: disable for now, test later
+    let g:NERDTreeHijackNetrw = 0
+    "" cancel some key mappings: too much mappings won't help user
+    ""  => keep only: Enter, Space, Mouse, F1/?
+    "let g:NERDTreeMapActivateNode = ''
+endif
 
 " 扩展
 " => Denite
@@ -625,13 +628,13 @@ if g:deoplete#enable_at_startup
         "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'buffer', 'file', 'neosnippet'],
+                    \   '_'     : ['ale', 'around', 'buffer', 'file', 'neosnippet'],
                     \ })
     else
         " 为每个语言定义completion source
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['buffer', 'file', 'neosnippet'],
+                    \   '_'     : ['around', 'buffer', 'file', 'neosnippet'],
                     \   'cpp'   : ['LanguageClient'],
                     \   'c'     : ['LanguageClient'],
                     \   'vim'   : ['vim'],
@@ -662,12 +665,15 @@ if g:deoplete#enable_at_startup
 
     call deoplete#custom#source('_', 'smart_case', v:true)
     " mark sources
-	call deoplete#custom#source('buffer',       'mark', '📝')  " rank: 100
 	call deoplete#custom#source('file',         'mark', '📁')  " rank: 150
+	call deoplete#custom#source('file',         'rank', 100)
+	call deoplete#custom#source('buffer',       'mark', '📝')  " rank: 100
+	call deoplete#custom#source('buffer',       'rank', 150)
 	call deoplete#custom#source('neosnippet',   'mark', '📜')
     call deoplete#custom#source('neosnippet',   'rank', 200)
     call deoplete#custom#source('ale',          'mark', '⭐')
-    call deoplete#custom#source('ale',          'rank', 999)
+    call deoplete#custom#source('ale',          'rank', 250)
+	call deoplete#custom#source('around',       'mark', '📋')  " rank: 300
     " complete cross filetype for buffer source
     call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
     " enable slash completion for file source
