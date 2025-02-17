@@ -623,6 +623,18 @@ Extra Configuration ~
 >
   " Adding the custom source to denite
   let g:webdevicons_enable_denite = 1
+
+
+
+  " the amount of space to use after the glyph character in vim-airline
+	tabline(default '')
+  let g:WebDevIconsTabAirLineAfterGlyphPadding = ' '
+
+
+
+  " the amount of space to use before the glyph character in vim-airline
+	tabline(default ' ')
+  let g:WebDevIconsTabAirLineBeforeGlyphPadding = ' '
 <
 -------------------------------------------------------------------------------
                                                   *devicons-character-mappings*
@@ -659,6 +671,11 @@ Character Mappings ~
 >
   " enable file extension pattern matching glyphs on folder/directory (disabled by default with 0)
   let g:DevIconsEnableFolderExtensionPatternMatching = 0
+<
+
+>
+  " disable showing the distribution for unix file encoding (enabled by default with 1)
+  let g:DevIconsEnableDistro = 0
 <
 
 >
