@@ -8,3 +8,4 @@ cmdlets.sh
 nvim
 package-lock.json
 .npmrc
+rplugin/python3/fruzzy_mod.so
