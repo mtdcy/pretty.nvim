@@ -82,6 +82,12 @@ function! s:i_tab() abort
     endif
 endfunction
 
+function! s:s_tab() abort
+    if s:can_jump()                         | return s:jump()
+    else                                    | return "\<Tab>"
+    endif
+endfunction
+
 " Enter: complete + snippets
 function! s:i_enter() abort
     let comp = complete_info()
@@ -114,6 +120,7 @@ endfunction
 
 "inoremap <expr><C-L>    <sid>typed_line()
 inoremap <expr><Tab>    <sid>i_tab()
+snoremap <expr><Tab>    <sid>s_tab()
 inoremap <expr><Enter>  <sid>i_enter()
 inoremap <expr><Space>  <sid>i_space()
 inoremap <expr><BS>     <sid>i_backspace()
