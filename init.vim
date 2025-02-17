@@ -246,8 +246,8 @@ if g:nerdtree_enabled
     let g:NERDTreeMinimalUI = 1
     let g:NERDTreeMinimalMenu=1
     let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
-    let g:NERDTreeDirArrowCollapsible=''
-    let g:NERDTreeDirArrowExpandable=''
+    let g:nerdtreedirarrowcollapsible=''
+    let g:nerdtreedirarrowexpandable=''
     "" Netrw: disable for now, test later
     let g:NERDTreeHijackNetrw = 0
     "" cancel some key mappings: too much mappings won't help user
@@ -321,7 +321,7 @@ let g:lightline = {
             \ 'separator'           : { 'left' : "\ue0b0",          'right' : "" },
             \ 'subseparator'        : { 'left' : "",                'right' : "" },
             \ 'tabline'             : { 'left' : [[ 'buffers' ]],   'right' : [] },
-            \ 'inactive'            : { 'left' : [[ 'filename' ]],  'right' : [['filetype' ]]},
+            \ 'inactive'            : { 'left' : [[ 'filename' ]],  'right' : [] },
             \ 'active'              : {
             \   'left'              : [
             \       [ 'mode', 'paste' ],
@@ -332,7 +332,7 @@ let g:lightline = {
             \       [ 'percent' ],
             \       [ 'datetime'],
             \       [ 'fileformat', 'fileencoding', 'filetype'],
-            \       [ 'linter_ok', 'linter_errors', 'linter_warnings', 'linter_infos' ]
+            \       [ 'linter_ok', 'linter_errors', 'linter_warnings' ]
             \ ]},
             \ 'component'           : {
             \   'gitbranch'         : '%{GitBranch()}',
@@ -353,19 +353,21 @@ let g:lightline = {
             \   'linter_infos'      : 'right',
             \   'linter_warnings'   : 'warning',
             \   'linter_errors'     : 'error',
+            \ },
+            \ 'component_raw'       : {
+            \   'buffers'           : 1,
             \ }}
 
 let g:lightline#bufferline#enable_devicons = 1
 let g:lightline#bufferline#unicode_symbols = 1
-let g:lightline#bufferline#shorten_path = 1
-let g:lightline#bufferline#smart_path = 0 " shorten path stop working if enabled
+let g:lightline#bufferline#shorten_path = 0 " shorten path not readable
+let g:lightline#bufferline#smart_path = 1 " shorten path stop working if enabled
 let g:lightline#bufferline#clickable = 1
-let g:lightline.component_raw = {'buffers': 1}
 "autocmd User LightlineBufferlinePreClick :echom "== clicked " . bufname('%')
 let g:lightline#bufferline#show_number = 2
 let g:lightline#bufferline#ordinal_number_map = {
-            \ 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴',
-            \ 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹',
+            \ 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄',
+            \ 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉',
             \ }
 
 " 所有模式使用同样长度字符，防止界面抖动
@@ -382,6 +384,7 @@ function! RelativeFileName() abort
     let l:bufname = bufname()
     if l:bufname =~ 'NERD_tree_\d\+'      | return 'NERDTree'
     elseif l:bufname =~ '__Tagbar__.\d\+' | return 'Tagbar'
+    elseif l:bufname =~ '\[denite\]-*'    | return 'denite'
     else                                  | return expand('%:~:.')
     endif
 endfunction
@@ -710,7 +713,8 @@ let g:signify_number_highlight = 1
 " {{{ => Plugins/Misc
 
 " => Rainbow
-let g:rainbow_active = 1
+" let g:rainbow_active = 1 => cause conceal feature stop working
+autocmd FileType sh,c,cpp,html call rainbow_main#load()
 
 " => Commenter
 let g:NERDCreateDefaultMappings = 0
@@ -723,6 +727,17 @@ highlight link matchTag Search
 highlight link matchTag MatchParen
 highlight link matchTagError Todo
 highlight matchTag gui=reverse
+
+" => devicons
+" https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
+let g:webdevicons_enable = 1
+let g:webdevicons_enable_nerdtree = 1
+let g:webdevicons_conceal_nerdtree_brackets = 1
+let g:DevIconsEnableFoldersOpenClose = 1
+let NERDTreeDirArrowExpandable=''
+let NERDTreeDirArrowCollapsible=''
+
+let g:webdevicons_enable_denite = 1
 
 " => tabular
 " NOTHING HERE
