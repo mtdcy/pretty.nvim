@@ -6,6 +6,11 @@ set -eo pipefail
 
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
+locally=0
+if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
+    locally=1
+fi
+
 # install prebuilts
 case "$OSTYPE" in
     darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
@@ -30,27 +35,26 @@ case "$1" in
         ;;
 esac
 
-locally=0
-if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
-    locally=1
-fi
-
-if [ -f "$(dirname "$0")/init.vim" ]; then
-    cd "$(dirname "$0")"
-    info "== update pretty.nvim @ $PWD"
-    git pull --rebase --force
-elif [ -d "$HOME/.nvim" ]; then
-    info "== update pretty.nvim @ ~/.nvim"
-    cd "$HOME/.nvim"
-    git pull --rebase --force
-else
-    info "== clone pretty.nvim => ~/.nvim"
-    if [ "$locally" -eq 1 ]; then
-        git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
+if [ "$1" = "--update" ]; then
+    if [ -f "$(dirname "$0")/init.vim" ]; then
+        cd "$(dirname "$0")"
+        info "== update pretty.nvim @ $PWD"
+        git pull --rebase --force
+    elif [ -d "$HOME/.nvim" ]; then
+        info "== update pretty.nvim @ ~/.nvim"
+        cd "$HOME/.nvim"
+        git pull --rebase --force
     else
-        git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
+        info "== clone pretty.nvim => ~/.nvim"
+        if [ "$locally" -eq 1 ]; then
+            git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
+        else
+            git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
+        fi
+        cd "$HOME/.nvim"
     fi
-    cd "$HOME/.nvim"
+
+    exec "$0" --no-update
 fi
 
 if [ "$locally" -eq 1 ]; then
