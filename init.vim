@@ -451,6 +451,7 @@ if g:ale_enabled
                 \ 'cpp'         : ['cc'],
                 \ 'go'          : ['gopls'],
                 \ 'rust'        : ['cargo', 'rustc'],
+                \ 'lua'         : ['lua-language-server', 'luacheck'],
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
                 \ 'dockerfile'  : ['hadolint'],

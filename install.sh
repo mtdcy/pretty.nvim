@@ -101,6 +101,9 @@ fi
 
 which rustc &> /dev/null || info "== Please install host toolchain 'cargo|rustc' for Rust support"
 
+which lua-language-server || info "== Please install lua-language-server for lua support"
+which luacheck || info "== Please install luacheck for lua support"
+
 # install symlinks
 INSTBIN=/usr/local/bin
 if [[ "$PATH" =~ $HOME/.bin ]]; then
