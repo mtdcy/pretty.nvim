@@ -95,14 +95,10 @@ if which go; then
     go install golang.org/x/tools/gopls@latest
     go install golang.org/x/tools/cmd/goimports@latest
     go install github.com/mrtazz/checkmake/cmd/checkmake@latest
+    go install github.com/jesseduffield/lazygit@latest
 else
     info "== Please install host toolchain 'golang' for Go support"
 fi
-
-which rustc &> /dev/null || info "== Please install host toolchain 'cargo|rustc' for Rust support"
-
-which lua-language-server || info "== Please install lua-language-server for lua support"
-which luacheck || info "== Please install luacheck for lua support"
 
 # install symlinks
 INSTBIN=/usr/local/bin
@@ -123,6 +119,8 @@ fi
 # nvim final prepare
 "$INSTBIN/nvim" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
 
+"$INSTBIN/nvim" -c 'call fruzzy#install()' +quit || true
+
 "$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
@@ -133,12 +131,14 @@ fi
 # install lazygit
 info "== install lazygit"
 ln -sfv "$PWD/lazygit.yml" "$HOME/.lazygit.yml"
-if ! which lazygit; then
-    if which go; then
-        go install github.com/jesseduffield/lazygit@latest
-    elif which brew; then
-        brew install jesseduffield/lazygit/lazygit
-    else
-        info "== Please install lazygit manually"
-    fi
-fi
+
+check_host() {
+    which "$1" || 
+    info "== Please install $1 for $2 support"
+}
+
+check_host rustc                Rust
+check_host lua-language-server  lua
+check_host luacheck             lua
+check_host checkmake            Makefile
+check_host lazygit              lazygit
