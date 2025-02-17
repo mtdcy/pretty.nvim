@@ -33,8 +33,8 @@ inoremap <F10>      <C-o>:TagbarToggle<cr>
 nnoremap <F12>      :LazyGit<cr>
 inoremap <F12>      <C-o>:LazyGit<cr>
 
-nnoremap <C-e>      :Denite file/rec<cr>
-inoremap <C-e>      <C-o>:Denite file/rec<cr>
+nnoremap <C-e>      :call OpenDenite()<cr>
+inoremap <C-e>      <C-o>:call OpenDenite()<cr>
 
 nnoremap <C-n>      :call BufferNext()<cr>
 inoremap <C-n>      <C-o>:call BufferNext()<cr>

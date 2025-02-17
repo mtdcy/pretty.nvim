@@ -257,20 +257,37 @@ endif
 
 " 扩展
 " => Denite
-autocmd FileType denite call Denite()
-function! Denite() abort
-    nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
-    nnoremap <silent><buffer><expr> /       denite#do_map('open_filter_buffer')     " search
-    nnoremap <silent><buffer><expr> D       denite#do_map('do_action', 'delete')    " delete
-    nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
+function! OpenDenite() abort
+    exec "Denite -split=floating_relative_window file/rec"
 endfunction
 
-call denite#custom#source('file/rec', 'matchers',
-            \ ['matcher/fuzzy', 'matcher/ignore_globs'])
+autocmd FileType denite call DeniteReady()
+function! DeniteReady() abort
+    nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
+    nnoremap <silent><buffer><expr> <space> denite#do_map('toggle_select').'j'      " select and move down
+    nnoremap <silent><buffer><expr> /       denite#do_map('open_filter_buffer')     " search
+    nnoremap <silent><buffer><expr> D       denite#do_map('do_action', 'delete')    " delete
+    nnoremap <silent><buffer><expr> p       denite#do_map('do_previous_action')     " preview
+    nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
+    nnoremap <silent><buffer><expr> <esc>   denite#do_map('quit')                   " quit
+endfunction
+
+autocmd FileType denite-filter call DeniteFilter()
+function! DeniteFilter() abort
+    imap <silent><buffer> <esc>             <Plug>(denite_filter_quit)
+endfunction
+
+call denite#custom#source('file/rec', {
+            \ 'max_candidates'  : 20,
+            \ 'matchers' : [
+            \   'matcher/fuzzy', 
+            \   'matcher/hide_hidden_files',
+            \   'matcher/ignore_globs'
+            \ ]})
 call denite#custom#filter('matcher/ignore_globs', 'ignore_globs', [
-            \ '*~', '*.o', '*.exe', '*.bak',
-            \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class',
-            \ '.hg/', '.git/', '.bzr/', '.svn/',
+            \ '*~', '*.o', '*.exe', '*.bak', '*.a', '*.so', '*.so.*',
+            \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class', 
+            \ '.hg/', '.git/', '.bzr/', '.svn/', '.ccache/',
             \ ])
 " }}}
 
@@ -714,7 +731,7 @@ let g:signify_number_highlight = 1
 
 " => Rainbow
 " let g:rainbow_active = 1 => cause conceal feature stop working
-autocmd FileType sh,c,cpp,html call rainbow_main#load()
+autocmd FileType vim,sh,c,cpp,html call rainbow_main#load()
 
 " => Commenter
 let g:NERDCreateDefaultMappings = 0
