@@ -568,30 +568,30 @@ if g:ale_enabled
     " {{{ => complete type unicode
     let g:ale_completion_symbols = {
                 \ 'text'            : '',
+                \ 'class'           : '',
                 \ 'method'          : '',
                 \ 'function'        : '',
                 \ 'constructor'     : '',
                 \ 'field'           : '',
                 \ 'variable'        : '',
-                \ 'class'           : '',
                 \ 'interface'       : '',
                 \ 'module'          : '',
                 \ 'property'        : '',
-                \ 'unit'            : 'v',
-                \ 'value'           : 'v',
-                \ 'enum'            : 't',
-                \ 'keyword'         : 'v',
-                \ 'snippet'         : 'v',
-                \ 'color'           : 'v',
-                \ 'file'            : 'v',
-                \ 'reference'       : 'v',
-                \ 'folder'          : 'v',
-                \ 'enum_member'     : 'm',
-                \ 'constant'        : 'm',
-                \ 'struct'          : 't',
-                \ 'event'           : 'v',
-                \ 'operator'        : 'f',
-                \ 'type_parameter'  : 'p',
+                \ 'operator'        : '',
+                \ 'constant'        : '',
+                \ 'value'           : '',
+                \ 'enum'            : 'enum ',
+                \ 'enum member'     : 'enum ',
+                \ 'struct'          : 'struct ',
+                \ 'event'           : 'event ',
+                \ 'unit'            : 'unit ',
+                \ 'keyword'         : 'keyword',
+                \ 'snippet'         : 'snippet',
+                \ 'color'           : 'color',
+                \ 'file'            : 'file',
+                \ 'reference'       : 'reference',
+                \ 'folder'          : 'folder',
+                \ 'type_parameter'  : 'type param',
                 \ '<default>'       : 'v'
                 \ }
     " }}}
@@ -660,9 +660,17 @@ if g:deoplete#enable_at_startup
     endif
 
     call deoplete#custom#source('_', 'smart_case', v:true)
-    " complete cross filetype
+    " mark sources
+	call deoplete#custom#source('buffer',       'mark', '📝')  " rank: 100
+	call deoplete#custom#source('file',         'mark', '📁')  " rank: 150
+	call deoplete#custom#source('neosnippet',   'mark', '📜')
+    call deoplete#custom#source('neosnippet',   'rank', 200)
+    call deoplete#custom#source('ale',          'mark', '⭐')
+    call deoplete#custom#source('ale',          'rank', 999)
+    " complete cross filetype for buffer source
     call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
-
+    " enable slash completion for file source
+    call deoplete#custom#var('file', 'enable_slash_completion', v:true)
 endif
 
 " 辅助插件
