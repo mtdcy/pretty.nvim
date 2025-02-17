@@ -9,7 +9,7 @@ repo="${repo%%.*}"
 # default branch: master
 branch="${branch:-master}"
 
-if ! git ls-remote --exit-code "$repo"; then
+if ! git ls-remote --exit-code "$repo" &>/dev/null; then
     git remote add "$repo" "$url"
 else
     git remote set-url "$repo" "$url"
@@ -24,6 +24,6 @@ mv LICENSE "LICENSE.$repo" -f || true               # rename LICENSE
 rm test tests -rf || true                           # ...
 
 # common vim directories
-git add after autoload colors doc ftplugin plugin rplugin syntax "LICENSE.$repo"
+git add after autoload colors doc ftdetect ftplugin indent plugin rplugin syntax "LICENSE.$repo" || true
 
 echo -e "\n>>> It's time to remove unneeded files and commit ..."
