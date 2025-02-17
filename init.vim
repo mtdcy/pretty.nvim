@@ -277,10 +277,10 @@ function! DeniteFilter() abort
     imap <silent><buffer> <esc>             <Plug>(denite_filter_quit)
 endfunction
 
-call denite#custom#source('file/rec', {
-            \ 'max_candidates'  : 20,
+call denite#custom#source('_', {
+            \ 'max_candidates'  : 30,
             \ 'matchers' : [
-            \   'matcher/fuzzy', 
+            \   'matcher/fruzzy', 
             \   'matcher/hide_hidden_files',
             \   'matcher/ignore_globs'
             \ ]})
@@ -289,6 +289,9 @@ call denite#custom#filter('matcher/ignore_globs', 'ignore_globs', [
             \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class', 
             \ '.hg/', '.git/', '.bzr/', '.svn/', '.ccache/',
             \ ])
+
+let g:fruzzy#usenative = 1
+
 " }}}
 
 " {{{ => Tagbar
