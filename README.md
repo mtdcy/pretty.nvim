@@ -125,6 +125,7 @@ After this, everything works like insert and normal mode.
   - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
 - Completor
   - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@43d7457
+  - [neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a61 + [snippets](https://github.com/Shougo/neosnippet-snippets)@725c989
 - VCS
   - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@0ada6c6
   - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@8670143
