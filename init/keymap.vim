@@ -88,6 +88,7 @@ nnoremap gk         K
 nnoremap ge         <Plug>(ale_next_wrap)
 " Go to yank and paste
 vnoremap gy         "+y
+nnoremap gy         y<Space>
 nnoremap gp         "+p
 vnoremap <C-c>      "+y
 " Go to list, FIXME: what about quickfix
