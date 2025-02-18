@@ -112,6 +112,12 @@ if g:lightline_enabled
                 \ 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉',
                 \ }
 
+    let g:lightline#ale#indicator_checking = "\uf110 "
+    let g:lightline#ale#indicator_infos = "\uf129 "
+    let g:lightline#ale#indicator_warnings = "\uf071 "
+    let g:lightline#ale#indicator_errors = "\uf05e "
+    let g:lightline#ale#indicator_ok = "\uf00c"
+
     " 所有模式使用同样长度字符，防止界面抖动
     let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
     function! GitBranch() abort
