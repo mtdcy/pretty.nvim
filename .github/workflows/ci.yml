@@ -17,9 +17,9 @@ jobs:
           npm --version
           python3 --version
           if curl --fail -o /dev/null http://git.mtdcy.top; then
-            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)" install
+            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
           else
-            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)" install
+            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
           fi
         shell: bash
 
