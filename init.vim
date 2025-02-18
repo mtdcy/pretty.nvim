@@ -1,13 +1,6 @@
 " pretty.nvim, copyright 2023 (c) Chen Fang, mtdcy.chen@gmail.com
 
 " => Global Settings
-let g:pretty_debug          = 0
-let g:pretty_verbose        = 0   " 0 - silence
-let g:pretty_dark           = 1   " light or drak
-let g:pretty_autocomplete   = 1   " 0 - manual complete with Tab
-let g:pretty_singleclick    = 0   " mouse single click
-let g:pretty_delay          = 200 " in GUI mode, flicker less, shorten this value
-
 let g:pretty_home           = fnamemodify($MYVIMRC, ':p:h')
 let g:pretty_bar_height     = min([15, winheight(0) / 3])
 let g:pretty_bar_width      = min([30, winwidth(0) / 5])
@@ -36,11 +29,6 @@ if exists('$SSH_CLIENT')
                 \ }
 endif
 
-" debugging
-if g:pretty_debug | let g:pretty_cmdlet = ":normal! "
-else              | let g:pretty_cmdlet = ":normal! :silent "
-endif
-
 " position floating window to the bottom right => :h nvim_open_win
 function! FloatingWindowBottomRight() abort
     return {
@@ -55,66 +43,16 @@ endfunction
 
 " {{{ => General Options
 let mapleader = ';'
-" set color and theme
-set termguicolors
-if g:pretty_dark
-    set background=dark
-else
-    set background=light
-endif
-colorscheme solarized8
-if !has('gui_running')
-  set t_Co=256
-endif
-set guicursor=a:blinkwait5-blinkon5-blinkoff5
-
-" 字体
-if has('linux')
-    "set guifont=Droid\ Sans\ Mono\ 13
-    set guifont=DroidSansM\ Nerd\ Font\ Mono\ 12
-else
-    "set guifont=Droid\ Sans\ Mono:h13
-    set guifont=DroidSansM\ Nerd\ Font\ Mono:h12
-endif
-if has('gui_running')
-    if has('gui_win32')         " why this only work on win32 gui
-        language en             " always English
-        language messages en
-    endif
-    " remove left and right scrollbars
-    set guioptions-=rl
-else
-    " fix paste without gui, like ssh + vim
-    "set paste => cause inoremap stop working
-    "set pastetoggle=<F12>
-endif
-
-" 显示行号
-set number
 
 " 不备份文件
 set nobackup
 set nowritebackup
 
-" 上下移动时，留1行
-set scrolloff=1
-
 " Don't ask me to save file before switching buffers
 set hidden
 
-" 高亮当前行
-set cursorline
-set nocursorcolumn
-
-" 语法高亮
-syntax enable
-"set regexpengine=1  " force old regex engine, solve slow problem
-
 " 使用非兼容模式
 set nocompatible
-
-" 一直启动鼠标
-set mouse=a
 
 " show command on the bottom of the screen
 set showcmd
@@ -134,14 +72,8 @@ set smartcase
 autocmd InsertEnter * set noic
 autocmd InsertLeave * set ic
 
-if g:pretty_verbose
-    set updatetime=200
-else
-    set updatetime=1000
-endif
-" }}}
+set updatetime=200
 
-" {{{ => File Format
 " tabstop       - tab宽度
 " shiftwidth    - 自动缩进宽度
 " expandtab     - 是否展开tab
@@ -184,7 +116,7 @@ set foldminlines=3          " don't fold smallest if-else statement
 function FoldText()
     let text = getline(v:foldstart)
     let lines = v:foldend - v:foldstart
-    return text .. " 󰍻 " .. lines .. " more lines "
+    return text . ' 󰍻 ' . lines . ' more lines '
 endfunction
 
 " 文件类型
@@ -195,7 +127,7 @@ set fileformats=unix,dos
 set fileencoding=utf-8
 set fileencodings=utf-8,gb18030,gbk,latin1
 
-augroup pretty.files
+augroup FileTypeSettings
     au!
     " set extra properties for interest files
     au FileType vim         setlocal fdm=marker foldlevel=0
@@ -228,551 +160,18 @@ autocmd FileChangedShellPost *
             \ echohl None
 "}}}
 
-" {{{ => NERDTree
-let g:nerdtree_enabled = 1
-if g:nerdtree_enabled
-    "  Bug: VCS will ignore submodule
-    let g:NERDTreeWinPos = 'left'
-    let g:NERDTreeNaturalSort = 1
-    let g:NERDTreeMouseMode = g:pretty_singleclick + 1
-    let g:NERDTreeShowHidden = 1
-    let g:NERDTreeIgnore = [
-                \ '\~$', '.DS_Store', '*.pyc',
-                \ '.git$', '__pycache__',
-                \ '#recycle', '@eaDir'
-                \ ]
-    let g:NERDTreeRespectWildIgnore = 1
-    let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
-    let g:NERDTreeMinimalUI = 1
-    let g:NERDTreeMinimalMenu=1
-    let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
-    let g:nerdtreedirarrowcollapsible=''
-    let g:nerdtreedirarrowexpandable=''
-    "" Netrw: disable for now, test later
-    let g:NERDTreeHijackNetrw = 0
-    "" cancel some key mappings: too much mappings won't help user
-    ""  => keep only: Enter, Space, Mouse, F1/?
-    "let g:NERDTreeMapActivateNode = ''
-endif
+" source plugin settings
+source <sfile>:h/init/ui.vim
+source <sfile>:h/init/explorer.vim
+source <sfile>:h/init/taglist.vim
+source <sfile>:h/init/completion.vim
+source <sfile>:h/init/vcs.vim
 
-" 扩展
-" => Denite
-function! OpenDenite() abort
-    exec "Denite -split=floating_relative_window file/rec"
-endfunction
-
-autocmd FileType denite call DeniteReady()
-function! DeniteReady() abort
-    nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
-    nnoremap <silent><buffer><expr> <space> denite#do_map('toggle_select').'j'      " select and move down
-    nnoremap <silent><buffer><expr> /       denite#do_map('open_filter_buffer')     " search
-    nnoremap <silent><buffer><expr> D       denite#do_map('do_action', 'delete')    " delete
-    nnoremap <silent><buffer><expr> p       denite#do_map('do_previous_action')     " preview
-    nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
-    nnoremap <silent><buffer><expr> <esc>   denite#do_map('quit')                   " quit
-endfunction
-
-autocmd FileType denite-filter call DeniteFilter()
-function! DeniteFilter() abort
-    imap <silent><buffer> <esc>             <Plug>(denite_filter_quit)
-endfunction
-
-call denite#custom#source('_', {
-            \ 'max_candidates'  : 30,
-            \ 'matchers' : [
-            \   'matcher/fruzzy', 
-            \   'matcher/hide_hidden_files',
-            \   'matcher/ignore_globs'
-            \ ]})
-call denite#custom#filter('matcher/ignore_globs', 'ignore_globs', [
-            \ '*~', '*.o', '*.exe', '*.bak', '*.a', '*.so', '*.so.*',
-            \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class', 
-            \ '.hg/', '.git/', '.bzr/', '.svn/', '.ccache/',
-            \ ])
-
-let g:fruzzy#usenative = 1
-
-" }}}
-
-" {{{ => Tagbar
-" use on fly tags
-let g:tagbar_singleclick = g:pretty_singleclick
-let g:tagbar_position = 'botright vertical'
-let g:tagbar_sort = 0
-let g:tagbar_left = 0   " right
-let g:tagbar_compact = 1
-let g:tagbar_autofocus = 0 " if enabled, an empty tagbar opened
-let g:tagbar_autoshowtag = 1
-let g:tagbar_show_data_type = 1
-let g:tagbar_width = min([30, winwidth(0) / 4])
-let g:tagbar_no_status_line = 1
-" cancel some key mappings: too much mappings won't help user
-"  => keep only: Enter, Space, Mouse, F1/?
-let g:tagbar_map_hidenonpublic = ''
-let g:tagbar_map_openallfolds = ''
-let g:tagbar_map_closeallfolds = ''
-let g:tagbar_map_incrementfolds = ''
-let g:tagbar_map_decrementfolds = ''
-let g:tagbar_map_togglesort = ''
-let g:tagbar_map_toggleautoclose = ''
-let g:tagbar_map_togglecaseinsensitive = ''
-let g:tagbar_map_zoomwin = ''
-let g:tagbar_map_close = ''
-let g:tagbar_map_preview = ''
-let g:tagbar_map_previewwin = ''
-let g:tagbar_map_nexttag = ''
-let g:tagbar_map_prevtag = ''
-let g:tagbar_map_nextfold = ''
-let g:tagbar_map_prevfold = ''
-let g:tagbar_map_togglefold = ''
-let g:tagbar_map_togglepause = ''
-" multiple key mapping to these one, can't disable single one
-"let g:tagbar_map_openfold = ''
-"let g:tagbar_map_closefold = ''
-"}}}
-
-" {{{ => lightline
-set laststatus=2
-set showtabline=2
-set noshowmode  " mode is displayed in the statusline
-" 把会跳变的元素放在左边最后一位或右边最前一位
-let g:lightline = {
-            \ 'colorscheme'         : 'one',
-            \ 'separator'           : { 'left' : "\ue0b0",          'right' : "" },
-            \ 'subseparator'        : { 'left' : "",                'right' : "" },
-            \ 'tabline'             : { 'left' : [[ 'buffers' ]],   'right' : [] },
-            \ 'inactive'            : { 'left' : [[ 'filename' ]],  'right' : [] },
-            \ 'active'              : {
-            \   'left'              : [
-            \       [ 'mode', 'paste' ],
-            \       [ 'gitbranch' ],
-            \       [ 'readonly', 'filename', 'modified' ]
-            \ ],
-            \   'right'             : [
-            \       [ 'percent' ],
-            \       [ 'datetime'],
-            \       [ 'fileformat', 'fileencoding', 'filetype'],
-            \       [ 'linter_ok', 'linter_errors', 'linter_warnings' ]
-            \ ]},
-            \ 'component'           : {
-            \   'gitbranch'         : '%{GitBranch()}',
-            \   'readonly'          : '%{&readonly ? "" : ""}',
-            \   'filename'          : '%{RelativeFileName()}',
-            \   'datetime'          : '%{strftime("%m-%d %H:%M:%S")}',
-            \ },
-            \ 'component_expand'    : {
-            \   'buffers'           : 'lightline#bufferline#buffers',
-            \   'linter_ok'         : 'lightline#ale#ok',
-            \   'linter_infos'      : 'lightline#ale#infos',
-            \   'linter_warnings'   : 'lightline#ale#warnings',
-            \   'linter_errors'     : 'lightline#ale#errors',
-            \ },
-            \ 'component_type'      : {
-            \   'buffers'           : 'tabsel',
-            \   'linter_ok'         : 'right',
-            \   'linter_infos'      : 'right',
-            \   'linter_warnings'   : 'warning',
-            \   'linter_errors'     : 'error',
-            \ },
-            \ 'component_raw'       : {
-            \   'buffers'           : 1,
-            \ }}
-
-let g:lightline#bufferline#enable_devicons = 1
-let g:lightline#bufferline#unicode_symbols = 1
-let g:lightline#bufferline#shorten_path = 0 " shorten path not readable
-let g:lightline#bufferline#smart_path = 1 " shorten path stop working if enabled
-let g:lightline#bufferline#clickable = 1
-"autocmd User LightlineBufferlinePreClick :echom "== clicked " . bufname('%')
-let g:lightline#bufferline#show_number = 2
-let g:lightline#bufferline#ordinal_number_map = {
-            \ 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄',
-            \ 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉',
-            \ }
-
-" 所有模式使用同样长度字符，防止界面抖动
-let g:lightline.mode_map = { 'n':'N', 'i':'I', 'R':'R', 'v':'v', 'V':'V', "\<C-v>":'v', 'c':'C', 's':'s', 'S':'S', "\<C-s>":'s', 't':'T' }
-function! GitBranch() abort
-    let head = trim(system("git branch --show-current 2>/dev/null"))
-    if head != ""
-        let l:git = fnamemodify(finddir('.git', '.;'), ':p:h:h:t')
-        let head = l:git . "  " . head
-    endif
-    return head
-endfunction
-function! RelativeFileName() abort
-    let l:bufname = bufname()
-    if l:bufname =~ 'NERD_tree_\d\+'      | return 'NERDTree'
-    elseif l:bufname =~ '__Tagbar__.\d\+' | return 'Tagbar'
-    elseif l:bufname =~ '\[denite\]-*'    | return 'denite'
-    else                                  | return expand('%:~:.')
-    endif
-endfunction
-" }}}
-
-" {{{ => ALE
-let g:ale_enabled = 1
-if g:ale_enabled
-    " You should not turn this setting on if you wish to use ALE as a completion
-    let g:ale_completion_enabled = 0
-    if g:ale_completion_enabled
-        let g:ale_completion_autoimport = 1
-        let g:ale_completion_delay = g:pretty_delay / 2
-        set completeopt-=preview
-        set paste& " ALE complete won't work with paste
-
-        " always set omnifunc here, can be used as source for others or be replaced by others later
-        set omnifunc=ale#completion#OmniFunc " => 支持手动补全
-    endif
-
-    " 悬浮窗：Hover(函数签名)
-    let g:ale_hover_cursor = 0              " to statusline by default
-    let g:ale_hover_to_preview = 0          " to preview window
-    let g:ale_hover_to_floating_preview = 1 " to floating preview
-    let g:ale_floating_preview_popup_opts = 'g:FloatingWindowBottomRight'
-
-    augroup ALEHoverEnhanced
-        autocmd!
-        " Hover on cursor hold
-        "   => hover manually with <C-d>
-        "autocmd CursorHold,CursorHoldI * ALEHover
-        " Hover after completion
-        autocmd User ALECompletePost ALEHover
-    augroup END
-
-    " 错误: virtualtext only
-    let g:ale_echo_cursor = 1 " error code to statusline
-    let g:ale_set_signs = 0 " no signs which cause window changes
-    let g:ale_virtualtext_delay = g:pretty_delay
-    let g:ale_virtualtext_cursor = 'all'
-    let g:ale_virtualtext_prefix = '%code%: '
-
-    " 错误列表：loclist
-    let g:ale_set_loclist = 1           " loclist instead of quickfix
-    let g:ale_open_list = 0             " don't open error list
-    let g:ale_keep_list_window_open = 0 " close list after error cleared
-
-    " Linters:
-    let g:ale_lint_on_text_changed = 1  " Not all linter support this
-    let g:ale_lint_on_insert_leave = 0
-    let g:ale_lint_on_filetype_changed = 1
-    let g:ale_lint_delay = 100
-
-    " 显式指定linter和fixer => 更直观也更容易调试
-    " Fixer: 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
-    let g:ale_fix_on_save = 0   " try call ALEFix explicitly
-    let g:ale_fixers = {
-                \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
-                \ 'go'          : ['goimports', 'gofmt'],
-                \ 'python'      : ['black']
-                \ }
-
-    " Linter: 通常情况均为一个，防止竞争的情况出现
-    let g:ale_linters_explicit = 1
-    let g:ale_linters = {
-                \ 'sh'          : ['shellcheck'],
-                \ 'vim'         : ['vimls'],
-                \ 'python'      : ['jedils'],
-                \ 'c'           : ['cc'],
-                \ 'cpp'         : ['cc'],
-                \ 'go'          : ['gopls'],
-                \ 'rust'        : ['cargo', 'rustc'],
-                \ 'lua'         : ['lua-language-server', 'luacheck'],
-                \ 'make'        : ['checkmake'],
-                \ 'cmake'       : ['cmakelint'],
-                \ 'dockerfile'  : ['hadolint'],
-                \ 'html'        : ['vscodehtml'],
-                \ 'css'         : ['vscodecss'],
-                \ 'java'        : ['javac'],
-                \ 'javascript'  : ['eslint'],
-                \ 'json'        : ['vscodejson', 'jsonlint'],
-                \ 'markdown'    : ['markdownlint'],
-                \ 'yaml'        : ['yamllint'],
-                \ }
-    " => jedils: how to set linter rules? use with pylint now.
-
-    augroup ALELinterAlternatives
-        autocmd!
-        " enable vint linter if vintrc exists, vimls preferred
-        autocmd FileType vim
-                    \ if findfile(".vintrc.yaml", ".;") != ''
-                    \ || findfile(".vintrc.yml", ".;") != ''
-                    \ || findfile(".vintrc", ".;") != ''
-                    \ || exepath('vim-language-server') ==# ''
-                    \ | let b:ale_linters = { 'vim' : ['vint'] }
-                    \ | endif
-        " enable language server & linter for python
-        autocmd FileType python
-                    \ if findfile(".pylintrc", ".;") != ''
-                    \ || findfile("pylintrc", ".;") != ''
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
-                    \ | else
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
-                    \ | endif
-    augroup END
-
-    " {{{ => linter config
-    function! FindLinterConfig(prefix, targets)
-        for i in split(a:targets, ':')
-            let l:config = findfile(i, ".;")
-            if config != ''
-                return a:prefix . fnamemodify('.', ':p') . config
-            endif
-        return ''
-    endfunction
-
-    " gopls & gofmt
-    let g:ale_go_gofmt_options = '-s'
-
-    " vint:
-    let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
-    let g:ale_vim_vint_show_style_issues = 1
-
-    " vimls: https://github.com/iamcco/vim-language-server
-    let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
-    let g:ale_vim_vimls_config = {
-                \ 'vim' : {
-                \   'isNeovim'      : has('nvim'),
-                \   'iskeyword'     : '@,48-57,_,192-255,-#',
-                \   'vimruntime'    : $VIMRUNTIME,
-                \   'runtimepath'   : '',
-                \   'diagnostic' : {
-                \     'enable': v:true
-                \   },
-                \   'indexes' : {
-                \     'runtimepath' : v:true,
-                \     'gap'         : 100,
-                \     'count'       : 3,
-                \     'projectRootPatterns' : ['.git', 'autoload', 'plugin']
-                \   },
-                \   'suggest' : {
-                \     'fromVimruntime'  : v:true,
-                \     'fromRuntimepath' : v:false
-                \   },
-                \ }}
-
-    " shell:
-    let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck'
-    " shellcheck look for .shellcheckrc automatically unless `--norc' provided
-
-    " Dockerfiles:
-    let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint'
-    let g:ale_dockerfile_hadolint_options = '--ignore DL3059' . FindLinterConfig(' -c ', '.hadolint.yaml:.hadolint.yml:.hadolintrc')
-
-    " cmake:
-    let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint'
-    let g:ale_cmake_cmakelint_options = '--filter=-whitespace/extra' . FindLinterConfig(' --config=', '.cmakelintrc')
-
-    " yaml:
-    let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint'
-    let g:ale_yaml_yamllint_options = FindLinterConfig(' -c ', '.yamllint.yaml')
-    if g:ale_yaml_yamllint_options ==# ''
-        let g:ale_yaml_yamllint_options = '-d default'
-    endif
-
-    " python: flake8 is more popular
-    " Black has deliberately only one option (line length) to ensure consistency across many projects
-    let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
-    let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
-    let g:ale_python_flake8_options = '--ignore=E501'
-    let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
-    let g:ale_python_pylint_options = FindLinterConfig('--rcfile ', '.pylintrc:pylintrc')
-    let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
-    let g:ale_python_black_options = '--line-length 999'
-
-    " markdown:
-    let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
-    let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
-
-    "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
-    " autoload/afe/fixers/clangformat.vim can not handle path properly
-    "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
-    let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
-    let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
-    let g:ale_rust_rustfmt_options = '--force --write-mode replace'
-    " }}}
-
-    " {{{ => complete type unicode
-    let g:ale_completion_symbols = {
-                \ 'text'            : '',
-                \ 'class'           : '',
-                \ 'method'          : '',
-                \ 'function'        : '',
-                \ 'constructor'     : '',
-                \ 'field'           : '',
-                \ 'variable'        : '',
-                \ 'interface'       : '',
-                \ 'module'          : '',
-                \ 'property'        : '',
-                \ 'operator'        : '',
-                \ 'constant'        : '',
-                \ 'value'           : '',
-                \ 'enum'            : 'enum ',
-                \ 'enum member'     : 'enum ',
-                \ 'struct'          : 'struct ',
-                \ 'event'           : 'event ',
-                \ 'unit'            : 'unit ',
-                \ 'keyword'         : 'keyword',
-                \ 'snippet'         : 'snippet',
-                \ 'color'           : 'color',
-                \ 'file'            : 'file',
-                \ 'reference'       : 'reference',
-                \ 'folder'          : 'folder',
-                \ 'type_parameter'  : 'type param',
-                \ '<default>'       : 'v'
-                \ }
-    " }}}
-endif
-" }}}
-
-" {{{ => deoplete
-" 只开启一个自动补全插件 => 目录来看deoplete的补全功能更强一些
-if exists('g:ale_completion_enabled') && g:ale_completion_enabled
-    let g:deoplete#enable_at_startup = 0
-else
-    let g:deoplete#enable_at_startup = 1
-endif
-
-if g:deoplete#enable_at_startup
-    " neosnippet: 与deoplete配合
-    let g:neosnippet#enable_snipmate_compatibility = 1
-
-    set completeopt=menu,noselect,noinsert
-    " scan only tags and buffers => :h 'complete'
-    "  => deep scan by deoplete and ale
-    set complete=t,.,b,u,w
-    set paste&
-    set pumheight=10
-    " wish to have 'longest', but deoplete can work with it.
-
-    " 注意补全source的顺序
-    if g:ale_enabled
-        " ALE as completion source for deoplete
-        "  => buffer will override ale's suggestions.
-        call deoplete#custom#option(
-                    \ 'sources', {
-                    \   '_'     : ['ale', 'around', 'buffer', 'file', 'neosnippet'],
-                    \ })
-    else
-        " 为每个语言定义completion source
-        call deoplete#custom#option(
-                    \ 'sources', {
-                    \   '_'     : ['around', 'buffer', 'file', 'neosnippet'],
-                    \   'cpp'   : ['LanguageClient'],
-                    \   'c'     : ['LanguageClient'],
-                    \   'vim'   : ['vim'],
-                    \   'zsh'   : ['zsh'],
-                    \   'python': ['jedi'],
-                    \ })
-    endif
-
-    " complete with vim-go => 手动模式omni不工作，为什么？
-    "if g:go_code_completion_enabled
-    "    call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
-    "endif
-
-    if g:pretty_autocomplete
-        " 自动补全时给一个较大的延时
-        "  => 打字够快，补全就不会干扰
-        call deoplete#custom#option({
-                    \ 'auto_complete_delay' : g:pretty_delay,
-                    \ })
-    else
-        " 后台自动补全，前台手动显示候选列表
-        "  => 不仅实现了自动补全，同时还减少的界面打扰
-        call deoplete#custom#option({
-                    \ 'auto_complete_popup' : 'manual',
-                    \ 'auto_complete_delay' : 0,
-                    \ })
-    endif
-
-    call deoplete#custom#source('_', 'smart_case', v:true)
-    " mark sources
-	call deoplete#custom#source('file',         'mark', '📁')  " rank: 150
-	call deoplete#custom#source('file',         'rank', 100)
-	call deoplete#custom#source('buffer',       'mark', '📋')  " rank: 100
-	call deoplete#custom#source('buffer',       'rank', 150)
-	call deoplete#custom#source('neosnippet',   'mark', '📜')
-    call deoplete#custom#source('neosnippet',   'rank', 200)
-    call deoplete#custom#source('ale',          'mark', '⭐')
-    call deoplete#custom#source('ale',          'rank', 250)
-	call deoplete#custom#source('around',       'mark', '📝')  " rank: 300
-    " complete cross filetype for buffer source
-    call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
-    " enable slash completion for file source
-    call deoplete#custom#var('file', 'enable_slash_completion', v:true)
-endif
-
-" 辅助插件
-" => echodoc
-"let g:echodoc#enable_at_startup = 1
-"if g:echodoc#enable_at_startup
-"    if has('nvim')
-"        " BUG: 'floating' won't show again after complete.
-"        let g:echodoc#type = 'virtual'
-"    else
-"        let g:echodoc#type = 'popup'
-"    endif
-"    highlight link EchoDocFloat Pmenu
-"endif
-" }}}
-
-" {{{ => LazyGit
-let g:lazygit_floating_window_winblend = 0      " transparency of floating window
-let g:lazygit_floating_window_use_plenary = 0   " use plenary.nvim to manage floating window if available
-let g:lazygit_use_custom_config_file_path = 1   " custom config file first for nvim
-let g:lazygit_config_file_path = g:pretty_home . '/lazygit.yml'
-" XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
-
-" 显示VCS修改信息
-" => signify
-let g:signify_disable_by_default = 0
-let g:signify_number_highlight = 1
-" }}}
-
-" {{{ => Plugins/Misc
-
-" => Rainbow
-" let g:rainbow_active = 1 => cause conceal feature stop working
-autocmd FileType vim,sh,c,cpp,html call rainbow_main#load()
-
-" => Commenter
-let g:NERDCreateDefaultMappings = 0
-let g:NERDDefaultAlign = 'left'
-
-" => Matchtags
-let g:vim_matchtag_enable_by_default = 1
-let g:vim_matchtag_files = '*.html,*.xml,*.js,*.jsx,*.ts,*.tsx,*.vue,*.svelte,*.jsp,*.php,*.erb'
-highlight link matchTag Search
-highlight link matchTag MatchParen
-highlight link matchTagError Todo
-highlight matchTag gui=reverse
-
-" => devicons
-" https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
-let g:webdevicons_enable = 1
-let g:webdevicons_enable_nerdtree = 1
-let g:webdevicons_conceal_nerdtree_brackets = 1
-let g:DevIconsEnableFoldersOpenClose = 1
-let NERDTreeDirArrowExpandable=''
-let NERDTreeDirArrowCollapsible=''
-
-let g:webdevicons_enable_denite = 1
-
-" => tabular
-" NOTHING HERE
-" }}}
+source <sfile>:h/init/wm.vim
+source <sfile>:h/init/keymap.vim
 
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
 nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
-
-" ???
-"highlight! Normal ctermbg=NONE guibg=NONE
-
-" source init files
-source <sfile>:h/init/wm.vim
-source <sfile>:h/init/tab.vim
-source <sfile>:h/init/keymap.vim

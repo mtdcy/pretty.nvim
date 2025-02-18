@@ -25,16 +25,16 @@
 "  ...
 
 " Window
-nnoremap <F9>       :NERDTreeToggle<cr>
-inoremap <F9>       <C-o>:NERDTreeToggle<cr>
-nnoremap <F10>      :TagbarToggle<cr>
-inoremap <F10>      <C-o>:TagbarToggle<cr>
+nnoremap <F9>       :ExplorerFocus<cr>
+inoremap <F9>       <C-o>:ExplorerFocus<cr>
+nnoremap <F10>      :TaglistFocus<cr>
+inoremap <F10>      <C-o>:TaglistFocus<cr>
 " no F11 here, as macOS has global define
-nnoremap <F12>      :LazyGit<cr>
-inoremap <F12>      <C-o>:LazyGit<cr>
+nnoremap <F12>      :VCS<cr>
+inoremap <F12>      <C-o>:VCS<cr>
 
-nnoremap <C-e>      :call OpenDenite()<cr>
-inoremap <C-e>      <C-o>:call OpenDenite()<cr>
+nnoremap <C-e>      :Finder<cr>
+inoremap <C-e>      <C-o>:Finder<cr>
 
 nnoremap <C-n>      :call BufferNext()<cr>
 inoremap <C-n>      <C-o>:call BufferNext()<cr>
