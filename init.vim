@@ -166,6 +166,7 @@ source <sfile>:h/init/explorer.vim
 source <sfile>:h/init/taglist.vim
 source <sfile>:h/init/completion.vim
 source <sfile>:h/init/vcs.vim
+source <sfile>:h/init/misc.vim
 
 source <sfile>:h/init/wm.vim
 source <sfile>:h/init/keymap.vim
