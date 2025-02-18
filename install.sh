@@ -91,7 +91,7 @@ deactivate
 
 # install node modules locally
 if which npm; then
-    npm config set registry "$MIRRORS/npmjs"
+    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs" || true
     npm install
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
@@ -136,10 +136,6 @@ fi
     info "== Something went wrong with pretty.nvim"
     exit 1
 }
-
-# install lazygit
-info "== install lazygit"
-ln -sfv "$PWD/lazygit.yml" "$HOME/.lazygit.yml"
 
 check_host() {
     which "$1" || 
