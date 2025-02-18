@@ -35,7 +35,7 @@ case "$1" in
         ;;
 esac
 
-if [ "$1" = "--update" ]; then
+if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
         cd "$(dirname "$0")"
         info "== update pretty.nvim @ $PWD"
@@ -54,7 +54,7 @@ if [ "$1" = "--update" ]; then
         cd "$HOME/.nvim"
     fi
 
-    exec "$0" --no-update
+    exec ./install.sh --no-update
 fi
 
 if [ "$locally" -eq 1 ]; then
@@ -76,8 +76,13 @@ else
 fi
 
 source py3env/bin/activate
-pip install -i "$MIRRORS/pypi/simple" -U pip # update before install modules
-pip install -i "$MIRRORS/pypi/simple" -r requirements.txt
+if [ -z "$MIRRORS" ]; then
+    pip install -U pip # update before install modules
+    pip install -r requirements.txt
+else
+    pip install -i "$MIRRORS/pypi/simple" -U pip # update before install modules
+    pip install -i "$MIRRORS/pypi/simple" -r requirements.txt
+fi
 pip cache purge
 
 # pip install <package>
