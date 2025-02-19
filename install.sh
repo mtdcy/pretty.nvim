@@ -69,7 +69,8 @@ done
 
 # install python modules with venv
 #  python3.13 has problems to install modules.
-if which python3.12; then
+if python3 --version | grep -Fw 3.13; then
+    info "== python3.13 has troubles to install modules"
     python3.12 -m venv --copies --clear py3env
 else
     python3 -m venv --copies --clear py3env
