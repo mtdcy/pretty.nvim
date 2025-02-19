@@ -107,27 +107,6 @@ set cindent
 "set cinoptions=>s,e0,n0,f0,{0,}0,^0,Ls,:s,=s,l1,b1,g0,hs,N-s,E-s,ps,t0,is,+-s,t0,cs,C0,/0,(0,us,U0,w0,W0,k0,m1,M0,#0,P0
 "
 
-" Fold: 默认折叠，手动开关
-set foldmethod=syntax
-set foldlevel=1
-set foldnestmax=2
-" fold text
-set foldtext=FoldText()
-set fillchars+=fold:\       " 隐藏v:folddashes. note: there is a space after \
-set foldminlines=3          " don't fold smallest if-else statement
-
-" fold column
-"set foldcolumn=1            " 显示fold栏，可鼠标开关 => 与git状态有些冲突
-"set fillchars+=foldclose:
-"set fillchars+=foldopen:
-"set fillchars+=foldsep:
-
-function FoldText()
-    let text = getline(v:foldstart)
-    let lines = v:foldend - v:foldstart
-    return text . ' 󰍻 ' . lines . ' more lines '
-endfunction
-
 " 文件类型
 set fileformat=unix
 set fileformats=unix,dos
@@ -136,21 +115,27 @@ set fileformats=unix,dos
 set fileencoding=utf-8
 set fileencodings=utf-8,gb18030,gbk,latin1
 
+" Fold: 默认折叠，手动开关
+set foldmethod=syntax
+set foldlevel=0
+set foldnestmax=1
+set foldtext=FoldText()
+set fillchars+=fold:\       " 隐藏v:folddashes. note: there is a space after \
+set foldminlines=3          " don't fold smallest if-else statement
+set foldcolumn=1            " conflict with vim-signify
+
 augroup FileTypeSettings
     au!
     " set extra properties for interest files
-    au FileType vim         setlocal fdm=marker foldlevel=0
-    au FileType yaml        setlocal et ts=2 sw=2
+    au FileType vim         setlocal fdm=marker
     au FileType make        setlocal expandtab&
+    au FileType yaml        setlocal et ts=2 sw=2 fdm=indent
     au FileType markdown    setlocal et ts=2 sw=2 foldlevel=99
     " => Markdown插件有点问题，总是不断折叠
 
     " Python 通过indent折叠总在折叠在函数的第二行
-    au BufNewFile,BufRead *.py
-                \ setlocal et ts=4 sw=4 fdm=indent
-
-    au BufNewFile,BufRead *.js,*.html,*.css
-                \ setlocal et ts=2 sw=2 fdm=syntax
+    au FileType python      setlocal et ts=4 sw=4 fdm=indent
+    au FileType js,html,css setlocal et ts=2 sw=2 fdm=syntax
 
     " 自动跳转到上一次打开的位置
     autocmd BufReadPost *
@@ -158,6 +143,12 @@ augroup FileTypeSettings
                 \ | exe "normal! g`\""
                 \ | endif
 augroup END
+
+function FoldText()
+    let text = getline(v:foldstart)
+    let lines = v:foldend - v:foldstart
+    return text . ' 󰍻 ' . lines . ' more lines '
+endfunction
 
 " trigger `autoread` when files changes on disk
 set autoread
