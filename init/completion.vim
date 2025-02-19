@@ -98,10 +98,6 @@ if g:ale_enabled
     " => jedils: how to set linter rules? use with pylint now.
 
     " {{{ => linter config
-    function! FindExecutable(target)
-        return ''
-    endfunction
-
     function! FindLintrc(prefix, targets, def)
         for i in split(a:targets, ';')
             let l:config = findfile(i, '.;')
@@ -122,12 +118,12 @@ if g:ale_enabled
                     \ || findfile(".vintrc", ".;") != ''
                     \ || exepath('vim-language-server') ==# ''
                     \ | let b:ale_linters = { 'vim' : ['vint'] }
-                    \ | let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
+                    \ | let g:ale_vim_vint_executable = FindExecutable('vint')
                     \ | let g:ale_vim_vint_show_style_issues = 1
                     \ | endif
 
         " vimls: https://github.com/iamcco/vim-language-server
-        let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
+        let g:ale_vim_vimls_executable = FindExecutable('vim-language-server')
         let g:ale_vim_vimls_config = {
                     \ 'vim' : {
                     \   'isNeovim'      : has('nvim'),
@@ -155,22 +151,22 @@ if g:ale_enabled
 
         " shell:
         autocmd FileType sh 
-                    \ let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck' |
+                    \ let g:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
                     \ let g:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
         " Dockerfiles:
         autocmd FileType dockerfile 
-                    \ let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint' |
+                    \ let g:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
                     \ let g:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
         " cmake:
         autocmd FileType cmake 
-                    \ let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint' |
+                    \ let g:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
                     \ let g:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
         " yaml:
         autocmd FileType yaml
-                    \ let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint' |
+                    \ let g:ale_yaml_yamllint_executable = FindExecutable('yamllint') |
                     \ let g:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
 
         " python: flake8 is more popular, enable pylint if pylintrc exists
@@ -179,32 +175,32 @@ if g:ale_enabled
                     \ if findfile(".pylintrc", ".;") != ''
                     \ || findfile("pylintrc", ".;") != ''
                     \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
-                    \ |  let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
+                    \ |  let g:ale_python_pylint_executable = FindExecutable('pylint')
                     \ |  let g:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
                     \ | else
                     \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
-                    \ |  let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
+                    \ |  let g:ale_python_flake8_executable = FindExecutable('flake8')
                     \ |  let g:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
                     \ | endif
-                    \ | let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
-                    \ | let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
+                    \ | let g:ale_python_jedils_executable = FindExecutable('jedi-language-server')
+                    \ | let g:ale_python_black_executable = FindExecutable('black')
                     \ | let g:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
 
         " markdown:
         autocmd FileType markdown
-                    \ let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint' |
+                    \ let g:ale_markdown_markdownlint_executable = FindExecutable('markdownlint') |
                     \ let g:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
 
         " html + css
         "autocmd FileType html
-        "            \ let g:ale_html_eslint_executable = g:pretty_home . '/node_modules/.bin/eslint' |
+        "            \ let g:ale_html_eslint_executable = FindExecutable('eslint') |
         "            \ let g:ale_html_eslint_options = FindLintrc('--no-eslintrc --config ', '.eslintrc', 'lintrc/eslintrc.html.js')
         autocmd FileType html,css
-                    \ let g:ale_html_htmlhint_executable = g:pretty_home . '/node_modules/.bin/htmlhint' |
+                    \ let g:ale_html_htmlhint_executable = FindExecutable('htmlhint') |
                     \ let g:ale_html_htmlhint_options = FindLintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
-                    \ let g:ale_html_stylelint_executable = g:pretty_home . '/node_modules/.bin/stylelint' |
+                    \ let g:ale_html_stylelint_executable = FindExecutable('stylelint') |
                     \ let g:ale_html_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
-                    \ let g:ale_css_stylelint_executable = g:pretty_home . '/node_modules/.bin/stylelint' |
+                    \ let g:ale_css_stylelint_executable = FindExecutable('stylelint') |
                     \ let g:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
     augroup END
 

@@ -15,6 +15,15 @@ let g:python3_host_prog     = $VIRTUAL_ENV . '/bin/python3'
 
 " setup node.js env
 let g:node_host_prog        = g:pretty_home . '/node_modules/.bin/neovim-node-host'
+    
+function! FindExecutable(target)
+    if filereadable(g:pretty_home . '/py3env/bin/' . a:target)
+        return g:pretty_home . '/py3env/bin/' . a:target
+    elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:target)
+        return g:pretty_home . '/node_modules/.bin/' . a:target
+    endif
+    return '' " no executables in PATH
+endfunction
 
 if exists('$SSH_CLIENT')
     " only copy back
