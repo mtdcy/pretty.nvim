@@ -97,7 +97,8 @@ set expandtab
 set autoindent
 set smartindent
 " 文本宽, 有些过时了
-set textwidth&
+set textwidth=0
+set formatoptions-=t
 " 用Tab和Space组合填充Tab => 比较邪恶, 经常导致显示错位
 set softtabstop&
 
@@ -127,15 +128,22 @@ set foldcolumn=1            " conflict with vim-signify
 augroup FileTypeSettings
     au!
     " set extra properties for interest files
-    au FileType vim         setlocal fdm=marker
-    au FileType make        setlocal expandtab&
-    au FileType yaml        setlocal et ts=2 sw=2 fdm=indent
-    au FileType markdown    setlocal et ts=2 sw=2 foldlevel=99
+    au FileType vim                 setlocal fdm=marker
+    au FileType make                setlocal expandtab&
+    au FileType yaml                setlocal et ts=2 sw=2 fdm=indent
+    au FileType markdown            setlocal et ts=2 sw=2 foldlevel=99
     " => Markdown插件有点问题，总是不断折叠
 
     " Python 通过indent折叠总在折叠在函数的第二行
-    au FileType python      setlocal et ts=4 sw=4 fdm=indent
-    au FileType js,html,css setlocal et ts=2 sw=2 fdm=syntax
+    au FileType python              setlocal et ts=4 sw=4 fdm=indent
+    au FileType html,css            setlocal et ts=2 sw=2 fdm=syntax
+
+    " json: ignore top bracket 
+    au FileType json,jsonc          setlocal foldlevel=1
+
+    " javascript,typescript
+    au FileType javascript          setlocal et ts=2 sw=2
+    au FileType typescript          setlocal et ts=2 sw=2
 
     " 自动跳转到上一次打开的位置
     autocmd BufReadPost *

@@ -64,8 +64,7 @@ if g:ale_enabled
     let g:ale_lint_on_filetype_changed = 1
     let g:ale_lint_delay = 100
 
-    " 显式指定linter和fixer => 更直观也更容易调试
-    " Fixer: 经过一段时间的使用发现fixer并不如预期，有linter就足够了。
+    " Fixers: {{{
     let g:ale_fix_on_save = 0   " try call ALEFix explicitly
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
@@ -73,7 +72,16 @@ if g:ale_enabled
                 \ 'python'      : ['black'],
                 \ }
 
-    " Linter: 通常情况均为一个，防止竞争的情况出现
+    " prettier: load if .prettierrc exists
+    "  => no executable here => user may installed different version
+    autocmd FileType * 
+                \ if findfile(".prettierrc", ".;") != ''
+                \ || findfile(".prettierrc.json", ".;") != ''
+                \ |  let b:ale_fixers = { expand('<amatch>') : ['prettier'] }
+                \ | endif
+    " }}}
+
+    " Linter: language server preferred {{{
     let g:ale_linters_explicit = 1
     let g:ale_linters = {
                 \ 'sh'          : ['shellcheck'],
@@ -86,14 +94,15 @@ if g:ale_enabled
                 \ 'lua'         : ['lua-language-server', 'luacheck'],
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
-                \ 'dockerfile'  : ['hadolint'],
                 \ 'html'        : ['vscodehtml', 'htmlhint', 'stylelint'],
                 \ 'css'         : ['vscodecss', 'stylelint'],
                 \ 'java'        : ['javac'],
-                \ 'javascript'  : ['eslint'],
-                \ 'json'        : ['vscodejson', 'jsonlint'],
-                \ 'markdown'    : ['markdownlint'],
+                \ 'javascript'  : ['tsserver'],
+                \ 'typescript'  : ['tsserver'],
+                \ 'json'        : ['vscodejson'],
                 \ 'yaml'        : ['yamllint'],
+                \ 'markdown'    : ['markdownlint'],
+                \ 'dockerfile'  : ['hadolint'],
                 \ }
     " => jedils: how to set linter rules? use with pylint now.
 
@@ -108,113 +117,137 @@ if g:ale_enabled
         return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
     endfunction
 
+    function! EnableLinters(filetype, linter) abort
+        if has_key(g:ale_linters, a:filetype)
+            let b:ale_linters = { a:filetype : g:ale_linters[a:filetype] + [ a:linter ] }
+        else
+            let b:ale_linters = { a:filetype : [ a:linter ] }
+        endif
+    endfunction
+
     augroup ALELinterSetup
         autocmd!
-        " vint: enable vint linter if vintrc exists, vimls preferred
-        " => no option for config file
+        " c,cpp: prefer ccls if .ccls exists
+        autocmd FileType c,cpp
+                    \ if findfile(".ccls", ".;") != ''
+                    \ |  let b:ale_linters = { expand('<amatch>') : ['ccls'] }
+                    \ | endif
+
+        " vimls: https://github.com/iamcco/vim-language-server
+        "  => enable vint linter if vintrc exists
         autocmd FileType vim
+                    \ let b:ale_vim_vimls_executable = FindExecutable('vim-language-server') |
+                    \ let b:ale_vim_vimls_config = {
+                    \     'vim' : {
+                    \       'isNeovim'      : has('nvim'),
+                    \       'iskeyword'     : '@,48-57,_,192-255,-#',
+                    \       'vimruntime'    : $VIMRUNTIME,
+                    \       'runtimepath'   : '',
+                    \       'diagnostic' : {
+                    \         'enable': v:true
+                    \       },
+                    \       'indexes' : {
+                    \         'runtimepath' : v:true,
+                    \         'gap'         : 100,
+                    \         'count'       : 3,
+                    \         'projectRootPatterns' : ['.git', 'autoload', 'plugin']
+                    \       },
+                    \       'suggest' : {
+                    \         'fromVimruntime'  : v:true,
+                    \         'fromRuntimepath' : v:false
+                    \       },
+                    \     }
+                    \ } |
                     \ if findfile(".vintrc.yaml", ".;") != ''
                     \ || findfile(".vintrc.yml", ".;") != ''
                     \ || findfile(".vintrc", ".;") != ''
                     \ || exepath('vim-language-server') ==# ''
-                    \ | let b:ale_linters = { 'vim' : ['vint'] }
-                    \ | let g:ale_vim_vint_executable = FindExecutable('vint')
-                    \ | let g:ale_vim_vint_show_style_issues = 1
+                    \ |  call EnableLinters(expand('<amatch>'), 'vint')
+                    \ |  let b:ale_vim_vint_executable = FindExecutable('vint')
+                    \ |  let b:ale_vim_vint_show_style_issues = 1
                     \ | endif
-
-        " c,cpp: prefer ccls if .ccls exists
-        autocmd FileType c,cpp
-                    \ if findfile(".ccls", ".;") != ''
-                    \ |  let b:ale_linters = { 'c' : ['ccls'], 'cpp' : ['ccls'] }
-                    \ | endif
-
-        " vimls: https://github.com/iamcco/vim-language-server
-        let g:ale_vim_vimls_executable = FindExecutable('vim-language-server')
-        let g:ale_vim_vimls_config = {
-                    \ 'vim' : {
-                    \   'isNeovim'      : has('nvim'),
-                    \   'iskeyword'     : '@,48-57,_,192-255,-#',
-                    \   'vimruntime'    : $VIMRUNTIME,
-                    \   'runtimepath'   : '',
-                    \   'diagnostic' : {
-                    \     'enable': v:true
-                    \   },
-                    \   'indexes' : {
-                    \     'runtimepath' : v:true,
-                    \     'gap'         : 100,
-                    \     'count'       : 3,
-                    \     'projectRootPatterns' : ['.git', 'autoload', 'plugin']
-                    \   },
-                    \   'suggest' : {
-                    \     'fromVimruntime'  : v:true,
-                    \     'fromRuntimepath' : v:false
-                    \   },
-                    \ }}
 
         " gopls & gofmt
         autocmd FileType go 
-                    \ let g:ale_go_gofmt_options = '-s'
+                    \ let b:ale_go_gofmt_options = '-s'
 
         " shell:
         autocmd FileType sh 
-                    \ let g:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
-                    \ let g:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+                    \ let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
+                    \ let b:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
         " Dockerfiles:
         autocmd FileType dockerfile 
-                    \ let g:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
-                    \ let g:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
+                    \ let b:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
+                    \ let b:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
         " cmake:
         autocmd FileType cmake 
-                    \ let g:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
-                    \ let g:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
+                    \ let b:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
+                    \ let b:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
         " yaml:
         autocmd FileType yaml
-                    \ let g:ale_yaml_yamllint_executable = FindExecutable('yamllint') |
-                    \ let g:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
+                    \ let b:ale_yaml_yamllint_executable = FindExecutable('yamllint') |
+                    \ let b:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
 
         " python: flake8 is more popular, enable pylint if pylintrc exists
         "  fixer: Black has deliberately only one option (line length) to ensure consistency across many projects
         autocmd FileType python
+                    \ let b:ale_python_jedils_executable = FindExecutable('jedi-language-server') |
+                    \ let b:ale_python_black_executable = FindExecutable('black') |
+                    \ let b:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml') |
                     \ if findfile(".pylintrc", ".;") != ''
                     \ || findfile("pylintrc", ".;") != ''
                     \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
-                    \ |  let g:ale_python_pylint_executable = FindExecutable('pylint')
-                    \ |  let g:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
+                    \ |  let b:ale_python_pylint_executable = FindExecutable('pylint')
+                    \ |  let b:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
                     \ | else
                     \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
-                    \ |  let g:ale_python_flake8_executable = FindExecutable('flake8')
-                    \ |  let g:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
+                    \ |  let b:ale_python_flake8_executable = FindExecutable('flake8')
+                    \ |  let b:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
                     \ | endif
-                    \ | let g:ale_python_jedils_executable = FindExecutable('jedi-language-server')
-                    \ | let g:ale_python_black_executable = FindExecutable('black')
-                    \ | let g:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
 
         " markdown:
         autocmd FileType markdown
-                    \ let g:ale_markdown_markdownlint_executable = FindExecutable('markdownlint') |
-                    \ let g:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
+                    \ let b:ale_markdown_markdownlint_executable = FindExecutable('markdownlint') |
+                    \ let b:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
 
         " html + css
-        "autocmd FileType html
-        "            \ let g:ale_html_eslint_executable = FindExecutable('eslint') |
-        "            \ let g:ale_html_eslint_options = FindLintrc('--no-eslintrc --config ', '.eslintrc', 'lintrc/eslintrc.html.js')
         autocmd FileType html,css
-                    \ let g:ale_html_htmlhint_executable = FindExecutable('htmlhint') |
-                    \ let g:ale_html_htmlhint_options = FindLintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
-                    \ let g:ale_html_stylelint_executable = FindExecutable('stylelint') |
-                    \ let g:ale_html_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
-                    \ let g:ale_css_stylelint_executable = FindExecutable('stylelint') |
-                    \ let g:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
-    augroup END
+                    \ let b:ale_html_htmlhint_executable = FindExecutable('htmlhint') |
+                    \ let b:ale_html_htmlhint_options = FindLintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
+                    \ let b:ale_html_stylelint_executable = FindExecutable('stylelint') |
+                    \ let b:ale_html_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+                    \ let b:ale_css_stylelint_executable = FindExecutable('stylelint') |
+                    \ let b:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
 
-    "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
-    " autoload/afe/fixers/clangformat.vim can not handle path properly
-    "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
-    "let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
-    "let g:ale_rust_rustfmt_options = '--force --write-mode replace'
+        " javascript,typescript
+        autocmd FileType javascript,typescript
+                    \ let b:ale_javascript_tsserver_executable = FindExecutable('tsserver') |
+                    \ let b:ale_typescript_tsserver_executable = FindExecutable('tsserver')
+
+        " eslint: load if .eslintrc.* exists {{{
+        "  => don't specify executable here => user may installed different version
+        " TODO: handle eslintConfig in package.json
+        autocmd FileType javascript,typescript,html
+                    \ if findfile(".eslintrc.js", ".;") != ''
+                    \ || findfile(".eslintrc.cjs", ".;" ) != ''
+                    \ || findfile(".eslint.config.cjs", ".;" ) != ''
+                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
+                    \ | endif
+        autocmd FileType yaml
+                    \ if findfile(".eslintrc.yaml", ".;") != ''
+                    \ || findfile(".eslintrc.yml", ".;" ) != ''
+                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
+                    \ | endif
+        autocmd FileType json,jsonc
+                    \ if findfile(".eslintrc.json", ".;") != ''
+                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
+                    \ | endif
+        " }}}
+    augroup END
+    " }}}
     " }}}
 
     " {{{ => complete type unicode

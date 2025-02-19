@@ -166,7 +166,7 @@ Delete plugin with `git revert`
 - Vim
   - [vimls](https://github.com/iamcco/vim-language-server) - `npm install vim-language-server`
   - [vint](https://github.com/Vimjas/vint) - `pip3 install vim-vint`
-    - [.vintrc](.vintrc.yaml)
+    - [.vintrc](.vintrc.yaml) - [Rules](https://github.com/Vimjas/vint/wiki/Vint-linting-policy-summary)
 - Sh
   - [shellcheck](https://github.com/koalaman/shellcheck) - `pip3 install shellcheck-py`
     - [.shellcheckrc](lintrc/shellcheckrc)
@@ -193,9 +193,19 @@ Delete plugin with `git revert`
     - [.htmlhintrc](lintrc/htmlhintrc)
   - [stylelint](https://github.com/stylelint/stylelint)
     - [.stylelintrc](linter/stylelintrc) - [rules](https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md)
-- JavaScript
-  - [eslint]() - `npm install eslint`
-    - [.eslintrc](lintrc/eslintrc)
+- JavaScript|TypeScript
+  - [tsserver](https://github.com/microsoft/TypeScript/wiki/Standalone-Server-%28tsserver%29) - `npm install typescript`
+    - [tsserver.json](lintrc/tsserver.json)
+  - [eslint](https://eslint.org) - `npm install eslint` - **load if .eslintrc.js exists**
+    - [.eslintrc.js](lintrc/eslintrc) - [deprecated](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated)
+
+```shell
+# quick start
+npm config set registry https://mirrors.mtdcy.top/npmjs
+npm install # tsserver can't find modules
+nvim path/to/some.ts
+```
+
 - Java
   - [javac]()
 - Json

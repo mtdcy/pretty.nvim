@@ -10,15 +10,17 @@
   },
   "dependencies": {
     "bash-language-server": "latest",
+    "cspell": "^8.17.3",
     "dprint": "latest",
     "eslint": "latest",
     "htmlhint": "^1.1.4",
-    "jsonlint": "latest",
     "markdownlint-cli": "latest",
     "neovim": "^5.1.0",
     "node": "^21.2.0",
     "node.js": "^0.0.1-security",
+    "prettier": "^3.5.1",
     "stylelint": "^16.14.1",
+    "typescript": "^5.7.3",
     "vim-language-server": "latest",
     "vscode-langservers-extracted": "^4.8.0"
   },
