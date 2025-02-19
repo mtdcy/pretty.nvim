@@ -186,14 +186,16 @@ Delete plugin with `git revert`
 - Dockerfile
   - [haoolint](https://github.com/hadolint/hadolint) - `pip3 install hadolint-bin`
     - [.hadolint.yaml](lintrc/hadolint.yaml)
-- Html
-  - [htmlhint](https://github.com/htmlhint/HTMLHint) - `npm install htmlhint`
+- Html,css
+  - [htmlhint](https://github.com/htmlhint/HTMLHint)
     - [.htmlhintrc](lintrc/htmlhintrc)
-- Java
-  - [javac]()
+  - [stylelint](https://github.com/stylelint/stylelint)
+    - [.stylelintrc](linter/stylelintrc) - [rules](https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md)
 - JavaScript
   - [eslint]() - `npm install eslint`
     - [.eslintrc](lintrc/eslintrc)
+- Java
+  - [javac]()
 - Json
   - [jsonlint](https://github.com/zaach/jsonlint) - `npm install jsonlint`
 - Markdown - [Rules](https://github.com/DavidAnson/markdownlint#rules--aliases)

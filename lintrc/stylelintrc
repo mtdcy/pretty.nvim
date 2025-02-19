@@ -1,0 +1,9 @@
+# https://github.com/stylelint/stylelint/blob/main/docs/user-guide/configure.md
+# rules: https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md
+{
+  "rules": {
+    "block-no-empty": null,
+    "unit-allowed-list": ["em", "rem", "%", "s"],
+    "alpha-value-notation": ["percentage", { "exceptProperties": ["opacity"] }]
+  }
+}

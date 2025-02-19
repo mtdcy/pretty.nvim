@@ -70,7 +70,7 @@ if g:ale_enabled
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
                 \ 'go'          : ['goimports', 'gofmt'],
-                \ 'python'      : ['black']
+                \ 'python'      : ['black'],
                 \ }
 
     " Linter: 通常情况均为一个，防止竞争的情况出现
@@ -87,8 +87,8 @@ if g:ale_enabled
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
                 \ 'dockerfile'  : ['hadolint'],
-                \ 'html'        : ['vscodehtml'],
-                \ 'css'         : ['vscodecss'],
+                \ 'html'        : ['vscodehtml', 'htmlhint', 'stylelint'],
+                \ 'css'         : ['vscodecss', 'stylelint'],
                 \ 'java'        : ['javac'],
                 \ 'javascript'  : ['eslint'],
                 \ 'json'        : ['vscodejson', 'jsonlint'],
@@ -98,25 +98,9 @@ if g:ale_enabled
     " => jedils: how to set linter rules? use with pylint now.
 
     " {{{ => linter config
-    augroup ALELinterAlternatives
-        autocmd!
-        " enable vint linter if vintrc exists, vimls preferred
-        autocmd FileType vim
-                    \ if findfile(".vintrc.yaml", ".;") != ''
-                    \ || findfile(".vintrc.yml", ".;") != ''
-                    \ || findfile(".vintrc", ".;") != ''
-                    \ || exepath('vim-language-server') ==# ''
-                    \ | let b:ale_linters = { 'vim' : ['vint'] }
-                    \ | endif
-        " enable language server & linter for python
-        autocmd FileType python
-                    \ if findfile(".pylintrc", ".;") != ''
-                    \ || findfile("pylintrc", ".;") != ''
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
-                    \ | else
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
-                    \ | endif
-    augroup END
+    function! FindExecutable(target)
+        return ''
+    endfunction
 
     function! FindLintrc(prefix, targets, def)
         for i in split(a:targets, ';')
@@ -128,73 +112,107 @@ if g:ale_enabled
         return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
     endfunction
 
-    " gopls & gofmt
-    let g:ale_go_gofmt_options = '-s'
+    augroup ALELinterSetup
+        autocmd!
+        " vint: enable vint linter if vintrc exists, vimls preferred
+        " => no option for config file
+        autocmd FileType vim
+                    \ if findfile(".vintrc.yaml", ".;") != ''
+                    \ || findfile(".vintrc.yml", ".;") != ''
+                    \ || findfile(".vintrc", ".;") != ''
+                    \ || exepath('vim-language-server') ==# ''
+                    \ | let b:ale_linters = { 'vim' : ['vint'] }
+                    \ | let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
+                    \ | let g:ale_vim_vint_show_style_issues = 1
+                    \ | endif
 
-    " vint:
-    let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
-    let g:ale_vim_vint_show_style_issues = 1
-    " => no option for config file
+        " vimls: https://github.com/iamcco/vim-language-server
+        let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
+        let g:ale_vim_vimls_config = {
+                    \ 'vim' : {
+                    \   'isNeovim'      : has('nvim'),
+                    \   'iskeyword'     : '@,48-57,_,192-255,-#',
+                    \   'vimruntime'    : $VIMRUNTIME,
+                    \   'runtimepath'   : '',
+                    \   'diagnostic' : {
+                    \     'enable': v:true
+                    \   },
+                    \   'indexes' : {
+                    \     'runtimepath' : v:true,
+                    \     'gap'         : 100,
+                    \     'count'       : 3,
+                    \     'projectRootPatterns' : ['.git', 'autoload', 'plugin']
+                    \   },
+                    \   'suggest' : {
+                    \     'fromVimruntime'  : v:true,
+                    \     'fromRuntimepath' : v:false
+                    \   },
+                    \ }}
 
-    " vimls: https://github.com/iamcco/vim-language-server
-    let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
-    let g:ale_vim_vimls_config = {
-                \ 'vim' : {
-                \   'isNeovim'      : has('nvim'),
-                \   'iskeyword'     : '@,48-57,_,192-255,-#',
-                \   'vimruntime'    : $VIMRUNTIME,
-                \   'runtimepath'   : '',
-                \   'diagnostic' : {
-                \     'enable': v:true
-                \   },
-                \   'indexes' : {
-                \     'runtimepath' : v:true,
-                \     'gap'         : 100,
-                \     'count'       : 3,
-                \     'projectRootPatterns' : ['.git', 'autoload', 'plugin']
-                \   },
-                \   'suggest' : {
-                \     'fromVimruntime'  : v:true,
-                \     'fromRuntimepath' : v:false
-                \   },
-                \ }}
+        " gopls & gofmt
+        autocmd FileType go 
+                    \ let g:ale_go_gofmt_options = '-s'
 
-    " shell:
-    let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck'
-    let g:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+        " shell:
+        autocmd FileType sh 
+                    \ let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck' |
+                    \ let g:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
-    " Dockerfiles:
-    let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint'
-    let g:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
+        " Dockerfiles:
+        autocmd FileType dockerfile 
+                    \ let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint' |
+                    \ let g:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
-    " cmake:
-    let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint'
-    let g:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
+        " cmake:
+        autocmd FileType cmake 
+                    \ let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint' |
+                    \ let g:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
-    " yaml:
-    let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint'
-    let g:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
+        " yaml:
+        autocmd FileType yaml
+                    \ let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint' |
+                    \ let g:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
 
-    " python: flake8 is more popular
-    " Black has deliberately only one option (line length) to ensure consistency across many projects
-    let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
-    let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
-    let g:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
-    let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
-    let g:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
-    let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
-    let g:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
+        " python: flake8 is more popular, enable pylint if pylintrc exists
+        "  fixer: Black has deliberately only one option (line length) to ensure consistency across many projects
+        autocmd FileType python
+                    \ if findfile(".pylintrc", ".;") != ''
+                    \ || findfile("pylintrc", ".;") != ''
+                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
+                    \ |  let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
+                    \ |  let g:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
+                    \ | else
+                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
+                    \ |  let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
+                    \ |  let g:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
+                    \ | endif
+                    \ | let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
+                    \ | let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
+                    \ | let g:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
 
-    " markdown:
-    let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
-    let g:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
+        " markdown:
+        autocmd FileType markdown
+                    \ let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint' |
+                    \ let g:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
+
+        " html + css
+        "autocmd FileType html
+        "            \ let g:ale_html_eslint_executable = g:pretty_home . '/node_modules/.bin/eslint' |
+        "            \ let g:ale_html_eslint_options = FindLintrc('--no-eslintrc --config ', '.eslintrc', 'lintrc/eslintrc.html.js')
+        autocmd FileType html,css
+                    \ let g:ale_html_htmlhint_executable = g:pretty_home . '/node_modules/.bin/htmlhint' |
+                    \ let g:ale_html_htmlhint_options = FindLintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
+                    \ let g:ale_html_stylelint_executable = g:pretty_home . '/node_modules/.bin/stylelint' |
+                    \ let g:ale_html_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+                    \ let g:ale_css_stylelint_executable = g:pretty_home . '/node_modules/.bin/stylelint' |
+                    \ let g:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+    augroup END
 
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     " autoload/afe/fixers/clangformat.vim can not handle path properly
     "let g:ale_c_clangformat_executable = g:pretty_home . '/node_modules/.bin/clang-format'
-    let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
-    let g:ale_sh_shfmt_options = '--indent=4 --case-indent --keep-padding'
-    let g:ale_rust_rustfmt_options = '--force --write-mode replace'
+    "let g:ale_c_clangformat_options = '--verbose --style="{ BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4 }"'
+    "let g:ale_rust_rustfmt_options = '--force --write-mode replace'
     " }}}
 
     " {{{ => complete type unicode
