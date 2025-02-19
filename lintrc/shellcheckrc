@@ -18,4 +18,7 @@ enable=quote-safe-variables
 enable=check-unassigned-uppercase
 
 # Allow [ ! -z foo ] instead of suggesting -n
-#disable=SC2236
+disable=SC2236
+
+# Allow A && B || C
+disable=SC2015

@@ -169,7 +169,7 @@ Delete plugin with `git revert`
     - [.vintrc](.vintrc.yaml)
 - Sh
   - [shellcheck](https://github.com/koalaman/shellcheck) - `pip3 install shellcheck-py`
-    - [.shellcheckrc](.shellcheckrc)
+    - [.shellcheckrc](lintrc/shellcheckrc)
 - Go
   - [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - `go install golang.org/x/tools/gopls@latest`
   - [gofmt](https://pkg.go.dev/cmd/gofmt)
@@ -182,10 +182,10 @@ Delete plugin with `git revert`
   - [checkmake](https://github.com/mrtazz/checkmake) - `go install github.com/mrtazz/checkmake/cmd/checkmake@latest`
 - CMake
   - [cmakelint](https://github.com/cmake-lint/cmake-lint) - `pip3 install cmakelint`
-    - [.cmakelintrc](.cmakelintrc)
+    - [.cmakelintrc](lintrc/cmakelintrc)
 - Dockerfile
   - [haoolint](https://github.com/hadolint/hadolint) - `pip3 install hadolint-bin`
-    - [.hadolint.yaml](.hadolint.yaml)
+    - [.hadolint.yaml](lintrc/hadolint.yaml)
 - Html
   - [htmlhint](https://github.com/htmlhint/HTMLHint) - `npm install htmlhint`
     - [.htmlhintrc](lintrc/htmlhintrc)
@@ -198,17 +198,18 @@ Delete plugin with `git revert`
   - [jsonlint](https://github.com/zaach/jsonlint) - `npm install jsonlint`
 - Markdown - [Rules](https://github.com/DavidAnson/markdownlint#rules--aliases)
   - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) - `npm install markdownlint-cli`
-    - [.markdownlint.yaml](.markdownlint.yaml)
+    - [.markdownlint.yaml](lintrc/markdownlint.yaml)
 - Yaml
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
-    - [.yamllint.yaml](.yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
+    - [.yamllint.yaml](lintrc/yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
 - Python
   - [jedils](https://github.com/pappasam/jedi-language-server) - `pip3 install jedi-language-server`
   - [pylint](https://github.com/pylint-dev/pylint) - `pip3 install pylint`
-    - [.pylintrc](.pylintrc) - `pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile`
+    - [.pylintrc](lintrc/pylintrc) - `pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile`
   - [flake8](https://github.com/PyCQA/flake8) - `pip3 install flake8`
-    - [setup.cfg]()/[tox.ini](tox.ini)/[.flake8]()
+    - [.flake8](lintrc/flake8) - 'flake8 suggests using tox.ini to keep configure'
   - [black](https://github.com/psf/black) - `pip3 install black`
+    - [pyproject.toml](lintrc/black.toml) - 'put a [tool.black] section into pyproject.toml'
 
 ## Mirror
 

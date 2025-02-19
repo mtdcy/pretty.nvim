@@ -97,6 +97,7 @@ if g:ale_enabled
                 \ }
     " => jedils: how to set linter rules? use with pylint now.
 
+    " {{{ => linter config
     augroup ALELinterAlternatives
         autocmd!
         " enable vint linter if vintrc exists, vimls preferred
@@ -117,15 +118,14 @@ if g:ale_enabled
                     \ | endif
     augroup END
 
-    " {{{ => linter config
-    function! FindLinterConfig(prefix, targets)
-        for i in split(a:targets, ':')
-            let l:config = findfile(i, ".;")
-            if config != ''
+    function! FindLintrc(prefix, targets, def)
+        for i in split(a:targets, ';')
+            let l:config = findfile(i, '.;')
+            if config !=# ''
                 return a:prefix . fnamemodify('.', ':p') . config
             endif
-            return ''
         endfor
+        return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
     endfunction
 
     " gopls & gofmt
@@ -134,6 +134,7 @@ if g:ale_enabled
     " vint:
     let g:ale_vim_vint_executable = g:pretty_home . '/py3env/bin/vint'
     let g:ale_vim_vint_show_style_issues = 1
+    " => no option for config file
 
     " vimls: https://github.com/iamcco/vim-language-server
     let g:ale_vim_vimls_executable = g:pretty_home . '/node_modules/.bin/vim-language-server'
@@ -160,36 +161,33 @@ if g:ale_enabled
 
     " shell:
     let g:ale_sh_shellcheck_executable = g:pretty_home . '/py3env/bin/shellcheck'
-    " shellcheck look for .shellcheckrc automatically unless `--norc' provided
+    let g:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
     " Dockerfiles:
     let g:ale_dockerfile_hadolint_executable = g:pretty_home . '/py3env/bin/hadolint'
-    let g:ale_dockerfile_hadolint_options = '--ignore DL3059' . FindLinterConfig(' -c ', '.hadolint.yaml:.hadolint.yml:.hadolintrc')
+    let g:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
     " cmake:
     let g:ale_cmake_cmakelint_executable = g:pretty_home . '/py3env/bin/cmakelint'
-    let g:ale_cmake_cmakelint_options = '--filter=-whitespace/extra' . FindLinterConfig(' --config=', '.cmakelintrc')
+    let g:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
     " yaml:
     let g:ale_yaml_yamllint_executable = g:pretty_home . '/py3env/bin/yamllint'
-    let g:ale_yaml_yamllint_options = FindLinterConfig(' -c ', '.yamllint.yaml')
-    if g:ale_yaml_yamllint_options ==# ''
-        let g:ale_yaml_yamllint_options = '-d default'
-    endif
+    let g:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
 
     " python: flake8 is more popular
     " Black has deliberately only one option (line length) to ensure consistency across many projects
     let g:ale_python_jedils_executable = g:pretty_home . '/py3env/bin/jedi-language-server'
     let g:ale_python_flake8_executable = g:pretty_home . '/py3env/bin/flake8'
-    let g:ale_python_flake8_options = '--ignore=E501'
+    let g:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
     let g:ale_python_pylint_executable = g:pretty_home . '/py3env/bin/pylint'
-    let g:ale_python_pylint_options = FindLinterConfig('--rcfile ', '.pylintrc:pylintrc')
+    let g:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
     let g:ale_python_black_executable = g:pretty_home . '/py3env/bin/black'
-    let g:ale_python_black_options = '--line-length 999'
+    let g:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
 
     " markdown:
     let g:ale_markdown_markdownlint_executable = g:pretty_home . '/node_modules/.bin/markdownlint'
-    let g:ale_markdown_markdownlint_options = FindLinterConfig('--config ', '.markdownlint.yaml')
+    let g:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
 
     "let g:ale_html_htmlhint_options = '--rules error/attr-value-double-quotes=false'
     " autoload/afe/fixers/clangformat.vim can not handle path properly
