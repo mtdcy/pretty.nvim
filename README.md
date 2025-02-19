@@ -177,6 +177,8 @@ Delete plugin with `git revert`
 - Rust
   - [cargo|rustc](https://www.rust-lang.org) - [Installation](https://www.rust-lang.org/tools/install)
 - C/C++
+  - [ccls](https://github.com/MaskRay/ccls)
+    - [.ccls](https://github.com/MaskRay/ccls/wiki/Project-Setup#ccls-file)
   - [clang-format]() - `pip3 install clang-format` - [参数](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
 - Make
   - [checkmake](https://github.com/mrtazz/checkmake) - `go install github.com/mrtazz/checkmake/cmd/checkmake@latest`

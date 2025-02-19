@@ -142,8 +142,9 @@ check_host() {
     info "== Please install $1 for $2 support"
 }
 
+check_host ccls                 "better C/C++"
 check_host rustc                Rust
-check_host lua-language-server  lua
-check_host luacheck             lua
+check_host lua-language-server  Lua
+check_host luacheck             Lua
 check_host checkmake            Makefile
-check_host lazygit              lazygit
+check_host lazygit              LazyGit

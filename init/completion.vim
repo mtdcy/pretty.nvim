@@ -122,6 +122,12 @@ if g:ale_enabled
                     \ | let g:ale_vim_vint_show_style_issues = 1
                     \ | endif
 
+        " c,cpp: prefer ccls if .ccls exists
+        autocmd FileType c,cpp
+                    \ if findfile(".ccls", ".;") != ''
+                    \ |  let b:ale_linters = { 'c' : ['ccls'], 'cpp' : ['ccls'] }
+                    \ | endif
+
         " vimls: https://github.com/iamcco/vim-language-server
         let g:ale_vim_vimls_executable = FindExecutable('vim-language-server')
         let g:ale_vim_vimls_config = {
