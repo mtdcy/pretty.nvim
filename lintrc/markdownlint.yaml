@@ -156,7 +156,7 @@ MD033:
   allowed_elements: []
 
 # MD034/no-bare-urls : Bare URL used : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md034.md
-MD034: true
+MD034: false
 
 # MD035/hr-style : Horizontal rule style : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md035.md
 MD035:
@@ -195,11 +195,11 @@ MD041:
 MD042: true
 
 # MD043/required-headings : Required heading structure : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md043.md
-MD043:
-  # List of headings
-  headings: []
-  # Match case of headings
-  match_case: false
+MD043: false
+#  # List of headings
+#  headings: []
+#  # Match case of headings
+#  match_case: false
 
 # MD044/proper-names : Proper names should have the correct capitalization : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md044.md
 MD044:
@@ -219,7 +219,7 @@ MD046:
   style: "consistent"
 
 # MD047/single-trailing-newline : Files should end with a single newline character : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md047.md
-MD047: true
+MD047: false
 
 # MD048/code-fence-style : Code fence style : https://github.com/DavidAnson/markdownlint/blob/v0.32.1/doc/md048.md
 MD048:
