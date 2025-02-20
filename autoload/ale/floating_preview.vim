@@ -60,9 +60,9 @@ function! s:NvimShow(lines, options) abort
         autocmd!
 
         if g:ale_close_preview_on_insert
-            autocmd TabLeave,WinLeave,BufWinLeave,InsertEnter <buffer> ++once call s:NvimClose()
+            autocmd CursorMoved,TabLeave,WinLeave,BufWinLeave,WinScrolled,InsertEnter <buffer> ++once call s:NvimClose()
         else
-            autocmd TabLeave,WinLeave,BufWinLeave <buffer> ++once call s:NvimClose()
+            autocmd CursorMoved,TabLeave,WinLeave,BufWinLeave,WinScrolled <buffer> ++once call s:NvimClose()
         endif
     augroup END
 
