@@ -35,6 +35,7 @@ if g:ale_enabled
     let g:ale_hover_cursor = 0              " to statusline by default
     let g:ale_hover_to_preview = 0          " to preview window
     let g:ale_hover_to_floating_preview = 1 " to floating preview
+    let g:ale_close_preview_on_insert = 0   " don't close preview on insert
     let g:ale_floating_preview_popup_opts = 'g:FloatingWindowBottomRight'
 
     augroup ALEHoverEnhanced
@@ -42,6 +43,7 @@ if g:ale_enabled
         " Hover on cursor hold
         "   => hover manually with <C-d>
         "autocmd CursorHold,CursorHoldI * ALEHover
+        autocmd CursorHold * ALEHover
         " Hover after completion
         autocmd User ALECompletePost ALEHover
     augroup END
