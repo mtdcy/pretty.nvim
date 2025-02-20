@@ -377,15 +377,18 @@ if g:deoplete_enabled
 
     call deoplete#custom#source('_', 'smart_case', v:true)
     " mark sources
-    call deoplete#custom#source('file',         'mark', '📁')  " rank: 150
+    call deoplete#custom#source('file',         'mark', '📁')   " rank: 150
     call deoplete#custom#source('file',         'rank', 100)
-    call deoplete#custom#source('buffer',       'mark', '📋')  " rank: 100
+    call deoplete#custom#source('buffer',       'mark', '📋')   " rank: 100
     call deoplete#custom#source('buffer',       'rank', 150)
     call deoplete#custom#source('neosnippet',   'mark', '📜')
     call deoplete#custom#source('neosnippet',   'rank', 200)
+    call deoplete#custom#source('around',       'mark', '📝')   " rank: 300
     call deoplete#custom#source('ale',          'mark', '⭐')
-    call deoplete#custom#source('ale',          'rank', 250)
-    call deoplete#custom#source('around',       'mark', '📝')  " rank: 300
+    call deoplete#custom#source('ale',          'rank', 999)    
+    " => highest rank, override around|buffer|file if completion exists
+    "  => won't override neosnippet
+    
     " complete cross filetype for buffer source
     call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
     " enable slash completion for file source
