@@ -9,20 +9,18 @@
     "test": "test"
   },
   "dependencies": {
-    "bash-language-server": "latest",
-    "cspell": "^8.17.3",
-    "dprint": "latest",
-    "eslint": "latest",
-    "htmlhint": "^1.1.4",
-    "markdownlint-cli": "latest",
-    "neovim": "^5.1.0",
-    "node": "^21.2.0",
-    "node.js": "^0.0.1-security",
-    "prettier": "^3.5.1",
-    "stylelint": "^16.14.1",
-    "typescript": "^5.7.3",
-    "vim-language-server": "latest",
-    "vscode-langservers-extracted": "^4.8.0"
+    "bash-language-server": "5.4.3",
+    "cspell": "8.17.3",
+    "dprint": "0.49.0",
+    "eslint": "9.20.1",
+    "htmlhint": "1.1.4",
+    "markdownlint-cli": "0.44.0",
+    "neovim": "5.1.0",
+    "prettier": "3.5.1",
+    "stylelint": "16.14.1",
+    "typescript": "5.7.3",
+    "vim-language-server": "2.3.1",
+    "vscode-langservers-extracted": "4.8.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
