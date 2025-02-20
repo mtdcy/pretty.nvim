@@ -46,32 +46,32 @@ git:
 keybinding:
     universal:
         jumpToBlock: ['', '1', '2', '3', '4'] # goto the Nth block / panel
-        quit: 'Q' # use return instead
-        quit-alt1: '' # alternative/alias of quit
-        return: '<esc>' # return to previous menu, will quit if there's nowhere to return
-        togglePanel: '<tab>' # goto the next panel
-        prevItem: '<up>' # go one line up
-        nextItem: '<down>' # go one line down
-        prevBlock: '<left>' # goto the previous block / panel
-        nextBlock: '<right>' # goto the next block / panel
-        prevBlock-alt: 'h' # goto the previous block / panel
-        nextBlock-alt: 'l' # goto the next block / panel
-        prevItem-alt: 'k' # go one line up
-        nextItem-alt: 'j' # go one line down
-        prevPage: '<pgup>' #','  # go to next page in list
-        nextPage: '<pgdown>' #'.'  # go to previous page in list
-        gotoTop: '<home>' #'<'  # go to top of list
-        gotoBottom: '<end>' #'>'  # go to bottom of list
+        quit: 'Q'                     # use return instead
+        quit-alt1: ''                 # alternative/alias of quit
+        return: '<esc>'               # return to previous menu, will quit if there's nowhere to return
+        togglePanel: '<tab>'          # goto the next panel
+        prevItem: '<up>'              # go one line up
+        nextItem: '<down>'            # go one line down
+        prevBlock: '<left>'           # goto the previous block / panel
+        nextBlock: '<right>'          # goto the next block / panel
+        prevBlock-alt: 'h'            # goto the previous block / panel
+        nextBlock-alt: 'l'            # goto the next block / panel
+        prevItem-alt: 'k'             # go one line up
+        nextItem-alt: 'j'             # go one line down
+        prevPage: '<pgup>'            # ','                                                             # go to next page in list
+        nextPage: '<pgdown>'          # '.'                                                             # go to previous page in list
+        gotoTop: '<home>'             # '<'                                                             # go to top of list
+        gotoBottom: '<end>'           # '>'                                                             # go to bottom of list
         nextTab: ']'
         prevTab: '['
-        optionMenu: '?' # show help menu
+        optionMenu: '?'               # show help menu
         extrasMenu: '@'
-        select: '<space>' #
+        select: '<space>'             #
         goInto: '<enter>'
         confirm: '<enter>'
-        submitEditorText: '<enter>'
-        pullFiles: 'p' # pull rebase
-        pushFiles: 'P' # Push (force)
+        pullFiles: 'p'                # pull rebase
+        pushFiles: 'P'                # Push (force)
+        submitEditorText: '<enter>'   #
         remove: 'd' # Delete
         new: 'n'
         edit: 'e'
@@ -94,15 +94,15 @@ keybinding:
         openFile: '' #'o'
         createRebaseOptionsMenu: '' #'m'
         createPatchOptionsMenu: '' #'<c-p>'
-        nextScreenMode: '' #'+'
-        prevScreenMode: '' #'_'
+        nextScreenMode: '+'
+        prevScreenMode: '_'
         filteringMenu: '' #'<c-s>'
         diffingMenu: '' #'W'
         diffingMenu-alt: '' #'<c-e>'    # deprecated
         rangeSelectUp: '' #'<s-up>'
         rangeSelectDown: '' #'<s-down>'
-        increaseContextInDiffView: '' #'}'
-        decreaseContextInDiffView: '' #'{'
+        increaseContextInDiffView: '}'
+        decreaseContextInDiffView: '{'
         toggleWhitespaceInDiffView: '' #'<c-w>'
         quitWithoutChangingDirectory: '' # 'Q'
     status:

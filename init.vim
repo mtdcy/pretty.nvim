@@ -139,7 +139,7 @@ augroup FileTypeSettings
     au FileType html,css            setlocal et ts=2 sw=2 fdm=syntax
 
     " json: ignore top bracket 
-    au FileType json,jsonc          setlocal foldlevel=1
+    au FileType json,jsonc          setlocal et ts=2 sw=2 foldlevel=1
 
     " javascript,typescript
     au FileType javascript          setlocal et ts=2 sw=2

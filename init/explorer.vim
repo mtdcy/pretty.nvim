@@ -49,7 +49,6 @@ if g:denite_enabled
     endfunction
 
     call denite#custom#source('_', {
-                \ 'max_candidates'  : 30,
                 \ 'matchers' : [
                 \   'matcher/fruzzy', 
                 \   'matcher/hide_hidden_files',

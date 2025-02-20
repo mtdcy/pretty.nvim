@@ -58,6 +58,10 @@ inoremap  <C-_>     <C-o><Plug>NERDCommenterToggle
 nnoremap <C-d>      :ALEHover<cr>
 inoremap <C-d>      <C-o>:ALEHover<cr>
 
+" ALEInfo|ALEFix
+nnoremap <F7>       :ALEInfo<cr>
+nnoremap <F8>       :ALEFix<cr>
+
 " Move focus
 nnoremap <C-j>      <C-W>j
 nnoremap <C-k>      <C-W>k
