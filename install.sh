@@ -139,13 +139,22 @@ fi
 }
 
 check_host() {
-    which "$1" || 
-    info "== Please install $1 for $2 support"
+    if which "$1"; then 
+        return 0
+    else
+        info "== Please install $1 for $2 support"
+        return 1
+    fi
 }
 
-check_host ccls                 "better C/C++"
-check_host rustc                Rust
-check_host lua-language-server  Lua
-check_host luacheck             Lua
-check_host checkmake            Makefile
-check_host lazygit              LazyGit
+check_host ccls                 "better C/C++"  || true
+check_host rustc                Rust            || true
+check_host checkmake            Makefile        || true
+check_host lazygit              LazyGit         || true
+
+# Lua
+check_host lua-language-server  Lua             || true
+check_host luarocks             Luacheck && {
+    luarocks install luacheck lanes
+} || true
+check_host stylua               "Lua formatter" || true

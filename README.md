@@ -224,6 +224,11 @@ nvim path/to/some.ts
     - [.flake8](lintrc/flake8) - 'flake8 suggests using tox.ini to keep configure'
   - [black](https://github.com/psf/black) - `pip3 install black`
     - [pyproject.toml](lintrc/black.toml) - 'put a [tool.black] section into pyproject.toml'
+- Lua
+  - [lua-language-server](https://github.com/LuaLS/lua-language-server) - **try build from source**
+    - [.luarc.json](lintrc/luarc.json)
+  - [luacheck](https://github.com/mpeterv/luacheck) - `luarocks install luacheck lanes`
+    - [.luacheckrc](lintrc/luacheckrc) - [Rules](https://luacheck.readthedocs.io/en/stable/warnings.html)
 
 ## Mirror
 

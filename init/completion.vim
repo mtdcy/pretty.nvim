@@ -72,13 +72,27 @@ if g:ale_enabled
                 \ 'python'      : ['black'],
                 \ }
 
-    " prettier: load if .prettierrc exists
+    " load fixers if rc file exists
     "  => no executable here => user may installed different version
-    autocmd FileType * 
-                \ if findfile(".prettierrc", ".;") != ''
-                \ || findfile(".prettierrc.json", ".;") != ''
-                \ |  let b:ale_fixers = { expand('<amatch>') : ['prettier'] }
-                \ | endif
+    augroup ALEFixersSetup
+        autocmd!
+        " stylua
+        autocmd FileType lua,luac
+                    \ if findfile("stylua.toml", ".;") != ''
+                    \ || findfile(".stylua.toml", ".;") != ''
+                    \ || findfile(".styluaignore", ".;") != ''
+                    \ || findfile(".editorconfig", ".;") != ''
+                    \ |  let b:ale_fixers = { expand('<amatch>') : ['stylua'] }
+                    \ |  if ! executable('stylua') | echom "Please install stylua: 'cargo install stylua'" | endif
+                    \ | endif
+       
+        " prettier 
+        autocmd FileType * 
+                    \ if findfile(".prettierrc", ".;") != ''
+                    \ || findfile(".prettierrc.json", ".;") != ''
+                    \ |  let b:ale_fixers = { expand('<amatch>') : ['prettier'] }
+                    \ | endif
+    augroup END
     " }}}
 
     " Linter: language server preferred {{{
@@ -91,7 +105,7 @@ if g:ale_enabled
                 \ 'cpp'         : ['cc'],
                 \ 'go'          : ['gopls'],
                 \ 'rust'        : ['cargo', 'rustc'],
-                \ 'lua'         : ['lua-language-server', 'luacheck'],
+                \ 'lua'         : ['lua-language-server'],
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
                 \ 'html'        : ['vscodehtml', 'htmlhint', 'stylelint'],
@@ -143,9 +157,7 @@ if g:ale_enabled
                     \       'iskeyword'     : '@,48-57,_,192-255,-#',
                     \       'vimruntime'    : $VIMRUNTIME,
                     \       'runtimepath'   : '',
-                    \       'diagnostic' : {
-                    \         'enable': v:true
-                    \       },
+                    \       'diagnostic'    : { 'enable': v:true },
                     \       'indexes' : {
                     \         'runtimepath' : v:true,
                     \         'gap'         : 100,
@@ -226,6 +238,29 @@ if g:ale_enabled
         autocmd FileType javascript,typescript
                     \ let b:ale_javascript_tsserver_executable = FindExecutable('tsserver') |
                     \ let b:ale_typescript_tsserver_executable = FindExecutable('tsserver')
+
+        " lua
+        "  => no local executables, install with luarocks or build from sources
+        "  luals: some version won't work with ale
+        "   => https://github.com/LuaLS/lua-language-server/issues/2899
+        "  luacheck:
+        "   => enable luacheck if .luacheckrc exists or lua-language-server is missing
+        autocmd FileType lua
+                    \ if executable('lua-language-server') == 0
+                    \ |  echom 'Please install lua-language-server for better Lua support'
+                    \ | else
+                    \ | let b:ale_lua_language_server_config = { 'Lua' : 
+                    \       json_decode(readfile(FindLintrc('', '.luarc.json', 'lintrc/luarc.json')))
+                    \ }
+                    \ | endif
+                    \ | if findfile(".luacheckrc", ".;") != ''
+                    \ || executable('lua-language-server') == 0
+                    \ |  if executable('luacheck') == 0
+                    \ |     echom 'Please install luacheck: `luarocks install luacheck lanes`'
+                    \ |  endif
+                    \ |  call EnableLinters(expand('<amatch>'), 'luacheck')
+                    \ |  let b:ale_lua_luacheck_options = FindLintrc('--config ', '.luacheckrc', 'lintrc/luacheckrc')
+                    \ | endif
 
         " eslint: load if .eslintrc.* exists {{{
         "  => don't specify executable here => user may installed different version
