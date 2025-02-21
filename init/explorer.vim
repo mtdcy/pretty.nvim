@@ -1,4 +1,4 @@
-" nerdtree + denite + fruzzy 
+" nerdtree + denite + fruzzy
 
 let g:nerdtree_enabled = 1
 let g:denite_enabled = 1
@@ -37,28 +37,53 @@ if g:denite_enabled
         nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
         nnoremap <silent><buffer><expr> <space> denite#do_map('toggle_select').'j'      " select and move down
         nnoremap <silent><buffer><expr> /       denite#do_map('open_filter_buffer')     " search
-        nnoremap <silent><buffer><expr> D       denite#do_map('do_action', 'delete')    " delete
-        nnoremap <silent><buffer><expr> p       denite#do_map('do_previous_action')     " preview
         nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
         nnoremap <silent><buffer><expr> <esc>   denite#do_map('quit')                   " quit
     endfunction
 
     autocmd FileType denite-filter call DeniteFilter()
     function! DeniteFilter() abort
-        imap <silent><buffer> <esc>             <Plug>(denite_filter_quit)
+        inoremap <silent><buffer>       <esc>   <Plug>(denite_filter_quit)
     endfunction
 
-    call denite#custom#source('_', {
+    call denite#custom#option('_',
+                \ 'max_dynamic_update_candidates', 100000
+                \ )
+    call denite#custom#option('default', {
+                \ 'split'           : 'floating',
+                \ 'floating_border' : 'rounded',
+                \ 'match_highlight' : 0,
+                \ 'smartcase'       : 1,
+                \ })
+
+    " fruzzy is much faster than fuzzy
+    call denite#custom#source('file/rec', {
                 \ 'matchers' : [
-                \   'matcher/fruzzy', 
+                \   'matcher/fruzzy',
                 \   'matcher/hide_hidden_files',
                 \   'matcher/ignore_globs'
                 \ ]})
     call denite#custom#filter('matcher/ignore_globs', 'ignore_globs', [
                 \ '*~', '*.o', '*.exe', '*.bak', '*.a', '*.so', '*.so.*',
-                \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class', 
+                \ '.DS_Store', '*.pyc', '*.sw[po]', '*.class',
                 \ '.hg/', '.git/', '.bzr/', '.svn/', '.ccache/',
                 \ ])
+
+    " ripgrep is much faster
+    if executable('rg')
+        call denite#custom#var('file/rec', 'command', [
+                    \ 'rg', '--files', '--glob', '!.git', '--color', 'never'
+                    \ ])
+
+        call denite#custom#var('grep', {
+                    \ 'command': ['rg'],
+                    \ 'default_opts': ['-i', '--vimgrep', '--no-heading'],
+                    \ 'recursive_opts': [],
+                    \ 'pattern_opt': ['--regexp'],
+                    \ 'separator': ['--'],
+                    \ 'final_opts': [],
+                    \ })
+    endif
 
     " enhanced filter: fruzzy
     "  => 'call fruzzy#install()' to install native libraries
@@ -77,6 +102,6 @@ if g:nerdtree_enabled
 endif
 
 if g:denite_enabled
-    command! -nargs=0 Finder exe "Denite -split=floating file/rec"
+    command! -nargs=0 Finder exe "Denite -start-filter file/rec"
+    command! -nargs=0 Buffer exe "Denite -auto-resize buffer"
 endif
-

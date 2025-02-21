@@ -1,13 +1,13 @@
 " Completion: deoplete + ale
 
-" settings 
+" settings
 let g:autocomplete = 1          " 0 - manual complete with Tab
 let g:autocomplete_delay = 200  " shorten to flicker less
 
 let g:ale_enabled = 1
 let g:ale_completion_enabled = 0
 
-if g:ale_completion_enabled 
+if g:ale_completion_enabled
     let g:deoplete_enabled = 0
 else
     let g:deoplete_enabled = 1
@@ -93,20 +93,20 @@ if g:ale_enabled
     augroup ALEFixersSetup
         autocmd!
         " stylua
-        autocmd FileType lua,luac 
+        autocmd FileType lua,luac
                     \ call s:apply_fixers_conditional("stylua.toml;.stylua.toml;.styluaignore", 'stylua', ['stylua'])
         " black
-        autocmd FileType python 
+        autocmd FileType python
                     \ call s:apply_default_fixers(['black'])
-                    \ | let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml') 
+                    \ | let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
         " goimports,gofmt
         autocmd FileType go
                     \ call s:apply_default_fixers(['goimports', 'gofmt'])
         " rustfmt
         autocmd FileType rust
                     \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
-        " prettier 
-        autocmd FileType * 
+        " prettier
+        autocmd FileType *
                     \ call s:apply_fixers_conditional(".prettierrc;.prettierrc.json", 'prettier', ['prettier'])
     augroup END
     " }}}
@@ -154,7 +154,7 @@ if g:ale_enabled
         endfor
         return 0
     endfunction
-    
+
     function! s:find_lintrc(prefix, targets, def)
         for i in split(a:targets, ';')
             let l:config = findfile(i, '.;')
@@ -196,27 +196,27 @@ if g:ale_enabled
                     \ |  let b:ale_vim_vint_executable = FindExecutable('vint')
                     \ |  let b:ale_vim_vint_show_style_issues = 1
                     \ | endif
-        
+
         " c,cpp => prefer ccls if .ccls exists
         autocmd FileType c,cpp
                     \ call s:apply_linters_conditional(".ccls", 'ccls', 0)
 
         " gopls & gofmt
-        autocmd FileType go 
+        autocmd FileType go
                     \ let b:ale_go_gofmt_options = '-s'
 
         " shell:
-        autocmd FileType sh 
+        autocmd FileType sh
                     \ let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
                     \ let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
         " Dockerfiles:
-        autocmd FileType dockerfile 
+        autocmd FileType dockerfile
                     \ let b:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
                     \ let b:ale_dockerfile_hadolint_options = s:find_lintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
         " cmake:
-        autocmd FileType cmake 
+        autocmd FileType cmake
                     \ let b:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
                     \ let b:ale_cmake_cmakelint_options = s:find_lintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
@@ -264,11 +264,11 @@ if g:ale_enabled
         "   => enable luacheck if .luacheckrc exists or lua-language-server is missing
         autocmd FileType lua
                     \ if CheckExecutable('lua-language-server', 'better Lua')
-                    \ | let b:ale_lua_language_server_config = { 
-                    \     'Lua' : json_decode(readfile(s:find_lintrc('', '.luarc.json', 'lintrc/luarc.json'))) 
+                    \ | let b:ale_lua_language_server_config = {
+                    \     'Lua' : json_decode(readfile(s:find_lintrc('', '.luarc.json', 'lintrc/luarc.json')))
                     \ }
                     \ | endif
-                    \ | if s:apply_linters_conditional(".luacheckrc", 'luacheck', 1) 
+                    \ | if s:apply_linters_conditional(".luacheckrc", 'luacheck', 1)
                     \ |  call CheckExecutable('luacheck', 'Lua lint')
                     \ |  let b:ale_lua_luacheck_options = s:find_lintrc('--config ', '.luacheckrc', '')
                     \ | endif
@@ -383,14 +383,17 @@ if g:deoplete_enabled
     call deoplete#custom#source('neosnippet',   'rank', 200)
     call deoplete#custom#source('around',       'mark', '📝')   " rank: 300
     call deoplete#custom#source('ale',          'mark', '⭐')
-    call deoplete#custom#source('ale',          'rank', 999)    
+    call deoplete#custom#source('ale',          'rank', 999)
     " => highest rank, override around|buffer|file if completion exists
     "  => won't override neosnippet
-    
+
     " complete cross filetype for buffer source
     call deoplete#custom#var('buffer', 'require_same_filetype', v:false)
     " enable slash completion for file source
     call deoplete#custom#var('file', 'enable_slash_completion', v:true)
+
+    autocmd FileType denite*,nerdtree,tagbar,ale*
+                \ call deoplete#custom#buffer_option('auto_complete', v:false)
 endif
 " }}}
 
@@ -432,7 +435,7 @@ function! s:complete() abort
 endfunction
 
 function! s:can_jump() abort
-    if g:neosnippet_enabled         | return neosnippet#jumpable() 
+    if g:neosnippet_enabled         | return neosnippet#jumpable()
     else                            | return 0
     endif
 endfunction
@@ -444,7 +447,7 @@ function! s:jump() abort
 endfunction
 
 function! s:can_expand() abort
-    if g:neosnippet_enabled         | return neosnippet#expandable()     
+    if g:neosnippet_enabled         | return neosnippet#expandable()
     else                            | return 0
     endif
 endfunction

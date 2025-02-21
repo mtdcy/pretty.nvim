@@ -49,7 +49,7 @@ Since mouse works even in terminal, you don't have to remember these key mapping
 
 #### Windows
 
-[x] Prefer using `C-q` instead of `:quit` or `:close`, as it is smarter.
+[x] Prefer using `C-w` instead of `:quit` or `:close`, as it is smarter.
 
 - [n] `F8` - Open bufexplorer on center screen. [*]
 - [n] `F9` - Open NERDTree (file brower) on left side. [*]
@@ -65,7 +65,7 @@ Since mouse works even in terminal, you don't have to remember these key mapping
 
 #### Buffers
 
-- [n] `C-e` - Buffer Explorer
+- [n] `C-o` - File Explorer
 - [n] `C-n` - Buffer Next
 - [n] `C-p` - Buffer Prev
 

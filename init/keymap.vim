@@ -33,8 +33,10 @@ inoremap <F10>      <C-o>:TaglistFocus<cr>
 nnoremap <F12>      :VCS<cr>
 inoremap <F12>      <C-o>:VCS<cr>
 
-nnoremap <C-e>      :Finder<cr>
-inoremap <C-e>      <C-o>:Finder<cr>
+nnoremap <C-e>      :Buffer<cr>
+inoremap <C-e>      <C-o>:Buffer<cr>
+nnoremap <C-o>      :Finder<cr>
+inoremap <C-o>      <C-o>:Finder<cr>
 
 nnoremap <C-n>      :call BufferNext()<cr>
 inoremap <C-n>      <C-o>:call BufferNext()<cr>
