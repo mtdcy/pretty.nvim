@@ -48,6 +48,11 @@ if exists('$SSH_CLIENT')
                 \ }
 endif
 
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case\ --hidden
+    set grepformat=%f:%l:%c:%m
+endif
+
 " position floating window to the bottom right => :h nvim_open_win
 function! FloatingWindowBottomRight() abort
     return {
