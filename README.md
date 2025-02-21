@@ -197,7 +197,8 @@ Delete plugin with `git revert`
     - [.stylelintrc](linter/stylelintrc) - [rules](https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md)
 - JavaScript|TypeScript
   - [tsserver](https://github.com/microsoft/TypeScript/wiki/Standalone-Server-%28tsserver%29) - `npm install typescript`
-    - [tsserver.json](lintrc/tsserver.json)
+    - [tsserver.json](lintrc/tsserver.json) -- **We can not find an example**
+    - [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) - [Examples](https://github.com/tsconfig/bases/)
   - [eslint](https://eslint.org) - `npm install eslint` - **load if .eslintrc.js exists**
     - [.eslintrc.js](lintrc/eslintrc) - [deprecated](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated)
 

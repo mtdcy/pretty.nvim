@@ -119,8 +119,6 @@ if g:ale_enabled
                 \ 'html'        : ['vscodehtml', 'htmlhint', 'stylelint'],
                 \ 'css'         : ['vscodecss', 'stylelint'],
                 \ 'java'        : ['javac'],
-                \ 'javascript'  : ['tsserver'],
-                \ 'typescript'  : ['tsserver'],
                 \ 'json'        : ['vscodejson'],
                 \ 'yaml'        : ['yamllint'],
                 \ 'markdown'    : ['markdownlint'],
@@ -244,9 +242,15 @@ if g:ale_enabled
                     \ let b:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
 
         " javascript,typescript
+        "  => no executable here, local version preferred
         autocmd FileType javascript,typescript
-                    \ let b:ale_javascript_tsserver_executable = FindExecutable('tsserver') |
-                    \ let b:ale_typescript_tsserver_executable = FindExecutable('tsserver')
+                    \ if findfile("deno.json", ".;") != ''
+                    \ |  call CheckExecutable('deno', 'Deno Project')
+                    \ |  let b:ale_linters = { expand('<amatch>') : ['deno'] }
+                    \ | else
+                    \ |  call CheckExecutable('tsserver', expand('<amatch>'))
+                    \ |  let b:ale_linters = { expand('<amatch>') : ['tsserver'] }
+                    \ | endif
 
         " lua
         "  => no local executables, install with luarocks or build from sources

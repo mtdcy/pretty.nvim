@@ -25,6 +25,14 @@ function! FindExecutable(target)
     return '' " no executables in PATH
 endfunction
 
+function! CheckExecutable(cmd, msg) abort
+    if executable(a:cmd) == 0
+        echom 'Please install ' . a:cmd . ' for ' . a:msg . ' support.'
+        return 0
+    endif
+    return 1
+endfunction
+
 if exists('$SSH_CLIENT')
     " only copy back
     let g:clipboard = {
