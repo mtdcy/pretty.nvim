@@ -205,10 +205,14 @@ if g:ale_enabled
         autocmd FileType go
                     \ let b:ale_go_gofmt_options = '-s'
 
-        " shell:
+        " shell => bash-language-server is very slow
         autocmd FileType sh
-                    \ let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
-                    \ let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+                    \ if s:apply_linters_conditional(".bashls", 'language_server', 0)
+                    \ |  let b:ale_sh_language_server_executable = FindExecutable('bash-language-server')
+                    \ | else
+                    \ |  let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck')
+                    \ |  let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+                    \ | endif
 
         " Dockerfiles:
         autocmd FileType dockerfile
@@ -373,6 +377,7 @@ if g:deoplete_enabled
                     \ })
     endif
 
+	call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
     call deoplete#custom#source('_', 'smart_case', v:true)
     " mark sources
     call deoplete#custom#source('file',         'mark', '📁')   " rank: 150
