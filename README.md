@@ -175,7 +175,9 @@ Delete plugin with `git revert`
   - [gofmt](https://pkg.go.dev/cmd/gofmt)
   - [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) - `go install golang.org/x/tools/cmd/goimports@latest`
 - Rust
-  - [cargo|rustc](https://www.rust-lang.org) - [Installation](https://www.rust-lang.org/tools/install)
+  - [rust-analyzer](https://github.com/rust-lang/rust-analyzer) - `rustup component add rust-analyzer`
+  - [rustfmt](https://github.com/rust-lang/rustfmt) - `rustup component add rustfmt`
+    - .rustfmt.toml - `rustfmt --print-config default .rustfmt.toml`
 - C/C++
   - [ccls](https://github.com/MaskRay/ccls)
     - [.ccls](https://github.com/MaskRay/ccls/wiki/Project-Setup#ccls-file)

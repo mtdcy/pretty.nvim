@@ -41,14 +41,13 @@ if g:ale_enabled
     augroup ALEHoverEnhanced
         autocmd!
         " Hover on cursor hold
-        "   => hover manually with <C-d>
-        "autocmd CursorHold,CursorHoldI * ALEHover
+        "  => hover manually with <C-d> in insert mode
         autocmd CursorHold * ALEHover
         " Hover after completion
         autocmd User ALECompletePost ALEHover
     augroup END
 
-    " 错误: virtualtext only
+    " 错误: virtualtext & statusline
     let g:ale_echo_cursor = 1 " error code to statusline
     let g:ale_set_signs = 0 " no signs which cause window changes
     let g:ale_virtualtext_delay = g:autocomplete_delay
@@ -67,15 +66,15 @@ if g:ale_enabled
     let g:ale_lint_delay = 100
 
     " Fixers: {{{
-    let g:ale_fix_on_save = 0   " try call ALEFix explicitly
+    "  => load fixers if rc file exists, so fix on save
+    let g:ale_fix_on_save = 1
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
                 \ 'go'          : ['goimports', 'gofmt'],
                 \ 'python'      : ['black'],
                 \ }
 
-    " load fixers if rc file exists
-    "  => no executable here => user may installed different version
+    " no executable here => user may installed different version
     augroup ALEFixersSetup
         autocmd!
         " stylua
@@ -86,6 +85,13 @@ if g:ale_enabled
                     \ || findfile(".editorconfig", ".;") != ''
                     \ |  let b:ale_fixers = { expand('<amatch>') : ['stylua'] }
                     \ |  if ! executable('stylua') | echom "Please install stylua: 'cargo install stylua'" | endif
+                    \ | endif
+
+        " rustfmt
+        autocmd FileType rust
+                    \ if findfile("rustfmt.toml", ".;") != ''
+                    \ || findfile(".rustfmt.toml", ".;") != ''
+                    \ |  let b:ale_fixers = { expand('<amatch>') : ['rustfmt'] }
                     \ | endif
        
         " prettier 
@@ -106,7 +112,7 @@ if g:ale_enabled
                 \ 'c'           : ['cc'],
                 \ 'cpp'         : ['cc'],
                 \ 'go'          : ['gopls'],
-                \ 'rust'        : ['cargo', 'rustc'],
+                \ 'rust'        : ['analyzer'],
                 \ 'lua'         : ['lua-language-server'],
                 \ 'make'        : ['checkmake'],
                 \ 'cmake'       : ['cmakelint'],
@@ -151,6 +157,7 @@ if g:ale_enabled
 
         " vimls: https://github.com/iamcco/vim-language-server
         "  => enable vint linter if vintrc exists
+        let g:markdown_fenced_languages = [ 'vim', 'help' ] " for document hightlight
         autocmd FileType vim
                     \ let b:ale_vim_vimls_executable = FindExecutable('vim-language-server') |
                     \ let b:ale_vim_vimls_config = {
@@ -396,6 +403,7 @@ if g:deoplete_enabled
 endif
 " }}}
 
+" Tab enhance functions {{{
 " text before cursor
 function! s:typed_line() abort
     let c = col('.') - 1
@@ -505,6 +513,7 @@ function! s:i_backspace() abort
     else                            | return "\<BS>"
     endif
 endfunction
+" }}}
 
 "inoremap <expr><C-L>                <sid>typed_line()
 inoremap <expr><Tab>                <sid>i_tab()
