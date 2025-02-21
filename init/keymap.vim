@@ -83,6 +83,7 @@ noremap  g]         ]}
 " TODO: map K,<C-]>,gD,... to one key
 "nnoremap gd         <C-]>
 nnoremap gd         :ALEGoToDefinition<cr>
+nnoremap gD         :ALEGoToImplementation<cr>
 nnoremap gb         <C-T>
 " Go to man or doc
 nnoremap gk         K

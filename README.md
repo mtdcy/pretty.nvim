@@ -201,6 +201,9 @@ Delete plugin with `git revert`
     - [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) - [Examples](https://github.com/tsconfig/bases/)
   - [eslint](https://eslint.org) - `npm install eslint` - **load if .eslintrc.js exists**
     - [.eslintrc.js](lintrc/eslintrc) - [deprecated](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated)
+- *
+  - [prettier](https://github.com/prettier/prettier) - `npm install prettier`
+    - [.prettierrc](https://prettier.io/docs/configuration)
 
 ```shell
 # quick start

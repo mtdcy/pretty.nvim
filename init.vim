@@ -15,16 +15,18 @@ let g:python3_host_prog     = $VIRTUAL_ENV . '/bin/python3'
 
 " setup node.js env
 let g:node_host_prog        = g:pretty_home . '/node_modules/.bin/neovim-node-host'
-    
-function! FindExecutable(target)
-    if filereadable(g:pretty_home . '/py3env/bin/' . a:target)
-        return g:pretty_home . '/py3env/bin/' . a:target
-    elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:target)
-        return g:pretty_home . '/node_modules/.bin/' . a:target
+
+" local executables only
+function! FindExecutable(cmd)
+    if filereadable(g:pretty_home . '/py3env/bin/' . a:cmd)
+        return g:pretty_home . '/py3env/bin/' . a:cmd
+    elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:cmd)
+        return g:pretty_home . '/node_modules/.bin/' . a:cmd
     endif
     return '' " no executables in PATH
 endfunction
 
+" check host and local executables
 function! CheckExecutable(cmd, msg) abort
     if executable(a:cmd) == 0
         echom 'Please install ' . a:cmd . ' for ' . a:msg . ' support.'
@@ -125,7 +127,7 @@ set fileencoding=utf-8
 set fileencodings=utf-8,gb18030,gbk,latin1
 
 " Fold: 默认折叠，手动开关
-set foldmethod=syntax
+set foldmethod=manual
 set foldlevel=0
 set foldnestmax=1
 set foldtext=FoldText()
@@ -146,7 +148,7 @@ augroup FileTypeSettings
     au FileType python              setlocal et ts=4 sw=4 fdm=indent
     au FileType html,css            setlocal et ts=2 sw=2 fdm=syntax
 
-    " json: ignore top bracket 
+    " json: ignore top bracket
     au FileType json,jsonc          setlocal et ts=2 sw=2 foldlevel=1
 
     " javascript,typescript

@@ -21,5 +21,8 @@ endif
 " }}} 
 
 if g:lazygit_enabled
-    command! -nargs=0 VCS exe 'LazyGit'
+    command! -nargs=0 VCS 
+                \ if finddir(".git", ".;") != ''
+                \ |  exe 'LazyGit'
+                \ | endif
 endif

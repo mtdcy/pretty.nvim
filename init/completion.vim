@@ -70,40 +70,48 @@ if g:ale_enabled
     let g:ale_fix_on_save = 1
     let g:ale_fixers = {
                 \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
-                \ 'go'          : ['goimports', 'gofmt'],
-                \ 'python'      : ['black'],
                 \ }
 
+    function! s:apply_default_fixers(fixers) abort
+        if !exists('b:ale_fixers')
+            let b:ale_fixers = { &filetype : a:fixers }
+        endif
+    endfunction
+
+    function! s:apply_fixers_conditional(files, cmd, fixers) abort
+        for i in split(a:files, ';')
+            if findfile(i, '.;') !=# ''
+                let b:ale_fixers = { &filetype : a:fixers }
+                return CheckExecutable(a:cmd, &filetype)
+            endif
+        endfor
+        return 0
+    endfunction
+
     " no executable here => user may installed different version
+    "  => only one fixer for filetype
     augroup ALEFixersSetup
         autocmd!
         " stylua
-        autocmd FileType lua,luac
-                    \ if findfile("stylua.toml", ".;") != ''
-                    \ || findfile(".stylua.toml", ".;") != ''
-                    \ || findfile(".styluaignore", ".;") != ''
-                    \ || findfile(".editorconfig", ".;") != ''
-                    \ |  let b:ale_fixers = { expand('<amatch>') : ['stylua'] }
-                    \ |  if ! executable('stylua') | echom "Please install stylua: 'cargo install stylua'" | endif
-                    \ | endif
-
+        autocmd FileType lua,luac 
+                    \ call s:apply_fixers_conditional("stylua.toml;.stylua.toml;.styluaignore", 'stylua', ['stylua'])
+        " black
+        autocmd FileType python 
+                    \ call s:apply_default_fixers(['black'])
+                    \ | let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml') 
+        " goimports,gofmt
+        autocmd FileType go
+                    \ call s:apply_default_fixers(['goimports', 'gofmt'])
         " rustfmt
         autocmd FileType rust
-                    \ if findfile("rustfmt.toml", ".;") != ''
-                    \ || findfile(".rustfmt.toml", ".;") != ''
-                    \ |  let b:ale_fixers = { expand('<amatch>') : ['rustfmt'] }
-                    \ | endif
-       
+                    \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
         " prettier 
         autocmd FileType * 
-                    \ if findfile(".prettierrc", ".;") != ''
-                    \ || findfile(".prettierrc.json", ".;") != ''
-                    \ |  let b:ale_fixers = { expand('<amatch>') : ['prettier'] }
-                    \ | endif
+                    \ call s:apply_fixers_conditional(".prettierrc;.prettierrc.json", 'prettier', ['prettier'])
     augroup END
     " }}}
 
-    " Linter: language server preferred {{{
+    " Linter: language server first {{{
     let g:ale_linters_explicit = 1
     let g:ale_linters = {
                 \ 'sh'          : ['shellcheck'],
@@ -123,11 +131,31 @@ if g:ale_enabled
                 \ 'yaml'        : ['yamllint'],
                 \ 'markdown'    : ['markdownlint'],
                 \ 'dockerfile'  : ['hadolint'],
+                \ 'javascript'  : ['tsserver'],
+                \ 'typescript'  : ['tsserver'],
                 \ }
     " => jedils: how to set linter rules? use with pylint now.
 
-    " {{{ => linter config
-    function! FindLintrc(prefix, targets, def)
+    " linter config {{{
+    function! s:apply_linters(linter, append = 0) abort
+        if a:append && has_key(g:ale_linters, &filetype)
+            let b:ale_linters = { &filetype : g:ale_linters[&filetype] + [ a:linter ] }
+        else
+            let b:ale_linters = { &filetype : [ a:linter ] }
+        endif
+    endfunction
+
+    function! s:apply_linters_conditional(files, linter, append = 0) abort
+        for i in split(a:files, ';')
+            if findfile(i, '.;') !=# ''
+                call s:apply_linters(a:linter, a:append)
+                return 1
+            endif
+        endfor
+        return 0
+    endfunction
+    
+    function! s:find_lintrc(prefix, targets, def)
         for i in split(a:targets, ';')
             let l:config = findfile(i, '.;')
             if config !=# ''
@@ -137,22 +165,8 @@ if g:ale_enabled
         return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
     endfunction
 
-    function! EnableLinters(filetype, linter) abort
-        if has_key(g:ale_linters, a:filetype)
-            let b:ale_linters = { a:filetype : g:ale_linters[a:filetype] + [ a:linter ] }
-        else
-            let b:ale_linters = { a:filetype : [ a:linter ] }
-        endif
-    endfunction
-
     augroup ALELinterSetup
         autocmd!
-        " c,cpp: prefer ccls if .ccls exists
-        autocmd FileType c,cpp
-                    \ if findfile(".ccls", ".;") != ''
-                    \ |  let b:ale_linters = { expand('<amatch>') : ['ccls'] }
-                    \ | endif
-
         " vimls: https://github.com/iamcco/vim-language-server
         "  => enable vint linter if vintrc exists
         let g:markdown_fenced_languages = [ 'vim', 'help' ] " for document hightlight
@@ -176,15 +190,16 @@ if g:ale_enabled
                     \         'fromRuntimepath' : v:false
                     \       },
                     \     }
-                    \ } |
-                    \ if findfile(".vintrc.yaml", ".;") != ''
-                    \ || findfile(".vintrc.yml", ".;") != ''
-                    \ || findfile(".vintrc", ".;") != ''
-                    \ || exepath('vim-language-server') ==# ''
-                    \ |  call EnableLinters(expand('<amatch>'), 'vint')
+                    \ }
+        autocmd FileType vim
+                    \ if s:apply_linters_conditional(".vintrc.yaml;.vintrc.yml;.vintrc", 'vint', 1)
                     \ |  let b:ale_vim_vint_executable = FindExecutable('vint')
                     \ |  let b:ale_vim_vint_show_style_issues = 1
                     \ | endif
+        
+        " c,cpp => prefer ccls if .ccls exists
+        autocmd FileType c,cpp
+                    \ call s:apply_linters_conditional(".ccls", 'ccls', 0)
 
         " gopls & gofmt
         autocmd FileType go 
@@ -193,112 +208,84 @@ if g:ale_enabled
         " shell:
         autocmd FileType sh 
                     \ let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck') |
-                    \ let b:ale_sh_shellcheck_options = FindLintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+                    \ let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
 
         " Dockerfiles:
         autocmd FileType dockerfile 
                     \ let b:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
-                    \ let b:ale_dockerfile_hadolint_options = FindLintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
+                    \ let b:ale_dockerfile_hadolint_options = s:find_lintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
 
         " cmake:
         autocmd FileType cmake 
                     \ let b:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
-                    \ let b:ale_cmake_cmakelint_options = FindLintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
+                    \ let b:ale_cmake_cmakelint_options = s:find_lintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
 
         " yaml:
         autocmd FileType yaml
                     \ let b:ale_yaml_yamllint_executable = FindExecutable('yamllint') |
-                    \ let b:ale_yaml_yamllint_options = FindLintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
+                    \ let b:ale_yaml_yamllint_options = s:find_lintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
 
         " python: flake8 is more popular, enable pylint if pylintrc exists
-        "  fixer: Black has deliberately only one option (line length) to ensure consistency across many projects
         autocmd FileType python
-                    \ let b:ale_python_jedils_executable = FindExecutable('jedi-language-server') |
-                    \ let b:ale_python_black_executable = FindExecutable('black') |
-                    \ let b:ale_python_black_options = FindLintrc('--config ', 'pyproject.toml', 'lintrc/black.toml') |
-                    \ if findfile(".pylintrc", ".;") != ''
-                    \ || findfile("pylintrc", ".;") != ''
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'pylint' ] }
+                    \ let b:ale_python_jedils_executable = FindExecutable('jedi-language-server')
+                    \ | if s:apply_linters_conditional(".pylintrc;pylintrc", 'pylint', 1)
                     \ |  let b:ale_python_pylint_executable = FindExecutable('pylint')
-                    \ |  let b:ale_python_pylint_options = FindLintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
+                    \ |  let b:ale_python_pylint_options = s:find_lintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
                     \ | else
-                    \ |  let b:ale_linters = { 'python' : [ 'jedils', 'flake8' ] }
+                    \ |  call s:apply_linters('flake8', 1)
                     \ |  let b:ale_python_flake8_executable = FindExecutable('flake8')
-                    \ |  let b:ale_python_flake8_options = FindLintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
+                    \ |  let b:ale_python_flake8_options = s:find_lintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
                     \ | endif
 
         " markdown:
         autocmd FileType markdown
                     \ let b:ale_markdown_markdownlint_executable = FindExecutable('markdownlint') |
-                    \ let b:ale_markdown_markdownlint_options = FindLintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
+                    \ let b:ale_markdown_markdownlint_options = s:find_lintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
 
         " html + css
         autocmd FileType html,css
                     \ let b:ale_html_htmlhint_executable = FindExecutable('htmlhint') |
-                    \ let b:ale_html_htmlhint_options = FindLintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
+                    \ let b:ale_html_htmlhint_options = s:find_lintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
                     \ let b:ale_html_stylelint_executable = FindExecutable('stylelint') |
-                    \ let b:ale_html_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+                    \ let b:ale_html_stylelint_options = s:find_lintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
                     \ let b:ale_css_stylelint_executable = FindExecutable('stylelint') |
-                    \ let b:ale_css_stylelint_options = FindLintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+                    \ let b:ale_css_stylelint_options = s:find_lintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
 
-        " javascript,typescript
-        "  => no executable here, local version preferred
+        " javascript,typescript deno ls => no executable here, local version preferred
         autocmd FileType javascript,typescript
-                    \ if findfile("deno.json", ".;") != ''
+                    \ if s:apply_linters_conditional("deno.json", 'deno', 1)
                     \ |  call CheckExecutable('deno', 'Deno Project')
-                    \ |  let b:ale_linters = { expand('<amatch>') : ['deno'] }
-                    \ | else
-                    \ |  call CheckExecutable('tsserver', expand('<amatch>'))
-                    \ |  let b:ale_linters = { expand('<amatch>') : ['tsserver'] }
                     \ | endif
 
-        " lua
-        "  => no local executables, install with luarocks or build from sources
+        " lua => no executables here, install with luarocks or build from sources
         "  luals: some version won't work with ale
         "   => https://github.com/LuaLS/lua-language-server/issues/2899
         "  luacheck:
         "   => enable luacheck if .luacheckrc exists or lua-language-server is missing
         autocmd FileType lua
-                    \ if executable('lua-language-server') == 0
-                    \ |  echom 'Please install lua-language-server for better Lua support'
-                    \ | else
-                    \ | let b:ale_lua_language_server_config = { 'Lua' : 
-                    \       json_decode(readfile(FindLintrc('', '.luarc.json', 'lintrc/luarc.json')))
+                    \ if CheckExecutable('lua-language-server', 'better Lua')
+                    \ | let b:ale_lua_language_server_config = { 
+                    \     'Lua' : json_decode(readfile(s:find_lintrc('', '.luarc.json', 'lintrc/luarc.json'))) 
                     \ }
                     \ | endif
-                    \ | if findfile(".luacheckrc", ".;") != ''
-                    \ || executable('lua-language-server') == 0
-                    \ |  if executable('luacheck') == 0
-                    \ |     echom 'Please install luacheck: `luarocks install luacheck lanes`'
-                    \ |  endif
-                    \ |  call EnableLinters(expand('<amatch>'), 'luacheck')
-                    \ |  let b:ale_lua_luacheck_options = FindLintrc('--config ', '.luacheckrc', 'lintrc/luacheckrc')
+                    \ | if s:apply_linters_conditional(".luacheckrc", 'luacheck', 1) 
+                    \ |  call CheckExecutable('luacheck', 'Lua lint')
+                    \ |  let b:ale_lua_luacheck_options = s:find_lintrc('--config ', '.luacheckrc', '')
                     \ | endif
 
-        " eslint: load if .eslintrc.* exists {{{
-        "  => don't specify executable here => user may installed different version
+        " eslint => no executable here => user may installed different version
         " TODO: handle eslintConfig in package.json
         autocmd FileType javascript,typescript,html
-                    \ if findfile(".eslintrc.js", ".;") != ''
-                    \ || findfile(".eslintrc.cjs", ".;" ) != ''
-                    \ || findfile(".eslint.config.cjs", ".;" ) != ''
-                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
-                    \ | endif
+                    \ call s:apply_linters_conditional(".eslintrc.js;.eslintrc.cjs;eslint.config.js", 'eslint', 1)
         autocmd FileType yaml
-                    \ if findfile(".eslintrc.yaml", ".;") != ''
-                    \ || findfile(".eslintrc.yml", ".;" ) != ''
-                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
-                    \ | endif
+                    \ call s:apply_linters_conditional(".eslintrc.yaml;.eslintrc.yml", 'eslint', 1)
         autocmd FileType json,jsonc
-                    \ if findfile(".eslintrc.json", ".;") != ''
-                    \ |  call EnableLinters(expand('<amatch>'), 'eslint')
-                    \ | endif
-        " }}}
+                    \ call s:apply_linters_conditional(".eslintrc.json", 'eslint', 1)
     augroup END
     " }}}
     " }}}
 
-    " {{{ => complete type unicode
+    " complete type unicode symbols {{{
     let g:ale_completion_symbols = {
                 \ 'text'            : '',
                 \ 'class'           : '',

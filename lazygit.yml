@@ -17,7 +17,7 @@ gui:
             - reverse
 git:
     mainBranches: [main, master]
-    autoFetch: true
+    autoFetch: false
     autoRefresh: true
     fetchAll: true # Pass --all flag when running git fetch. Set to false to fetch only origin (or the current branch's upstream remote if there is one)
     disableForcePushing: false
