@@ -12,13 +12,22 @@ if g:denite_enabled
         nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
         nnoremap <silent><buffer><expr> <esc>   denite#do_map('quit')                   " quit
 
-        " hide cursor
         setlocal termguicolors
-        setlocal guicursor+=a:Cursor/lCursor
+        augroup denite_autocommands
+            autocmd!
+            " show and hide cursor
+            autocmd BufEnter <buffer>
+                        \ highlight Cursor blend=100
+                        \ | setlocal guicursor+=a:Cursor/lCursor
+            autocmd BufLeave <buffer>
+                        \ highlight Cursor blend=0
+                        \ | setlocal guicursor-=a:Cursor/lCursor
+        augroup END
     endfunction
 
     function! s:denite_filter() abort
-        inoremap <silent><buffer>       <esc>   <Plug>(denite_filter_quit)
+        imap <silent><buffer> <esc> <Plug>(denite_filter_quit)
+        imap <silent><buffer> <cr>  <Plug>(denite_filter_update)
     endfunction
 
     function! s:denite_preview() abort
