@@ -52,7 +52,7 @@ if g:ale_enabled
     let g:ale_set_signs = 0 " no signs which cause window changes
     let g:ale_virtualtext_delay = g:autocomplete_delay
     let g:ale_virtualtext_cursor = 'all'
-    let g:ale_virtualtext_prefix = '%code%: '
+    let g:ale_virtualtext_prefix = '%linter":: %code%: '
 
     " 错误列表：loclist
     let g:ale_set_loclist = 1           " loclist instead of quickfix
@@ -69,7 +69,7 @@ if g:ale_enabled
     "  => load fixers if rc file exists, so fix on save
     let g:ale_fix_on_save = 1
     let g:ale_fixers = {
-                \ '*'           : ['remove_trailing_lines', 'trim_whitespace'],
+                \ '*'   : ['remove_trailing_lines', 'trim_whitespace'],
                 \ }
 
     function! s:apply_default_fixers(fixers) abort
@@ -102,6 +102,12 @@ if g:ale_enabled
         " goimports,gofmt
         autocmd FileType go
                     \ call s:apply_default_fixers(['goimports', 'gofmt'])
+        " sh
+        autocmd FileType sh
+                    \ if CheckExecutable('shfmt', 'shell script format')
+                    \ |  call s:apply_default_fixers(['shfmt'])
+                    \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent'
+                    \ | endif
         " rustfmt
         autocmd FileType rust
                     \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
@@ -113,6 +119,8 @@ if g:ale_enabled
 
     " Linter: language server first {{{
     let g:ale_linters_explicit = 1
+    let g:ale_lsp_suggestions = 1
+    let g:ale_lsp_show_message_format = '%linter%:: %severity%: %s'
     let g:ale_linters = {
                 \ 'sh'          : ['shellcheck'],
                 \ 'vim'         : ['vimls'],

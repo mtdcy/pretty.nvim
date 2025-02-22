@@ -170,6 +170,7 @@ Delete plugin with `git revert`
 - Sh
   - [shellcheck](https://github.com/koalaman/shellcheck) - `pip3 install shellcheck-py`
     - [.shellcheckrc](lintrc/shellcheckrc)
+  - [shfmt](https://github.com/mvdan/sh) - `sudo apt install shfmt`
 - Go
   - [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - `go install golang.org/x/tools/gopls@latest`
   - [gofmt](https://pkg.go.dev/cmd/gofmt)
