@@ -11,6 +11,7 @@ if g:denite_enabled
         nnoremap <silent><buffer><expr> /       denite#do_map('open_filter_buffer')     " search
         nnoremap <silent><buffer><expr> q       denite#do_map('quit')                   " quit
         nnoremap <silent><buffer><expr> <esc>   denite#do_map('quit')                   " quit
+        nnoremap <silent><buffer><expr> <tab>   'j'                                     " move down
 
         setlocal termguicolors
         augroup denite_autocommands
@@ -28,6 +29,7 @@ if g:denite_enabled
     function! s:denite_filter() abort
         imap <silent><buffer> <esc> <Plug>(denite_filter_quit)
         imap <silent><buffer> <cr>  <Plug>(denite_filter_update)
+        imap <silent><buffer> <tab> <Plug>(denite_filter_update)
     endfunction
 
     function! s:denite_preview() abort
