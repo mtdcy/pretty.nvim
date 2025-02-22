@@ -37,6 +37,8 @@ nnoremap <C-e>      :Buffer<cr>
 inoremap <C-e>      <C-o>:Buffer<cr>
 nnoremap <C-o>      :Finder<cr>
 inoremap <C-o>      <C-o>:Finder<cr>
+nnoremap <C-g>      :Search<cr>
+inoremap <C-g>      <C-o>:Search<cr>
 
 nnoremap <C-n>      :call BufferNext()<cr>
 inoremap <C-n>      <C-o>:call BufferNext()<cr>

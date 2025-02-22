@@ -17,7 +17,7 @@ case "$OSTYPE" in
     *)          ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
-case "$1" in 
+case "$1" in
     --prepare)
         # no public repo of cmdlets => install locally
         cmdlets="https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
@@ -133,13 +133,14 @@ fi
 
 "$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 
+trap "rm -f /tmp/$$-nvim-install.txt" EXIT
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
     info "== Something went wrong with pretty.nvim"
     exit 1
 }
 
 check_host() {
-    if which "$1"; then 
+    if which "$1"; then
         return 0
     else
         info "== Please install $1 for $2 support"
@@ -158,3 +159,5 @@ check_host luarocks             Luacheck && {
     luarocks install luacheck lanes
 } || true
 check_host stylua               "Lua formatter" || true
+
+check_host shfmt                "shell script"  || true
