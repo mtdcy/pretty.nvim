@@ -60,8 +60,9 @@ function! FloatingWindowBottomRight() abort
                 \ 'style'       : 'minimal',
                 \ 'relative'    : 'win',
                 \ 'anchor'      : 'SE',
-                \ 'row'         : winheight('.'),
-                \ 'col'         : winwidth('.')
+                \ 'row'         : winheight(0),
+                \ 'col'         : winwidth(0),
+                \ 'focusable'   : 1
                 \ }
 endfunction
 
