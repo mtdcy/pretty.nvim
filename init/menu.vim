@@ -122,39 +122,45 @@ if g:denite_enabled
     let s:menus = {}
 
     let s:menus.nvim = {
-                \ 'description' : 'Edit init.vim',
                 \ 'command_candidates' : [
                 \   [ 'init.vim',       'edit ' . $MYVIMRC ],
                 \   [ 'init/...',       'Denite -path=' . g:pretty_home . '/init file/rec' ],
                 \ ]}
 
     let s:menus.edit = {
-                \ 'description': 'Edit ...',
                 \ 'command_candidates' : [
-                \   [ 'Undo - u',       'undo'                                     ],
-                \   [ 'Redo - U',       'redo'                                     ],
-                \   [ 'Format code',    'ALEFix'                                   ],
-                \   [ 'Edit nvim ...',  'Denite menu:nvim'                         ],
+                \   [ 'Undo             u ', 'undo              '],
+                \   [ 'Redo             U ', 'redo              '],
+                \   [ 'Format code        ', 'ALEFix            '],
+                \   [ 'Edit nvim ...      ', 'Denite menu:nvim  '],
                 \ ]}
 
     let s:menus.tool = {
-                \ 'description': 'Tool ...',
                 \ 'command_candidates' : [
-                \   [ 'Explorer      <F9>', 'Explorer'                             ],
-                \   [ 'Taglist      <F10>', 'Taglist'                              ],
-                \   [ 'LazyGit      <F12>', 'VCS'                                  ],
+                \   [ 'Explorer          F9 ', 'Explorer    '],
+                \   [ 'Taglist          F10 ', 'Taglist     '],
+                \   [ 'LazyGit          F12 ', 'VCS         '],
+                \ ]}
+
+    let s:menus.move = {
+                \ 'command_candidates' : [
+                \   [ 'Move to above    CTRL-k ', 'wincmd k '],
+                \   [ 'Move to below    CTRL-j ', 'wincmd j '],
+                \   [ 'Move to left     CTRL-h ', 'wincmd h '],
+                \   [ 'Move to right    CTRL-l ', 'wincmd l '],
                 \ ]}
 
     let s:menus.main = {
                 \ 'command_candidates' : [
-                \   [ 'Finder       <C-o>', 'Denite -start-filter file/rec'        ],
-                \   [ 'Buffer       <C-e>', 'Denite buffer'                        ],
-                \   [ 'Search       <C-g>', 'Denite -start-filter grep:::!'        ],
-                \   [ 'Edit ...          ', 'Denite menu:edit'                     ],
-                \   [ 'Tool ...          ', 'Denite menu:tool'                     ],
-                \   [ 'Close        <C-w>', 'BufferClose'                          ],
-                \   [ 'Quit              ', 'confirm quit'                         ],
-                \   [ 'Help              ', 'edit ' . g:pretty_home . '/README.md' ],
+                \   [ 'Finder       CTRL-o ', 'Denite -start-filter file/rec            '],
+                \   [ 'Buffer       CTRL-e ', 'Denite buffer                            '],
+                \   [ 'Search       CTRL-g ', 'Denite -start-filter grep:::!            '],
+                \   [ 'Edit ...            ', 'Denite menu:edit                         '],
+                \   [ 'Move ...            ', 'Denite menu:move                         '],
+                \   [ 'Tool ...            ', 'Denite menu:tool                         '],
+                \   [ 'Close        CTRL-w ', 'BufferClose                              '],
+                \   [ 'Quit                ', 'confirm quit                             '],
+                \   [ 'Help                ', 'edit ' . g:pretty_home . '/README.md     '],
                 \ ]}
 
     call denite#custom#var('menu', 'menus', s:menus)
