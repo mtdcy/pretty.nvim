@@ -102,7 +102,7 @@ function! s:wmsettle(wmid) abort
 endfunction
 
 function! s:wminfo() abort
-    echom '== wmid:' . s:wmid() 
+    echom '== wmid:' . s:wmid()
                 \ . '|winid:' . win_getid()
                 \ . '|winnr:' . winnr() . '#' . winnr('$')
                 \ . '|type:' . win_gettype() . '|winbufnr:' . winbufnr(0)
@@ -179,7 +179,7 @@ function! s:wm_on_winclosed(winid) abort
     endif
 endfunction
 
-function! BufferClose() abort
+function! s:close() abort
     if win_getid() != s:wmwinid(0)
         exe 'confirm quit'
     else
@@ -195,12 +195,12 @@ function! BufferClose() abort
     endif
 endfunction
 
-function! BufferNext() abort
+function! s:next() abort
     if s:wmid() > 0 | silent exe 'wincmd p' | endif
     silent exe 'bnext'
 endfunction
 
-function! BufferPrev() abort
+function! s:prev() abort
     if s:wmid() > 0 | silent exe 'wincmd p' | endif
     silent exe 'bprev'
 endfunction
@@ -220,3 +220,7 @@ augroup WM
 augroup END
 
 if g:wm_debug | nnoremap <C-Y> :call <sid>wminfo()<cr> | endif
+
+command! -nargs=0 BufferClose call <sid>close()
+command! -nargs=0 BufferNext  call <sid>next()
+command! -nargs=0 BufferPrev  call <sid>prev()

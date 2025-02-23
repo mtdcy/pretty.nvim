@@ -33,6 +33,7 @@ inoremap <F10>      <C-o>:TaglistFocus<cr>
 nnoremap <F12>      :VCS<cr>
 inoremap <F12>      <C-o>:VCS<cr>
 
+nnoremap <Enter>    :Menu<cr>
 " buffer explorer
 nnoremap <leader>be :Buffer<cr>
 nnoremap <C-e>      :Buffer<cr>
@@ -46,19 +47,19 @@ nnoremap <leader>bg :Search<cr>
 nnoremap <C-g>      :Search<cr>
 inoremap <C-g>      <C-o>:Search<cr>
 
-nnoremap <C-n>      :call BufferNext()<cr>
-inoremap <C-n>      <C-o>:call BufferNext()<cr>
+nnoremap <C-n>      :BufferNext<cr>
+inoremap <C-n>      <C-o>:BufferNext<cr>
 tnoremap <C-n>      <C-\><C-N>:bnext<cr>
-nnoremap <Tab>      :call BufferNext()<cr>
+nnoremap <Tab>      :BufferNext<cr>
 
-nnoremap <C-p>      :call BufferPrev()<cr>
-inoremap <C-p>      <C-o>:call BufferPrev()<cr>
+nnoremap <C-p>      :BufferPrev<cr>
+inoremap <C-p>      <C-o>:BufferPrev<cr>
 tnoremap <C-p>      <C-\><C-N>:bprev<cr>
-nnoremap <S-Tab>    :call BufferPrev()<cr>
+nnoremap <S-Tab>    :BufferPrev<cr>
 
-nnoremap  <C-w>     :call BufferClose()<cr>
-inoremap  <C-w>     <C-o>:call BufferClose()<cr>
-tnoremap <C-w>      <C-\><C-N>:call BufferClose()<cr>
+nnoremap  <C-w>     :BufferClose<cr>
+inoremap  <C-w>     <C-o>:BufferClose<cr>
+tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>
 
 " 'CTRL-/' => 触发comment
 nnoremap  <C-_>     <Plug>NERDCommenterToggle
