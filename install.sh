@@ -156,7 +156,8 @@ check_host lazygit              LazyGit         || true
 # Lua
 check_host lua-language-server  Lua             || true
 check_host luarocks             Luacheck && {
-    luarocks install luacheck lanes
+    luarocks install --local luacheck
+    luarocks install --local lanes
 } || true
 check_host stylua               "Lua formatter" || true
 
