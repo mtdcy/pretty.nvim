@@ -19,7 +19,7 @@ jobs:
           if curl --fail -o /dev/null http://git.mtdcy.top; then
             bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
           else
-            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
           fi
         shell: bash
 
