@@ -1,18 +1,12 @@
 # pretty.nvim
 
-A collection of pre-configured nvim plugins, plug and play ready.
+Prebuilt nvim and well-tuned plugins, plug and play ready.
 
 ## UI / TermUI
 
 ![ui](picture/ui.png)
 
 [More](picture)
-
-## Requirements
-
-- [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.10.3 embedded**
-- [python3](): latest +pip +venv ==> **python3.13 won't work**
-- [npm](https://www.npmjs.com/): latest
 
 ## Quick Start
 
@@ -23,23 +17,22 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/i
 bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
 ```
 
-==> **Dependencies are installed locally in pretty.nvim.**
+## Requirements
+
+- [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.10.4 embedded**
+- [python3](): latest +pip +venv ==> **python3.13 won't work**
+- [npm](https://www.npmjs.com/): latest
 
 ## Features
 
-- Preconfigured plugins and support/host binaries & neovim installer.
+- Well-tuned plugins and installed binaries.
 - Linters & checkers & conf templates.
 - Sticky buffer for sidebars.
 - Seamless buffer switch with `C-n` & `C-p`, even in terminal mode.
-- Smart window & buffer close with `C-q`.
+- Smart window & buffer close with `C-w`.
 - Full functional bufferline with mouse clickable.
 - Support copy text back from ssh session, [copyd](copyd.md)
-
-## Settings
-
-- g:pretty_verbose      - How many messages show on screen.
-- g:pretty_dark         - Dark mode.
-- g:pretty_autocomplete - Auto complete or complete with Tab.
+- Pretty menus powerd by denite, activate by `Enter`.
 
 ### Key Mappings
 
@@ -51,34 +44,54 @@ Since mouse works even in terminal, you don't have to remember these key mapping
 
 [x] Prefer using `C-w` instead of `:quit` or `:close`, as it is smarter.
 
-- [n] `F8` - Open bufexplorer on center screen. [*]
-- [n] `F9` - Open NERDTree (file brower) on left side. [*]
-- [n] `F10` - Open Tagbar or TOC on right side. [*]
-- [n] `F12` - Open LazyGit window. [*]
+- [ni]  `F8`    - Run code formater. [*]
+- [ni]  `F9`    - Open file explorer on left side. [*]
+- [ni]  `F10`   - Open tag list or TOC on right side. [*]
+- [ni]  `F12`   - Open LazyGit window. [*]
 
-- [n] `C-h` - Move focus to left window.
-- [n] `C-l` - Move focus to right window.
-- [n] `C-j` - Move focus to below window.
-- [n] `C-k` - Move focus to up window.
+- [ni]  `C-h`   - Move focus to left window.
+- [ni]  `C-l`   - Move focus to right window.
+- [ni]  `C-j`   - Move focus to below window.
+- [ni]  `C-k`   - Move focus to up window.
 
-- [n] `C-q` - Close windows and buffers, util the last one.
+- [ni]  `C-w`   - Close windows and buffers, util the last one.
 
 #### Buffers
 
-- [n] `C-o` - File Explorer
-- [n] `C-n` - Buffer Next
-- [n] `C-p` - Buffer Prev
+- [ni]  `C-o`       - Open a finder
+- [ni]  `C-e`       - Open a buffer list
+- [ni]  `C-g`       - Search project for cursor word
+- [ni]  `C-n`       - Buffer Next
+- [ni]  `C-p`       - Buffer Prev
 
-- [n] `<leader>1` - Select buffer 1
-- [n] `<leader>2` - Select buffer 2
-- [n] `<leader>3` - Select buffer 3
-- [n] `<leader>4` - Select buffer 4
-- [n] `<leader>5` - Select buffer 5
-- [n] `<leader>6` - Select buffer 6
-- [n] `<leader>7` - Select buffer 7
-- [n] `<leader>8` - Select buffer 8
-- [n] `<leader>9` - Select buffer 9
-- [n] `<leader>0` - Select buffer 10
+- [n]   `<leader>1` - Select buffer 1
+- [n]   `<leader>2` - Select buffer 2
+- [n]   `<leader>3` - Select buffer 3
+- [n]   `<leader>4` - Select buffer 4
+- [n]   `<leader>5` - Select buffer 5
+- [n]   `<leader>6` - Select buffer 6
+- [n]   `<leader>7` - Select buffer 7
+- [n]   `<leader>8` - Select buffer 8
+- [n]   `<leader>9` - Select buffer 9
+- [n]   `<leader>0` - Select buffer 10
+
+#### Goto/Jump
+
+- [n]   `gg`    - Goto first line
+- [n]   `gG`    - Goto last line
+- [n]   `g[`    - Goto start of code block
+- [n]   `g]`    - Goto end of code block
+- [n]   `gd`    - Goto symbols' definition
+- [n]   `gb`    - Goto back to previous position
+- [n]   `gk`    - Goto keyword's man page
+- [n]   `ge`    - Goto next error
+- [v]   `gy`    - Goto yank
+- [n]   `gp`    - Goto paste
+- [n]   `gl`    - Goto loclist
+
+#### Misc
+
+- [v]   `/`     - Tabularize
 
 #### About terminal buffers
 
@@ -87,26 +100,6 @@ Since mouse works even in terminal, you don't have to remember these key mapping
 ```
 
 After this, everything works like insert and normal mode.
-
-#### Goto/Jump
-
-[ ] TODO: map `gd` `gk` `gD` to single key.
-
-- [n] `gg` - Goto first line
-- [n] `gG` - Goto last line
-- [n] `g[` - Goto start of code block
-- [n] `g]` - Goto end of code block
-- [n] `gd` - Goto symbols' definition
-- [n] `gb` - Goto back to previous position
-- [n] `gk` - Goto keyword's man page
-- [n] `ge` - Goto next error
-- [v] `gy` - Goto yank
-- [n] `gp` - Goto paste
-- [n] `gl` - Goto loclist
-
-#### Features
-
-- [v] `/` - Tabularize
 
 ## Plugins Embedded
 
@@ -159,7 +152,7 @@ Delete plugin with `git revert`
 
 ### ALE
 
-> Try to use python to install packages, because nvim has a stronger dependency on python.
+> Prefer to install packages with python as nvim has a stronger dependency on python.
 
 > Try to find configurations on [codeac](https://www.codeac.io/documentation/index.html)
 
