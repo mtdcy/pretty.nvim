@@ -176,12 +176,15 @@ endfunction
 
 " trigger `autoread` when files changes on disk
 set autoread
-autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
-" notification after file change
-autocmd FileChangedShellPost *
-            \ echohl WarningMsg |
-            \ echo "File changed on disk. Buffer reloaded." |
-            \ echohl None
+augroup reload
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+    " notification after file change
+    autocmd FileChangedShellPost *
+                \ echohl WarningMsg |
+                \ echo "File changed on disk. Buffer reloaded." |
+                \ echohl None
+augroup END
 "}}}
 
 " source plugin settings
@@ -199,5 +202,6 @@ source <sfile>:h/init/keymap.vim
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
 nnoremap <leader>ss :source $MYVIMRC<cr>
+            \ :call webdevicons#refresh()<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
