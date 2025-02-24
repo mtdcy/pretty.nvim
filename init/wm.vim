@@ -4,15 +4,15 @@
 " License: BSD 2-Clause
 "=============================================================================
 
+let g:wm_debug  = 0
+let g:wm_height = min([12, winheight(0) / 4])
+let g:wm_width  = min([24, winwidth(0) / 4])
+
 set wildignore&
 set noequalalways
-set winheight=10
-set winwidth=20
 set cmdheight=1
 
-let g:wm_debug = 0
-
-" window components id
+" windows id
 let g:winids = [ win_getid(), 0, 0, 0, 0, 0 ]
 " 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
 
@@ -66,24 +66,29 @@ function! s:type2wmid(type) abort
     return index(['nerdtree', 'docs', 'quickfix', 'tagbar'], a:type) + 1
 endfunction
 
+function! s:window(wmid) abort
+    exe s:wmwinnr(a:wmid) . 'wincmd w'
+endfunction
+
 " move buffer to the right window
 function! s:wmmove(buf) abort
     let bufnr = bufnr(a:buf)
-    let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==' . bufnr)
     " switch to alt buffer
     exe 'buffer#'
+    " is this buffer on split window?
+    let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==' . bufnr)
     " go to the right window
-    if len(li) | exe li[0] 'wincmd w'
-    else       | exe s:wmwinnr(0) 'wincmd w'
+    if len(li) | call s:window(s:winnr2wmid(li[0]))
+    else       | call s:window(0)
     endif
-    exe 'buffer ' bufnr
+    exe 'buffer ' . bufnr
 endfunction
 
 " create window if not exists
 function! s:wmcreate(wmid) abort
     if a:wmid > 0 && s:wmwinid(a:wmid) <= 0
         let saved = winnr()
-        exe s:wmwinnr(0) 'wincmd w'
+        call s:window(0)
         "let cmds = ['', ':NERDTree', 'help', 'lopen', ':TagbarOpen']
         let cmds = ['', 'Explorer', 'help', 'lopen', 'Taglist']
         exe index(cmds, a:wmid)
@@ -97,12 +102,12 @@ function! s:wmsettle(wmid) abort
     call s:wmcreate(a:wmid)
     let  bufnr = bufnr('%')
     exe 'wincmd c'
-    exe s:wmwinnr(a:wmid) 'wincmd w'
+    call s:window(a:wmid)
     exe 'buffer ' bufnr
 endfunction
 
 function! s:wminfo() abort
-    echom '== wmid:' . s:wmid()
+    echo '== wmid:' . s:wmid()
                 \ . '|winid:' . win_getid()
                 \ . '|winnr:' . winnr() . '#' . winnr('$')
                 \ . '|type:' . win_gettype() . '|winbufnr:' . winbufnr(0)
@@ -134,10 +139,10 @@ function! s:wm_update() abort
 
     " 2. update winids
     " footbar & toc are quickfix|loclist, no way to tell here.
-    let winid = bufwinid(bufnr('%'))
-    let [ w, h ] = [ g:pretty_bar_width, g:pretty_bar_height ]
     if wmid > 0
         setlocal nobuflisted
+        let winid = bufwinid('%')
+
         " multiple document window type? yes! => help|man|doc
         if winid != s:wmwinid(wmid)
             " how to deal with the new window?
@@ -147,10 +152,10 @@ function! s:wm_update() abort
             else
                 "echom '== set new window ' . winid . ' for type ' . type
                 call s:wmwinidset(wmid, winid)
-                if type == 'docs' || type == 'quickfix'
-                    exe 'resize ' h
+                if type ==? 'docs' || type ==? 'quickfix'
+                    exe 'resize ' . g:wm_height
                 else
-                    exe 'vertical resize ' w
+                    exe 'vertical resize ' . g:wm_width
                 endif
             endif
         endif
@@ -181,13 +186,12 @@ endfunction
 
 function! s:close() abort
     if win_getid() != s:wmwinid(0)
-        exe 'confirm quit'
+        exe 'quit'
     else
         echohl WarningMsg
         let bufnr = bufnr('%') " save bufnr
         if len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) > 1
-            exe 'bprev'
-            exe 'confirm bwipeout ' bufnr
+            exe 'confirm bdelete'
         else
             echo "Last buffer, close it with :quit"
         endif
@@ -196,20 +200,20 @@ function! s:close() abort
 endfunction
 
 function! s:next() abort
-    if s:wmid() > 0 | silent exe 'wincmd p' | endif
-    silent exe 'bnext'
+    call s:window(0)
+    exe 'bnext'
 endfunction
 
 function! s:prev() abort
-    if s:wmid() > 0 | silent exe 'wincmd p' | endif
-    silent exe 'bprev'
+    call s:window(0)
+    exe 'bprev'
 endfunction
 
 augroup WM
     autocmd!
     autocmd BufEnter    * call s:wm_update()
     " workarounds for NERDTree and Tagbar which set eventignore on creation
-    autocmd FileType    * call s:wm_update()
+    autocmd FileType    nerdtree,tagbar call s:wm_update()
     " WinClosed may be called out of box
     autocmd WinClosed   * silent call s:wm_on_winclosed(str2nr(expand('<amatch>')))
     " quit window parts if main window went away

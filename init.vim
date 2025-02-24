@@ -2,8 +2,6 @@
 
 " => Global Settings
 let g:pretty_home           = fnamemodify($MYVIMRC, ':p:h')
-let g:pretty_bar_height     = min([15, winheight(0) / 3])
-let g:pretty_bar_width      = min([30, winwidth(0) / 5])
 
 let $PATH = g:pretty_home . ':' . $PATH
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
