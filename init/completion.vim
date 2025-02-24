@@ -41,8 +41,8 @@ if g:ale_enabled
     augroup ALEHoverEnhanced
         autocmd!
         " Hover on cursor hold
-        "  => hover manually with <C-d> in insert mode
-        autocmd CursorHold * ALEHover
+        "  => hover manually <C-y> in insert mode
+        " autocmd CursorHold * ALEHover
         " Hover after completion
         autocmd User ALECompletePost ALEHover
     augroup END

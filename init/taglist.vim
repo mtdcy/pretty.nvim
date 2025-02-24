@@ -12,7 +12,7 @@ if g:tagbar_enabled
     let g:tagbar_left = 0       " right
     let g:tagbar_silent = 1     " no echo to statusline
     let g:tagbar_compact = 1
-    let g:tagbar_autofocus = 0  " if enabled, an empty tagbar opened
+    let g:tagbar_autofocus = 0  " no tags or cursor setting won't work
     let g:tagbar_autoshowtag = 1
     let g:tagbar_show_data_type = 1
     let g:tagbar_width = min([30, winwidth(0) / 4])
@@ -40,15 +40,19 @@ if g:tagbar_enabled
     " multiple key mapping to these one, can't disable single one
     "let g:tagbar_map_openfold = ''
     "let g:tagbar_map_closefold = ''
+
+    autocmd FileType tagbar call HideCursor()
 endif
 " }}}
 
 if g:tagbar_enabled
     " open or close taglist
-    command! -nargs=0 Taglist exe 'TagbarToggle'
+    command! -nargs=0 Taglist TagbarToggle
 
     " open or focus taglist
     command! -nargs=0 TaglistFocus
-                \ if bufwinnr('Tagbar') == -1 | call tagbar#OpenWindow()
-                \ | else | exe bufwinnr('Tagbar') . 'wincmd w' | endif
+                \ if bufwinnr('Tagbar') == -1
+                \ |  call tagbar#OpenWindow()
+                \ | endif
+                \ | exe bufwinnr('Tagbar') . 'wincmd w'
 endif

@@ -59,15 +59,15 @@ nnoremap <S-Tab>    :BufferPrev<cr>
 
 nnoremap  <C-w>     :BufferClose<cr>
 inoremap  <C-w>     <C-o>:BufferClose<cr>
-tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>
+tnoremap  <C-w>     <C-\><C-N>:BufferClose<cr>
 
 " 'CTRL-/' => 触发comment
 nnoremap  <C-_>     <Plug>NERDCommenterToggle
 inoremap  <C-_>     <C-o><Plug>NERDCommenterToggle
 
 " ALE hover manually
-nnoremap <C-d>      :ALEHover<cr>
-inoremap <C-d>      <C-o>:ALEHover<cr>
+nnoremap <C-y>      :ALEHover<cr>
+inoremap <C-y>      <C-o>:ALEHover<cr>
 
 " ALEInfo|ALEFix
 nnoremap <F7>       :ALEInfo<cr>

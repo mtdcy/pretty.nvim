@@ -64,6 +64,22 @@ function! FloatingWindowBottomRight() abort
                 \ }
 endfunction
 
+function! HideCursor() abort
+    setlocal cursorline
+    setlocal termguicolors
+    augroup HideCursor
+        autocmd!
+        " hide cursor
+        autocmd BufEnter <buffer>
+                    \ highlight Cursor blend=100
+                    \ | setlocal guicursor+=a:Cursor/lCursor
+        " show cursor
+        autocmd BufLeave <buffer>
+                    \ highlight Cursor blend=0
+                    \ | setlocal guicursor-=a:Cursor/lCursor
+    augroup END
+endfunction
+
 " {{{ => General Options
 let mapleader = ';'
 

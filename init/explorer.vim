@@ -26,15 +26,19 @@ if g:nerdtree_enabled
     "" cancel some key mappings: too much mappings won't help user
     ""  => keep only: Enter, Space, Mouse, F1/?
     "let g:NERDTreeMapActivateNode = ''
+
+    autocmd FileType nerdtree call HideCursor()
 endif
 " }}}
 
 if g:nerdtree_enabled
     " open or close explorer
-    command! -nargs=0 Explorer exe 'NERDTreeToggle'
+    command! -nargs=0 Explorer NERDTreeToggle
 
     " open or focus explorer
     command! -nargs=0 ExplorerFocus
-                \ if bufwinnr('NERD_tree') == -1 | exe 'Explorer'
-                \ | else | exe bufwinnr('NERD_tree') . 'wincmd w' | endif
+                \ if bufwinnr('NERD_tree') == -1
+                \ |  exe 'NERDTree'
+                \ | endif
+                \ | exe bufwinnr('NERD_tree') . 'wincmd w'
 endif
