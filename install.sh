@@ -19,8 +19,11 @@ esac
 
 case "$1" in
     --prepare)
+        cd scripts
         # no public repo of cmdlets => install locally
-        cmdlets="https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh"
+        curl -sL -o cmdlets.sh https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh
+        chmod a+x cmdlets.sh
+
         archs=(
             x86_64-linux-gnu
             x86_64-linux-musl
@@ -29,7 +32,10 @@ case "$1" in
 
         rm -rf prebuilts
         for x in "${archs[@]}"; do
-            CMDLETS_ARCH="$x" bash -c "$(curl -fsSL "$cmdlets")" fetch nvim
+            export CMDLETS_ARCH="$x"
+            export CMDLETS_STRIP=0
+            ./cmdlets.sh fetch nvim
+            ./cmdlets.sh fetch ctags
         done
         exit
         ;;

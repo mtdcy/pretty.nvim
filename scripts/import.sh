@@ -1,35 +1,29 @@
-#!/bin/bash
+#!/bin/bash -e
 #
-# usage:
-#  import.sh https://github.com/jlanzarotta/bufexplorer.git
+# Usage: import.sh https://github.com/jlanzarotta/bufexplorer.git[@master]
 
-set -x
+IFS='@' read -r url branch <<< "$1"
 
-repo="$1"
-name="$(basename "${repo%.git}")"
-name="${name%.nvim}"
-name="${name%.vim}"
+repo="$(basename "$url")"
+repo="${repo%%.*}"
+# default branch: master
+branch="${branch:-master}"
 
-main="${2:-master}"
+if ! git ls-remote --exit-code "$repo" &>/dev/null; then
+    git remote add "$repo" "$url"
+else
+    git remote set-url "$repo" "$url"
+fi
+git fetch "$repo"
+git merge "$repo/$branch" --allow-unrelated-histories --no-commit --squash -X theirs
+git restore --staged .
+git checkout HEAD -- README.md .gitignore .github   # checkout ours
+git clean -f -d .github                             # clean unneeded
 
-work="$(git rev-parse --abbrev-ref HEAD)"
+mv LICENSE "LICENSE.$repo" -f || true               # rename LICENSE
+rm test tests -rf || true                           # ...
 
-git remote add "$name" "$repo" || true # exists?
+# common vim directories
+git add after autoload colors doc ftdetect ftplugin indent plugin rplugin syntax "LICENSE.$repo" || true
 
-git fetch "$name" --no-tags &&
-#git checkout -b "$name" --track "$name/$main" &&
-#git pull "$name" "$main" &&
-#git checkout "$work" &&
-#git merge "$name" --allow-unrelated-histories --no-commit --squash # conflicts
-git merge "$name/$main" --allow-unrelated-histories --no-commit --squash --strategy-option theirs
-
-# keep our files
-git checkout HEAD -- README.md .gitignore
-
-# remove unneeded
-git rm -rf .github test tests CONTRIBUTING.md --ignore-unmatch
-
-[ -f LICENSE ] && mv LICENSE "LICENSE.$name" && git add LICENSE "LICENSE.$name"
-[ -f LICENSE.txt ] && mv LICENSE.txt "LICENSE.$name" && git add LICENSE.txt "LICENSE.$name"
-
-# do manually ...
+echo -e "\n>>> It's time to remove unneeded files and commit ..."

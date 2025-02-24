@@ -33,6 +33,7 @@ bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/ins
 - Full functional bufferline with mouse clickable.
 - Support copy text back from ssh session, [copyd](copyd.md)
 - Pretty menus powerd by denite, activate by `Enter`.
+- Prebuilt Universal Ctags which missing on most platform by default.
 
 ### Key Mappings
 

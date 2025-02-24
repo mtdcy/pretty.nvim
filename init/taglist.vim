@@ -6,6 +6,7 @@ let g:tagbar_enabled = 1
 if g:tagbar_enabled
     filetype on
 
+    let g:tagbar_ctags_bin = g:pretty_home . '/scripts/ctags'
     let g:tagbar_position = 'botright vertical'
     let g:tagbar_singleclick = 0
     let g:tagbar_sort = 0
