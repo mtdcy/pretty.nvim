@@ -16,7 +16,9 @@ let g:node_host_prog        = g:pretty_home . '/node_modules/.bin/neovim-node-ho
 
 " local executables only
 function! FindExecutable(cmd)
-    if filereadable(g:pretty_home . '/py3env/bin/' . a:cmd)
+    if filereadable(g:pretty_home . '/scripts/' . a:cmd)
+        return g:pretty_home . '/scripts/' . a:cmd
+    elseif filereadable(g:pretty_home . '/py3env/bin/' . a:cmd)
         return g:pretty_home . '/py3env/bin/' . a:cmd
     elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:cmd)
         return g:pretty_home . '/node_modules/.bin/' . a:cmd

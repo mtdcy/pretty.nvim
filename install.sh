@@ -36,6 +36,7 @@ case "$1" in
             export CMDLETS_STRIP=0
             ./cmdlets.sh fetch nvim
             ./cmdlets.sh fetch ctags
+            ./cmdlets.sh fetch rg       # ripgrep
         done
         exit
         ;;

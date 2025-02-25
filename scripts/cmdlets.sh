@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #
 # shellcheck disable=SC2155
 
@@ -55,7 +55,8 @@ EOF
 
 # pull cmdlet from server
 cmdlet() {
-    local revision="$(mktemp -d)/revision"
+    local revision="$(mktemp)"
+    trap "rm -f $revision" EXIT
 
     # v2 cmdlet & applet 
     if curl --fail -sL -o "$revision" "$REPO/$1-revision"; then
@@ -85,13 +86,15 @@ cmdlet() {
         chmod a+x "$PREFIX/bin/$1"
     else
         error "Pull $1 failed\n"
+        return 1
     fi
-    rm -rf "$(dirname "$revision")"
 }
 
 # pull library from server
 library() {
-    local revision="$(mktemp -d)/revision"
+    local revision="$(mktemp)"
+    trap "rm -f $revision" EXIT
+
     if curl --fail -s -o "$revision" "$REPO/$1-revision"; then
 
         local sha libname
@@ -104,13 +107,15 @@ library() {
         find "$PREFIX/lib" -name "*.pc" -exec sed -e "s:^prefix=.*$:prefix=$PREFIX:p" -i {} \;
     else
         info "Pull library $1 failed\n"
+        return 1
     fi
-    rm -rf "$(dirname "$revision")"
 }
 
 # pull package from server
 package() {
-    local pkginfo="$(mktemp -d)/pkginfo"
+    local pkginfo="$(mktemp)"
+    trap "rm -f $pkginfo" EXIT
+
     if curl --fail -sL -o "$pkginfo" "$REPO/$1/pkginfo"; then
         mkdir -p "$PREFIX"
 
@@ -124,13 +129,11 @@ package() {
         done < "$pkginfo"
     else
         info "Pull package $1 failed\n"
+        return 1
     fi
-
-    rm -rf "$(dirname "$pkginfo")"
 }
 
 update() {
-
     if curl --fail -sIL -o /dev/null https://git.mtdcy.top/mtdcy/cmdlets/; then
         BASE=https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh
     fi
@@ -146,7 +149,9 @@ update() {
 
     info "Install cmdlets => $dest\n"
 
-    local tempfile="$(mktemp -d)/cmdlets.sh"
+    local tempfile="$(mktemp)"
+    trap "rm -f $tempfile" EXIT
+
     curl --fail -# -o "$tempfile" "$BASE"
 
     chmod a+x "$tempfile"
@@ -155,7 +160,6 @@ update() {
     else
         sudo mv -f "$tempfile" "$dest"
     fi
-    rm -fr "$(dirname "$tempfile")"
 }
 
 # never resolve symbolic here
