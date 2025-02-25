@@ -34,9 +34,7 @@ case "$1" in
         for x in "${archs[@]}"; do
             export CMDLETS_ARCH="$x"
             export CMDLETS_STRIP=0
-            ./cmdlets.sh install nvim
-            ./cmdlets.sh install ctags
-            ./cmdlets.sh install rg     # ripgrep
+            ./cmdlets.sh install nvim ctags rg
         done
         exit
         ;;
