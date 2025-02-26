@@ -74,12 +74,16 @@ done
 
 # install python modules with venv
 #  python3.13 has problems to install modules.
-if python3 --version | grep -Fw 3.13; then
+py3="$(which python3)" 
+if "$py3" --version | grep -Fw 3.13; then
     info "== python3.13 has troubles to install modules"
-    python3.12 -m venv --copies --clear py3env
-else
-    python3 -m venv --copies --clear py3env
+    py3="$(which python3.12)" ||
+    py3="$(which python3.11)" ||
+    py3="$(which python3.10)" ||
+    py3="$(which python3.9)" ||
+    py3="$(which python3.8)"
 fi
+$py3 -m venv --copies --upgrade --upgrade-deps py3env
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
