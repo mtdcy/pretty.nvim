@@ -34,7 +34,7 @@ case "$1" in
         for x in "${archs[@]}"; do
             export CMDLETS_ARCH="$x"
             export CMDLETS_STRIP=0
-            ./cmdlets.sh install nvim ctags rg
+            ./cmdlets.sh install nvim ctags rg lazygit
         done
         exit
         ;;
@@ -114,7 +114,6 @@ if which go; then
     go install golang.org/x/tools/gopls@latest
     go install golang.org/x/tools/cmd/goimports@latest
     go install github.com/mrtazz/checkmake/cmd/checkmake@latest
-    go install github.com/jesseduffield/lazygit@latest
 else
     info "== Please install host toolchain 'golang' for Go support"
 fi
