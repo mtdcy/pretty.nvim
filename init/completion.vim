@@ -106,6 +106,7 @@ if g:ale_enabled
         autocmd FileType sh
                     \ if CheckExecutable('shfmt', 'shell script format')
                     \ |  call s:apply_default_fixers(['shfmt'])
+                    \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
                     \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent'
                     \ | endif
         " rustfmt
