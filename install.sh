@@ -83,7 +83,7 @@ if "$py3" --version | grep -Fw 3.13; then
     py3="$(which python3.9)" ||
     py3="$(which python3.8)"
 fi
-$py3 -m venv --copies --upgrade --upgrade-deps py3env
+$py3 -m venv --copies --upgrade-deps py3env
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
