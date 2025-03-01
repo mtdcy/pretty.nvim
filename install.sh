@@ -34,7 +34,7 @@ case "$1" in
         for x in "${archs[@]}"; do
             export CMDLETS_ARCH="$x"
             export CMDLETS_STRIP=0
-            ./cmdlets.sh install nvim ctags rg lazygit
+            ./cmdlets.sh install nvim ctags rg lazygit shfmt
         done
         exit
         ;;
@@ -169,4 +169,3 @@ check_host luarocks             Luacheck && {
 } || true
 check_host stylua               "Lua formatter" || true
 
-check_host shfmt                "shell script"  || true
