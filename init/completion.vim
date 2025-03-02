@@ -60,7 +60,7 @@ if g:ale_enabled
     let g:ale_keep_list_window_open = 0 " close list after error cleared
 
     " Linters:
-    let g:ale_lint_on_text_changed = 1  " Not all linter support this
+    let g:ale_lint_on_text_changed = 0  " performance issue
     let g:ale_lint_on_insert_leave = 0
     let g:ale_lint_on_filetype_changed = 1
     let g:ale_lint_delay = 100
