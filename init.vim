@@ -162,7 +162,10 @@ augroup FileTypeSettings
     " set extra properties for interest files
     au FileType vim                 setlocal fdm=marker
     au FileType make                setlocal expandtab&
-    au FileType yaml                setlocal et ts=2 sw=2 fdm=indent
+
+    " default yaml folding does not work well => don't fold by default
+    au FileType yaml                setlocal et ts=2 sw=2 fdm=indent foldlevel=99
+
     au FileType markdown            setlocal et ts=2 sw=2 foldlevel=99
     " => Markdown插件有点问题，总是不断折叠
 
