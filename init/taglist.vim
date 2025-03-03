@@ -42,7 +42,8 @@ if g:tagbar_enabled
     "let g:tagbar_map_openfold = ''
     "let g:tagbar_map_closefold = ''
 
-    autocmd FileType tagbar call HideCursor()
+    " tagbar set eventignore
+    "autocmd FileType tagbar call HideCursor()
 endif
 " }}}
 
