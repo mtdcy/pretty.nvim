@@ -76,7 +76,7 @@ function! HideCursor() abort
                     \ highlight Cursor blend=100
                     \ | setlocal guicursor+=a:Cursor/lCursor
         " show cursor
-        autocmd BufLeave <buffer>
+        autocmd BufLeave *
                     \ highlight Cursor blend=0
                     \ | setlocal guicursor-=a:Cursor/lCursor
     augroup END
