@@ -27,8 +27,7 @@ if g:nerdtree_enabled
     ""  => keep only: Enter, Space, Mouse, F1/?
     "let g:NERDTreeMapActivateNode = ''
 
-    " nerdtree set eventignore
-    "autocmd FileType nerdtree call HideCursor()
+    autocmd FileType nerdtree call HideCursor()
 endif
 " }}}
 
