@@ -34,7 +34,7 @@ case "$1" in
         for x in "${archs[@]}"; do
             export CMDLETS_ARCH="$x"
             export CMDLETS_STRIP=0
-            ./cmdlets.sh install nvim ctags rg lazygit shfmt
+            ./cmdlets.sh install nvim ctags rg lazygit
         done
         exit
         ;;

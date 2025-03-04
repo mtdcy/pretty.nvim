@@ -103,12 +103,12 @@ if g:ale_enabled
         autocmd FileType go
                     \ call s:apply_default_fixers(['goimports', 'gofmt'])
         " sh
-        autocmd FileType sh
-                    \ if CheckExecutable('shfmt', 'shell script format')
-                    \ |  call s:apply_default_fixers(['shfmt'])
-                    \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
-                    \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent'
-                    \ | endif
+        "autocmd FileType sh
+        "            \ if CheckExecutable('shfmt', 'shell script format')
+        "            \ |  call s:apply_default_fixers(['shfmt'])
+        "            \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
+        "            \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent --indent'
+        "            \ | endif
         " rustfmt
         autocmd FileType rust
                     \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
