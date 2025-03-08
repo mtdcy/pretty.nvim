@@ -72,10 +72,13 @@ if g:ale_enabled
                 \ '*'   : ['remove_trailing_lines', 'trim_whitespace'],
                 \ }
 
+    " apply default fixers if not specified
     function! s:apply_default_fixers(fixers) abort
         if !exists('b:ale_fixers')
             let b:ale_fixers = { &filetype : a:fixers }
+            return 1
         endif
+        return 0
     endfunction
 
     function! s:apply_fixers_conditional(files, cmd, fixers) abort
@@ -97,11 +100,17 @@ if g:ale_enabled
                     \ call s:apply_fixers_conditional("stylua.toml;.stylua.toml;.styluaignore", 'stylua', ['stylua'])
         " black
         autocmd FileType python
-                    \ call s:apply_default_fixers(['black'])
-                    \ | let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
+                    \ if s:apply_default_fixers(['black'])
+                    \ |  let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
+                    \ | endif
         " goimports,gofmt
         autocmd FileType go
                     \ call s:apply_default_fixers(['goimports', 'gofmt'])
+        " yaml
+        autocmd FileType yaml
+                    \ if s:apply_default_fixers(['yamlfix'])
+                    \ |  let b:ale_yaml_yamlfix_options = s:find_lintrc('--env-prefix "YAMLFIX_" -c ', 'yamlfix.toml;.yamlfix.toml;pyproject.toml', 'lintrc/yamlfix.toml')
+                    \ | endif
         " sh
         "autocmd FileType sh
         "            \ if CheckExecutable('shfmt', 'shell script format')
@@ -112,6 +121,7 @@ if g:ale_enabled
         " rustfmt
         autocmd FileType rust
                     \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
+
         " prettier
         autocmd FileType *
                     \ call s:apply_fixers_conditional(".prettierrc;.prettierrc.json", 'prettier', ['prettier'])

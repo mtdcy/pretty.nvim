@@ -74,7 +74,7 @@ done
 
 # install python modules with venv
 #  python3.13 has problems to install modules.
-py3="$(which python3)" 
+py3="$(which python3)"
 if "$py3" --version | grep -Fw 3.13; then
     info "== python3.13 has troubles to install modules"
     py3="$(which python3.12)" ||
@@ -83,7 +83,9 @@ if "$py3" --version | grep -Fw 3.13; then
     py3="$(which python3.9)" ||
     py3="$(which python3.8)"
 fi
-$py3 -m venv --copies --upgrade-deps py3env
+
+# 'Text file busy' if nvim is openned
+$py3 -m venv --copies --upgrade-deps py3env || true
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
@@ -168,4 +170,3 @@ check_host luarocks             Luacheck && {
     luarocks install --local lanes
 } || true
 check_host stylua               "Lua formatter" || true
-

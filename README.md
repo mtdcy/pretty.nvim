@@ -216,6 +216,8 @@ nvim path/to/some.ts
 - Yaml
   - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
     - [.yamllint.yaml](lintrc/yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
+  - [yamlfix](https://github.com/lyz-code/yamlfix)
+    - [.yamlfix.toml](lintrc/yamlfix.toml) - [options](https://lyz-code.github.io/yamlfix/#configuration-options)
 - Python
   - [jedils](https://github.com/pappasam/jedi-language-server) - `pip3 install jedi-language-server`
   - [pylint](https://github.com/pylint-dev/pylint) - `pip3 install pylint`

@@ -50,3 +50,4 @@ tomlkit==0.13.2
 typing_extensions==4.12.2
 vim-vint==0.3.21
 yamllint==1.35.1
+yamlfix==1.17.0

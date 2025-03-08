@@ -1,0 +1,8 @@
+# https://lyz-code.github.io/yamlfix/#configuration-options
+allow_duplicate_keys = false
+line_length = 999
+none_representation = "null"
+sequence_style = "block_style"
+preserve_quotes = true
+whitelines = 1
+section_whitelines = 1
