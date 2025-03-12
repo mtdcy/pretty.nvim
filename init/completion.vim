@@ -68,9 +68,7 @@ if g:ale_enabled
     " Fixers: {{{
     "  => load fixers if rc file exists, so fix on save
     let g:ale_fix_on_save = 1
-    let g:ale_fixers = {
-                \ '*'   : ['remove_trailing_lines', 'trim_whitespace'],
-                \ }
+    " no default fixers => follow .editorconfig settings
 
     " apply default fixers if not specified
     function! s:apply_default_fixers(fixers) abort

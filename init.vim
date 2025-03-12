@@ -82,7 +82,7 @@ function! HideCursor() abort
     augroup END
 endfunction
 
-" {{{ => General Options
+" General Options {{{
 let mapleader = ';'
 
 " 不备份文件
@@ -115,38 +115,15 @@ autocmd InsertLeave * set ic
 
 set updatetime=200
 
-" tabstop       - tab宽度
-" shiftwidth    - 自动缩进宽度
-" expandtab     - 是否展开tab
-" softtabstop   - 按下tab时的宽度（用tab和space组合填充）=> 比较邪恶
-
 " For all
 filetype plugin indent on
-
-" common settings
-set tabstop=4 shiftwidth=4
-set expandtab
 set autoindent
 set smartindent
-" 文本宽, 有些过时了
-set textwidth=0
-set formatoptions-=t
-" 用Tab和Space组合填充Tab => 比较邪恶, 经常导致显示错位
-set softtabstop&
 
 set cindent
 "set cinwords=if,else,while,do,for,switch
 "set cinkeys=0{,0},0(,0),0[,0],:,;,0#,~^F,o,O,0=if,e,0=switch,0=case,0=break,0=whilea,0=for,0=do
 "set cinoptions=>s,e0,n0,f0,{0,}0,^0,Ls,:s,=s,l1,b1,g0,hs,N-s,E-s,ps,t0,is,+-s,t0,cs,C0,/0,(0,us,U0,w0,W0,k0,m1,M0,#0,P0
-"
-
-" 文件类型
-set fileformat=unix
-set fileformats=unix,dos
-
-" 文件编码
-set fileencoding=utf-8
-set fileencodings=utf-8,gb18030,gbk,latin1
 
 " Fold: 默认折叠，手动开关
 set foldmethod=manual
@@ -157,7 +134,56 @@ set fillchars+=fold:\       " 隐藏v:folddashes. note: there is a space after \
 set foldminlines=3          " don't fold smallest if-else statement
 set foldcolumn=1            " conflict with vim-signify
 
-augroup FileTypeSettings
+function FoldText()
+    let text = getline(v:foldstart)
+    let lines = v:foldend - v:foldstart
+    return text . ' 󰍻 ' . lines . ' more lines '
+endfunction
+
+" trigger `autoread` when files changes on disk
+set autoread
+augroup reload
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+    " notification after file change
+    autocmd FileChangedShellPost *
+                \ echohl WarningMsg |
+                \ echo "File changed on disk. Buffer reloaded." |
+                \ echohl None
+augroup END
+"}}}
+
+" EditorConfig {{{
+" https://neovim.io/doc/user/editorconfig.html
+let g:editorconfig = v:true
+" => editorconfig applied after ftplugins and FileType autocmds
+
+" editorconfig.end_of_line = lf
+set fileformat=unix
+set fileformats=unix,dos
+
+" editorconfig.charset = utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8,gb18030,gbk,latin1
+
+" editorconfig.indent_size = 4
+set shiftwidth=4
+set softtabstop&
+" editorconfig.tab_width = 4
+set tabstop=4
+
+" editorconfig.indent_style = space
+set expandtab
+
+" editorconfig.max_line_length
+set textwidth=0
+
+" disable auto-wrap text using textwidth
+set formatoptions-=t
+" }}}
+
+" will be override by .editorconfig
+augroup EditorConfig
     au!
     " set extra properties for interest files
     au FileType vim                 setlocal fdm=marker
@@ -186,25 +212,6 @@ augroup FileTypeSettings
                 \ | exe "normal! g`\""
                 \ | endif
 augroup END
-
-function FoldText()
-    let text = getline(v:foldstart)
-    let lines = v:foldend - v:foldstart
-    return text . ' 󰍻 ' . lines . ' more lines '
-endfunction
-
-" trigger `autoread` when files changes on disk
-set autoread
-augroup reload
-    autocmd!
-    autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
-    " notification after file change
-    autocmd FileChangedShellPost *
-                \ echohl WarningMsg |
-                \ echo "File changed on disk. Buffer reloaded." |
-                \ echohl None
-augroup END
-"}}}
 
 " source plugin settings
 source <sfile>:h/init/ui.vim
