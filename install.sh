@@ -47,20 +47,15 @@ for x in "${requirements[@]}"; do
     which "$x" || { info "== Please install host tool $x first"; exit 1; }
 done
 
-# install python modules with venv
+# install python modules with venv => python3.10 preferred
 #  python3.13 has problems to install modules.
-py3="$(which python3)"
-if "$py3" --version | grep -Fw 3.13; then
-    info "== python3.13 has troubles to install modules"
-    py3="$(which python3.12)" ||
-    py3="$(which python3.11)" ||
-    py3="$(which python3.10)" ||
-    py3="$(which python3.9)" ||
-    py3="$(which python3.8)"
-fi
+
+py3="$(which python3.10)" ||
+py3="$(which python3.11)" ||
+py3="$(which python3.12)"
 
 # 'Text file busy' if nvim is openned
-$py3 -m venv --copies --upgrade-deps py3env || true
+$py3 -m venv --copies --upgrade py3env || true
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
