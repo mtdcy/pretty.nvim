@@ -82,6 +82,9 @@ function! HideCursor() abort
     augroup END
 endfunction
 
+" Auto-create parent directories (except for URIs "://").
+au BufWritePre,FileWritePre * if @% !~# '\(://\)' | call mkdir(expand('<afile>:p:h'), 'p') | endif
+
 " General Options {{{
 let mapleader = ';'
 
