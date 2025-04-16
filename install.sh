@@ -11,35 +11,6 @@ if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
     locally=1
 fi
 
-# install prebuilts
-case "$OSTYPE" in
-    darwin*)    ARCH="$(uname -m)-apple-darwin" ;;
-    *)          ARCH="$(uname -m)-$OSTYPE"      ;;
-esac
-
-case "$1" in
-    --prepare)
-        cd scripts
-        # no public repo of cmdlets => install locally
-        curl -sL -o cmdlets.sh https://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh
-        chmod a+x cmdlets.sh
-
-        archs=(
-            x86_64-linux-gnu
-            x86_64-linux-musl
-            x86_64-apple-darwin
-        )
-
-        rm -rf prebuilts
-        for x in "${archs[@]}"; do
-            export CMDLETS_ARCH="$x"
-            export CMDLETS_STRIP=0
-            ./cmdlets.sh install nvim ctags rg lazygit
-        done
-        exit
-        ;;
-esac
-
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
         cd "$(dirname "$0")"
@@ -58,6 +29,10 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         fi
         cd "$HOME/.nvim"
     fi
+
+    # prepare prebuilts
+    # ./scripts/cmdlets.sh update
+    ./scripts/cmdlets.sh install nvim ctags rg lazygit
 
     exec ./install.sh --no-update
 fi
