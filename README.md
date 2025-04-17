@@ -15,6 +15,9 @@ Prebuilt nvim and well-tuned plugins, plug and play ready.
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
 # CN
 bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+
+# Upgrade
+nvim --update
 ```
 
 ## Requirements
