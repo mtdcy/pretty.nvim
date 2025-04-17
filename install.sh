@@ -92,19 +92,11 @@ fi
 
 # install symlinks
 INSTBIN=/usr/local/bin
-if [[ "$PATH" =~ $HOME/.bin ]]; then
-    INSTBIN="$HOME/.bin"
-fi
 info "== install nvim to $INSTBIN"
-if [ -w "$INSTBIN" ]; then
-    ln -svf "$PWD/run" "$INSTBIN/nvim"
-    ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
-    ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
-else
-    sudo ln -svf "$PWD/run" "$INSTBIN/nvim"
-    sudo ln -svf "$PWD/scripts/ncopyd.sh" "$INSTBIN"
-    sudo ln -svf "$PWD/scripts/ncopyc.sh" "$INSTBIN"
-fi
+
+sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
+sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
+sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
 
 # nvim final prepare
 "$INSTBIN/nvim" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
@@ -112,6 +104,13 @@ fi
 "$INSTBIN/nvim" -c 'call fruzzy#install()' +quit || true
 
 "$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
+
+if which launchctl; then
+    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
+    cp scripts/ncopyd.plist "$PLIST"
+    launchctl unload "$PLIST" 2>/dev/null || true
+    launchctl load -w "$PLIST"
+fi
 
 trap "rm -f /tmp/$$-nvim-install.txt" EXIT
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
