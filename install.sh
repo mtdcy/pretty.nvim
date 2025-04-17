@@ -55,7 +55,7 @@ py3="$(which python3.11)" ||
 py3="$(which python3.12)"
 
 # 'Text file busy' if nvim is openned
-$py3 -m venv --copies --upgrade py3env || true
+$py3 -m venv --copies --upgrade-deps py3env || true
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
