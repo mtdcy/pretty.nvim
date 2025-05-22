@@ -34,6 +34,9 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
     # ./scripts/cmdlets.sh update
     ./scripts/cmdlets.sh install nvim ctags rg lazygit
 
+    # remove py3env => may cause problems
+    rm -rf py3env || true
+
     exec ./install.sh --no-update
 fi
 
