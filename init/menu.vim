@@ -102,7 +102,7 @@ if g:denite_enabled
 
     " enhanced filter: fruzzy
     "  => 'call fruzzy#install()' to install native libraries
-    let g:fruzzy#usenative = 1
+    let g:fruzzy#usenative = filereadable(g:pretty_home . '/rplugin/python3/fruzzy_mod.so')
     let g:fruzzy#sortonempty = 1
     " }}}
 
