@@ -82,9 +82,6 @@ function! HideCursor() abort
     augroup END
 endfunction
 
-" Auto-create parent directories (except for URIs "://").
-au BufWritePre,FileWritePre * if @% !~# '\(://\)' | call mkdir(expand('<afile>:p:h'), 'p') | endif
-
 " General Options {{{
 let mapleader = ';'
 
@@ -113,8 +110,6 @@ set incsearch
 
 " 大小写
 set smartcase
-autocmd InsertEnter * set noic
-autocmd InsertLeave * set ic
 
 set updatetime=200
 
@@ -214,6 +209,16 @@ augroup EditorConfig
                 \ if line("'\"") >= 1 && line("'\"") <= line("$") && &filetype !~# 'commit'
                 \ | exe "normal! g`\""
                 \ | endif
+
+    " Auto-create parent directories (except for URIs "://").
+    autocmd BufWritePre,FileWritePre *
+                \ if expand('<afile>') !~# '\(://\)'
+                \ | call mkdir(expand('<afile>:p:h'), 'p')
+                \ | endif
+
+    " no ignore case when enter insert mode
+    autocmd InsertEnter * set noic
+    autocmd InsertLeave * set ic
 augroup END
 
 " source plugin settings
