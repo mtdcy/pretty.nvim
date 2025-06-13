@@ -1,4 +1,4 @@
-" lightline + bufferline 
+" lightline + bufferline
 
 " => Options
 let g:dark_mode = 1 " light or drak
@@ -131,10 +131,10 @@ if g:lightline_enabled
 
     function! RelativeFileName() abort
         let l:bufname = bufname()
-        if l:bufname =~# 'NERD_tree_\d\+'       | return 'NERDTree'
+        if l:bufname =~# 'NERD_tree_*'          | return 'NERDTree'
         elseif l:bufname =~# '__Tagbar__.\d\+'  | return 'Tagbar'
         elseif l:bufname =~# '\[denite\]-*'     | return 'denite'
         else                                    | return expand('%:~:.')
         endif
     endfunction
-endif " lightline_enabled 
+endif " lightline_enabled
