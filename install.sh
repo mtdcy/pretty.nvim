@@ -88,7 +88,7 @@ fi
 if which go; then
     go install golang.org/x/tools/gopls@latest
     go install golang.org/x/tools/cmd/goimports@latest
-    go install github.com/mrtazz/checkmake/cmd/checkmake@latest
+    go install github.com/checkmake/checkmake/cmd/checkmake@latest
 else
     info "== Please install host toolchain 'golang' for Go support"
 fi
