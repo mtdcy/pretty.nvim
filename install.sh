@@ -84,15 +84,6 @@ else
     info "== Please install npm|nodejs for full features"
 fi
 
-# install go tools
-if which go; then
-    go install golang.org/x/tools/gopls@latest
-    go install golang.org/x/tools/cmd/goimports@latest
-    go install github.com/checkmake/checkmake/cmd/checkmake@latest
-else
-    info "== Please install host toolchain 'golang' for Go support"
-fi
-
 # install symlinks
 INSTBIN=/usr/local/bin
 info "== install nvim to $INSTBIN"
@@ -131,14 +122,12 @@ check_host() {
 }
 
 check_host ccls                 "better C/C++"  || true
+check_host go                   Go              || true
 check_host rustc                Rust            || true
 check_host checkmake            Makefile        || true
 check_host lazygit              LazyGit         || true
 
 # Lua
 check_host lua-language-server  Lua             || true
-check_host luarocks             Luacheck && {
-    luarocks install --local luacheck
-    luarocks install --local lanes
-} || true
+check_host luacheck             Luacheck        || true
 check_host stylua               "Lua formatter" || true
