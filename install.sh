@@ -76,8 +76,11 @@ deactivate
 
 # install node modules locally
 if which npm; then
-    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs" || true
-    npm install
+    if [ -z "$MIRRORS" ]; then
+        npm install
+    else
+        npm install --registry "$MIRRORS/npmjs"
+    fi
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
 else
