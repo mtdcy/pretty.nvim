@@ -76,7 +76,8 @@ deactivate
 
 # install node modules locally
 if which npm; then
-    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs" || true
+    # new version npm does not support url subdir
+    [ -n "$MIRRORS" ] && npm config set registry "${MIRRORS/mirrors/npmjs}" || true
     npm install
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
