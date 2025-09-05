@@ -7,7 +7,7 @@ set -eo pipefail
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
 locally=0
-if curl --fail -sIL https://git.mtdcy.top -o /dev/null; then
+if curl --fail --connect-timeout 1 -sIL https://git.mtdcy.top -o /dev/null; then
     locally=1
 fi
 
