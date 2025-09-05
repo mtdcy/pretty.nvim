@@ -30,10 +30,6 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         cd "$HOME/.nvim"
     fi
 
-    # prepare prebuilts
-    # ./scripts/cmdlets.sh update
-    ./scripts/cmdlets.sh install nvim ctags rg lazygit
-
     # remove py3env => may cause problems
     rm -rf py3env || true
 
@@ -84,6 +80,10 @@ if which npm; then
 else
     info "== Please install npm|nodejs for full features"
 fi
+
+# prepare prebuilts
+# ./scripts/cmdlets.sh update
+./scripts/cmdlets.sh install nvim ctags rg lazygit
 
 # install symlinks
 INSTBIN=/usr/local/bin
