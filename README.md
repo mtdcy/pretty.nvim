@@ -20,6 +20,17 @@ bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/ins
 nvim --update
 ```
 
+## Docker
+
+```shell
+# Github
+curl -fsSL https://raw.githubusercontent.com/mtdcy/Dockerfiles/main/nvim/nvim.sh | sudo tee /usr/local/bin/nvim
+# CN
+curl -fsSL http://git.mtdcy.top/mtdcy/Dockerfiles/raw/branch/main/nvim/nvim.sh | sudo tee /usr/local/bin/nvim
+
+chmod a+x /usr/local/bin/nvim
+```
+
 ## Requirements
 
 - [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.10.4 embedded**
