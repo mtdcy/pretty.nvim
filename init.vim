@@ -5,7 +5,7 @@ let g:pretty_home           = fnamemodify($MYVIMRC, ':p:h')
 
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
 let $PATH = g:pretty_home . '/py3env/bin:'        . $PATH
-let $PATH = g:pretty_home . '/scripts:' . $PATH
+let $PATH = g:pretty_home . '/prebuilts/bin:'     . $PATH
 
 " setup python env
 let $VIRTUAL_ENV            = g:pretty_home . '/py3env'

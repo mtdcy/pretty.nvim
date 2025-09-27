@@ -114,10 +114,6 @@ else
     info "== Please install npm|nodejs for full features"
 fi
 
-# prepare prebuilts
-# ./scripts/cmdlets.sh update
-./scripts/cmdlets.sh install nvim ctags rg lazygit
-
 # install symlinks
 INSTBIN=/usr/local/bin
 info "== install nvim to $INSTBIN"
