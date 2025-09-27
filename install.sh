@@ -63,8 +63,8 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
     # download tools
     for url in "${TOOLS[@]}"; do
         info "Downloading $(basename "$url") < $url"
-        curl "${CURL_OPTS[@]}" "$url" -o "prebuilts/bin/$(basename "$url")" || true
-        chmod a+x "prebuilts/bin/$(basename "$url")"
+        curl "${CURL_OPTS[@]}" "$url" -o "prebuilts/bin/$(basename "$url")" &&
+        chmod a+x "prebuilts/bin/$(basename "$url")" || true
     done
 
     # remove py3env => may cause problems
