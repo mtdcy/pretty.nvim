@@ -81,10 +81,7 @@ done
 
 # install python modules with venv => python3.10 preferred
 #  python3.13 has problems to install modules.
-
-py3="$(which python3.10)" ||
-py3="$(which python3.11)" ||
-py3="$(which python3.12)"
+py3="$(which python3.10)" || py3="$(which python3)"
 
 # 'Text file busy' if nvim is openned
 $py3 -m venv --copies --upgrade-deps py3env || true
