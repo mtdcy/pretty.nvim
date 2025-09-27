@@ -2,7 +2,7 @@
 # a symlink nvim -> . is needed
 #  `:h startup` for details
 
-WORKDIR="$(dirname "$(readlink -f "$0")")"
+WORKDIR="$(readlink -f "$0" | xargs dirname)"
 
 export XDG_CONFIG_HOME="$WORKDIR"
 
@@ -10,14 +10,14 @@ export XDG_CONFIG_HOME="$WORKDIR"
 [ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
 
 case "$1" in
-	--update)
-		cd "$WORKDIR" && exec ./install.sh --update
-		;;
-	--help | -h)
-		"$WORKDIR/scripts/nvim" --help
-		echo -e "\n---\nTry update pretty.nvim with \`nvim --update'"
-		exit
-		;;
+    --update)
+        cd "$WORKDIR" && exec ./install.sh --update
+        ;;
+    --help|-h)
+        "$WORKDIR/prebuilts/nvim" --help
+        echo -e "\n---\nTry update pretty.nvim with \`nvim --update'"
+        exit
+        ;;
 esac
 
-exec "$WORKDIR/scripts/nvim" "$@"
+exec "$WORKDIR/prebuilts/nvim" "$@"

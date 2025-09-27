@@ -6,10 +6,31 @@ set -eo pipefail
 
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
-locally=0
-if curl --fail --connect-timeout 1 -sIL https://git.mtdcy.top -o /dev/null; then
-    locally=1
-fi
+case "$OSTYPE" in
+    darwin*) ARCH="$(uname -m)-apple-darwin" ;;
+    *)       ARCH="$(uname -m)-$OSTYPE"      ;;
+esac
+
+REPO=(
+    https://git.mtdcy.top/mtdcy/pretty.nvim.git
+    https://github.com/mtdcy/pretty.nvim.git
+)
+
+PREBUILTS=(
+    https://git.mtdcy.top/mtdcy/nvim-build/releases/download/latest/$ARCH.tar.gz
+    https://github.com/mtdcy/nvim-build/releases/latest/download/$ARCH.tar.gz
+)
+
+TOOLS=(
+    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/ctags
+    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/rg
+    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/lazygit
+)
+
+MIRRORS=https://mirrors.mtdcy.top
+
+CURL_OPTS=( -sL --fail --connect-timeout 3 )
+curl "${CURL_OPTS[@]}" -I "$MIRRORS" -o /dev/null || unset MIRRORS
 
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
@@ -21,23 +42,35 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         cd "$HOME/.nvim"
         git pull --rebase --force
     else
-        info "== clone pretty.nvim => ~/.nvim"
-        if [ "$locally" -eq 1 ]; then
-            git clone --depth=1 https://git.mtdcy.top/mtdcy/pretty.nvim.git "$HOME/.nvim"
-        else
-            git clone --depth=1 https://github.com/mtdcy/pretty.nvim.git "$HOME/.nvim"
-        fi
+        for repo in "${REPO[@]}"; do
+            info "== clone pretty.nvim < $repo"
+            git clone --depth=1 "$repo" "$HOME/.nvim" && break || true
+        done
         cd "$HOME/.nvim"
     fi
+
+    # download prebuilts
+    mkdir -p prebuilts
+    for url in "${PREBUILTS[@]}"; do
+        info "Downloading nvim < $url"
+        curl "${CURL_OPTS[@]}" "$url" | tar -C prebuilts -xz && break || true
+    done
+    [ -e prebuilts/nvim ] || {
+        info "== Download prebuilts failed"
+        exit 1
+    }
+
+    # download tools
+    for url in "${TOOLS[@]}"; do
+        info "Downloading $(basename "$url") < $url"
+        curl "${CURL_OPTS[@]}" "$url" -o "prebuilts/bin/$(basename "$url")" || true
+        chmod a+x "prebuilts/bin/$(basename "$url")"
+    done
 
     # remove py3env => may cause problems
     rm -rf py3env || true
 
     exec ./install.sh --no-update
-fi
-
-if [ "$locally" -eq 1 ]; then
-    MIRRORS=https://mirrors.mtdcy.top
 fi
 
 # Host prepare
