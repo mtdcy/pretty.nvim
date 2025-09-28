@@ -8,7 +8,7 @@ info() { echo -e "\\033[31m$*\\033[39m"; }
 
 case "$OSTYPE" in
     darwin*) ARCH="$(uname -m)-apple-darwin" ;;
-    *)       ARCH="$(uname -m)-linux-musl"   ;;
+    *)       ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
 REPO=(
