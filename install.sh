@@ -51,6 +51,10 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         cd "$HOME/.nvim"
     fi
 
+    exec ./install.sh --update-core
+fi
+
+if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     # download prebuilts
     mkdir -p prebuilts
     for url in "${PREBUILTS[@]}"; do
@@ -69,10 +73,9 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         chmod a+x "prebuilts/bin/$(basename "$url")" || true
     done
 
-    # remove py3env => may cause problems
-    rm -rf py3env || true
+    [ "$1" = "--update-core" ] || exit 0
 
-    exec ./install.sh --no-update
+    exec "$0" --no-update
 fi
 
 # Host prepare
@@ -84,6 +87,9 @@ done
 # install python modules with venv => python3.10 preferred
 #  python3.13 has problems to install modules.
 py3="$(which python3.10)" || py3="$(which python3)"
+
+# remove py3env => may cause problems
+rm -rf py3env || true
 
 # 'Text file busy' if nvim is openned
 $py3 -m venv --copies --upgrade-deps py3env || true
