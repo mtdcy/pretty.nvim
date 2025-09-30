@@ -28,6 +28,8 @@ cmdlets=(
     https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
+tools=( lazygit ctags ripgrep checkmake )
+
 MIRRORS=https://mirrors.mtdcy.top
 
 CURL_OPTS=( -sL --fail --connect-timeout 1 )
@@ -86,8 +88,8 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
         exit 2
     }
     chmod a+x cmdlets.sh
-    ./cmdlets.sh fetch ctags rg lazygit || true
-    find prebuilts -name "*.tar.*" -exec rm -rf {} \; || true
+    ./cmdlets.sh fetch "${tools[@]}" || true
+    find prebuilts -name "*.tar.*" -exec rm -fv {} \; || true
 
     [ "$1" = "--update-core" ] || exit 0
 
