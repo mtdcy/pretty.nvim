@@ -31,14 +31,17 @@ cmdlets=(
 MIRRORS=https://mirrors.mtdcy.top
 
 CURL_OPTS=( -sL --fail --connect-timeout 1 )
-curl "${CURL_OPTS[@]}" -I "$MIRRORS" -o /dev/null || unset MIRRORS
+
+__curl() { curl "${CURL_OPTS[@]}" "$@"; }
+
+__curl -I "$MIRRORS" -o /dev/null || unset MIRRORS
 
 # _curl file urls...
 _curl() {
     for url in "${@:2}"; do
         info "== curl < $url"
-        curl -I "${CURL_OPTS[@]}" "$url" -o /dev/null || continue
-        curl    "${CURL_OPTS[@]}" "$url" -o "$1" && return 0 || true
+        __curl -I "$url" -o /dev/null || continue
+        __curl    "$url" -o "$1" && return 0 || true
     done
     return 1
 }
@@ -54,6 +57,9 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         git pull --rebase --force
     else
         for repo in "${REPO[@]}"; do
+            # test connection
+            __curl -I "$repo" -o /dev/null || continue
+
             info "== clone pretty.nvim < $repo"
             git clone --depth=1 "$repo" "$HOME/.nvim" && break || true
         done
