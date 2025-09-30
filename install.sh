@@ -87,6 +87,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     }
     chmod a+x cmdlets.sh
     ./cmdlets.sh fetch ctags rg lazygit || true
+    find prebuilts -name "*.tar.*" -exec rm -rf {} \; || true
 
     [ "$1" = "--update-core" ] || exit 0
 
