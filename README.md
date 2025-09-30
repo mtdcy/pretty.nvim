@@ -129,7 +129,7 @@ After this, everything works like insert and normal mode.
   - [lightline.vim](https://github.com/itchyny/lightline.vim)@58c97bc
   - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8206632
 - Linter
-  - [ALE](https://github.com/dense-analysis/ale)@6db58b3
+  - [ALE](https://github.com/dense-analysis/ale)@4217461
   - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
 - Completor
   - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@43d7457
