@@ -23,16 +23,25 @@ PREBUILTS=(
     https://github.com/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz
 )
 
-TOOLS=(
-    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/ctags
-    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/rg
-    https://pub.mtdcy.top/cmdlets/latest/$ARCH/bin/lazygit
+cmdlets=(
+    http://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh
+    https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
 MIRRORS=https://mirrors.mtdcy.top
 
-CURL_OPTS=( -sL --fail --connect-timeout 3 )
+CURL_OPTS=( -sL --fail --connect-timeout 1 )
 curl "${CURL_OPTS[@]}" -I "$MIRRORS" -o /dev/null || unset MIRRORS
+
+# _curl file urls...
+_curl() {
+    for url in "${@:2}"; do
+        info "== curl < $url"
+        curl -I "${CURL_OPTS[@]}" "$url" -o /dev/null || continue
+        curl    "${CURL_OPTS[@]}" "$url" -o "$1" && return 0 || true
+    done
+    return 1
+}
 
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
@@ -57,21 +66,21 @@ fi
 if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     # download prebuilts
     mkdir -p prebuilts
-    for url in "${PREBUILTS[@]}"; do
-        info "Downloading nvim < $url"
-        curl "${CURL_OPTS[@]}" "$url" | tar -C prebuilts -xz && break || true
-    done
-    [ -e prebuilts/nvim ] || {
+
+    # shellcheck disable=SC2064
+    temp="$(mktemp -d)" && trap "rm -rf $temp" EXIT
+
+    _curl "$temp/$ARCH.tar.gz" "${PREBUILTS[@]}" && tar -C prebuilts -xzf "$temp/$ARCH.tar.gz" || {
         info "== Download prebuilts failed"
         exit 1
     }
 
-    # download tools
-    for url in "${TOOLS[@]}"; do
-        info "Downloading $(basename "$url") < $url"
-        curl "${CURL_OPTS[@]}" "$url" -o "prebuilts/bin/$(basename "$url")" &&
-        chmod a+x "prebuilts/bin/$(basename "$url")" || true
-    done
+    _curl cmdlets.sh "${cmdlets[@]}" || {
+        info "== Download cmdlets failed"
+        exit 2
+    }
+    chmod a+x cmdlets.sh
+    ./cmdlets.sh fetch ctags rg lazygit || true
 
     [ "$1" = "--update-core" ] || exit 0
 

@@ -10,3 +10,4 @@ package-lock.json
 /rplugin/python3/fruzzy_mod.so
 /scripts/prebuilts
 prebuilts
+cmdlets.sh
