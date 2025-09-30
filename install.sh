@@ -160,7 +160,6 @@ check_host() {
 check_host ccls                 "better C/C++"  || true
 check_host go                   Go              || true
 check_host rustc                Rust            || true
-check_host checkmake            Makefile        || true
 
 # Lua
 check_host lua-language-server  Lua             || true
