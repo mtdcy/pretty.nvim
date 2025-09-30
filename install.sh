@@ -28,7 +28,7 @@ cmdlets=(
     https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
-tools=( lazygit ctags ripgrep checkmake )
+tools=( lazygit ctags ripgrep checkmake shfmt )
 
 MIRRORS=https://mirrors.mtdcy.top
 
