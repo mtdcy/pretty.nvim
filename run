@@ -10,8 +10,8 @@ export XDG_CONFIG_HOME="$WORKDIR"
 [ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
 
 case "$1" in
-    --update)
-        cd "$WORKDIR" && exec ./install.sh --update
+    --update*)
+        cd "$WORKDIR" && exec ./install.sh "$@"
         ;;
     --help|-h)
         "$WORKDIR/prebuilts/nvim" --help
