@@ -50,12 +50,12 @@ _curl() {
 
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
-        cd "$(dirname "$0")"
+        pushd "$(dirname "$0")"
         info "== update pretty.nvim @ $PWD"
         git pull --rebase --force
     elif [ -d "$HOME/.nvim" ]; then
         info "== update pretty.nvim @ ~/.nvim"
-        cd "$HOME/.nvim"
+        pushd "$HOME/.nvim"
         git pull --rebase --force
     else
         for repo in "${REPO[@]}"; do
@@ -65,7 +65,7 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
             info "== clone pretty.nvim < $repo"
             git clone --depth=1 "$repo" "$HOME/.nvim" && break || true
         done
-        cd "$HOME/.nvim"
+        pushd "$HOME/.nvim"
     fi
 
     exec ./install.sh --update-core
@@ -137,27 +137,10 @@ else
     info "== Please install npm|nodejs for full features"
 fi
 
-# install symlinks
-INSTBIN=/usr/local/bin
-info "== install nvim to $INSTBIN"
-
-sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
-sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
-sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
-
 # nvim final prepare
-"$INSTBIN/nvim" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
-
-"$INSTBIN/nvim" -c 'call fruzzy#install()' +quit || true
-
-"$INSTBIN/nvim" -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
-
-if which launchctl; then
-    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
-    cp scripts/ncopyd.plist "$PLIST"
-    launchctl unload "$PLIST" 2>/dev/null || true
-    launchctl load -w "$PLIST"
-fi
+./run -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+./run -c 'call fruzzy#install()' +quit || true
+./run -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 
 trap "rm -f /tmp/$$-nvim-install.txt" EXIT
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
@@ -183,3 +166,18 @@ check_host checkmake            Makefile        || true
 check_host lua-language-server  Lua             || true
 check_host luacheck             Luacheck        || true
 check_host stylua               "Lua formatter" || true
+
+# install symlinks
+INSTBIN=/usr/local/bin
+info "== Install nvim symlinks to $INSTBIN"
+
+sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
+sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
+sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
+
+if which launchctl; then
+    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
+    cp scripts/ncopyd.plist "$PLIST"
+    launchctl unload "$PLIST" 2>/dev/null || true
+    launchctl load -w "$PLIST"
+fi
