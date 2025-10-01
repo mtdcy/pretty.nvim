@@ -21,14 +21,14 @@ let s:SEVERITY_WARNING = 2
 let s:SEVERITY_INFORMATION = 3
 let s:SEVERITY_HINT = 4
 
-" Convert Diagnostic[] data from a language server to an ALE loclist.
-function! ale#lsp#response#ReadDiagnostics(diagnostics) abort
+" Parse the message for textDocument/publishDiagnostics
+function! ale#lsp#response#ReadDiagnostics(response) abort
     let l:loclist = []
 
-    for l:diagnostic in a:diagnostics
+    for l:diagnostic in a:response.params.diagnostics
         let l:severity = get(l:diagnostic, 'severity', 0)
         let l:loclist_item = {
-        \   'text': l:diagnostic.message,
+        \   'text': substitute(l:diagnostic.message, '\(\r\n\|\n\|\r\)', ' ', 'g'),
         \   'type': 'E',
         \   'lnum': l:diagnostic.range.start.line + 1,
         \   'col': l:diagnostic.range.start.character + 1,

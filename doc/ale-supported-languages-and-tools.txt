@@ -60,8 +60,6 @@ Notes:
   * `bibclean`
 * Bicep
   * `bicep`
-* Bindzone
-  * `checkzone` (named-checkzone)
 * BitBake
   * `oelint-adv`
 * Bourne Shell
@@ -121,7 +119,6 @@ Notes:
   * `joker`
 * CloudFormation
   * `cfn-python-lint`
-  * `checkov`
 * CMake
   * `cmake-format`
   * `cmake-lint`
@@ -206,7 +203,6 @@ Notes:
   * `fish` (-n flag)
   * `fish_indent`
 * Fortran
-  * `fortitude`
   * `gcc`
   * `language_server`
 * Fountain
@@ -238,8 +234,6 @@ Notes:
   * `gotype`!!
   * `revive`!!
   * `staticcheck`!!
-* Go HTML Templates
-  * djlint
 * GraphQL
   * `eslint`
   * `gqlint`
@@ -253,7 +247,6 @@ Notes:
 * Haml
   * `haml-lint`
 * Handlebars
-  * djlint
   * `ember-template-lint`
 * Haskell
   * `brittany`
@@ -281,7 +274,6 @@ Notes:
   * `alex`
   * `angular`
   * `cspell`
-  * djlint
   * `eslint`
   * `fecs`
   * `html-beautify`
@@ -291,12 +283,6 @@ Notes:
   * `rustywind`
   * `tidy`
   * `write-good`
-* HTML Angular
-  * djlint
-* HTML Django
-  * djlint
-* HTTP
-  * kulala_fmt
 * Hurl
   * `hurlfmt`
 * Idris
@@ -334,8 +320,6 @@ Notes:
   * `standard`
   * `tsserver`
   * `xo`
-* Jinja
-  * djlint
 * JSON
   * `VSCode JSON language server`
   * `biome`
@@ -345,7 +329,6 @@ Notes:
   * `eslint`
   * `fixjson`
   * `jq`
-  * `json.tool`
   * `jsonlint`
   * `prettier`
   * `spectral`
@@ -374,8 +357,6 @@ Notes:
   * `textlint`
   * `vale`
   * `write-good`
-* Lean 4
-  * `lake`
 * Less
   * `lessc`
   * `prettier`
@@ -408,7 +389,6 @@ Notes:
   * `pandoc`
   * `prettier`
   * `proselint`
-  * `pymarkdown`
   * `redpen`
   * `remark-lint`
   * `textlint`
@@ -438,8 +418,6 @@ Notes:
   * `alex`
   * `proselint`
   * `write-good`
-* Nunjucks
-  * djlint
 * Objective-C
   * `ccls`
   * `clang`
@@ -465,7 +443,6 @@ Notes:
   * `yamllint`
 * OpenSCAD
   * `SCA2D`
-  * `scadformat`
 * Packer
   * `packer-fmt-fixer`
 * Pascal
@@ -473,7 +450,6 @@ Notes:
 * Pawn
   * `uncrustify`
 * Perl
-  * `languageserver`
   * `perl -c`
   * `perl-critic`
   * `perltidy`
@@ -548,7 +524,6 @@ Notes:
   * `pylint`!!
   * `pylsp`
   * `pyre`
-  * `pyrefly`
   * `pyright`
   * `refurb`
   * `reorder-python-imports`
@@ -579,8 +554,6 @@ Notes:
   * `cspell`
   * `opacheck`
   * `opafmt`
-* REST
-  * kulala_fmt
 * reStructuredText
   * `alex`
   * `cspell`
@@ -592,10 +565,6 @@ Notes:
   * `write-good`
 * Robot
   * `rflint`
-* Roc
-  * roc_annotate
-  * roc_format
-  * roc_language_server
 * RPM spec
   * `rpmlint`
 * Ruby
@@ -701,7 +670,6 @@ Notes:
   * `thriftcheck`
 * TOML
   * `dprint`
-  * `tombi`
 * TypeScript
   * `biome`
   * `cspell`
@@ -714,8 +682,6 @@ Notes:
   * `tslint`
   * `tsserver`
   * `typecheck`
-* Typst
-  * `typstyle`
 * V
   * `v`!!
   * `vfmt`
@@ -726,7 +692,6 @@ Notes:
   * `hdl-checker`
   * `iverilog`
   * slang
-  * `verible`
   * `verilator`
   * `vlog`
   * `xvlog`
@@ -770,13 +735,10 @@ Notes:
   * `yq`
 * YANG
   * `yang-lsp`
-* Yara
-  * `yls`
 * Zeek
   * `zeek`!!
 * Zig
   * `zigfmt`
-  * `zlint`
   * `zls`
 
 ===============================================================================

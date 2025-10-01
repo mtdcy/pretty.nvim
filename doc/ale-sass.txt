@@ -11,21 +11,16 @@ See |ale-scss-sasslint| for information about the available options.
 ===============================================================================
 stylelint                                                  *ale-sass-stylelint*
 
-                                        *ale-options.sass_stylelint_executable*
-                                              *g:ale_sass_stylelint_executable*
+g:ale_sass_stylelint_executable               *g:ale_sass_stylelint_executable*
                                               *b:ale_sass_stylelint_executable*
-sass_stylelint_executable
-g:ale_sass_stylelint_executable
   Type: |String|
   Default: `'stylelint'`
 
   See |ale-integrations-local-executables|
 
-                                        *ale-options.sass_stylelint_use_global*
-                                              *g:ale_sass_stylelint_use_global*
+
+g:ale_sass_stylelint_use_global               *g:ale_sass_stylelint_use_global*
                                               *b:ale_sass_stylelint_use_global*
-sass_stylelint_use_global
-g:ale_sass_stylelint_use_global
   Type: |String|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 

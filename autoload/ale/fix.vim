@@ -78,7 +78,7 @@ function! ale#fix#ApplyFixes(buffer, output) abort
 
             if !l:data.ignore_file_changed_errors
                 " no-custom-checks
-                echom 'The file was changed before fixing finished'
+                echoerr 'The file was changed before fixing finished'
             endif
 
             return

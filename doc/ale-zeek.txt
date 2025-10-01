@@ -10,11 +10,8 @@ Integration Information
 ===============================================================================
 zeek                                                            *ale-zeek-zeek*
 
-                                             *ale-options.zeek_zeek_executable*
-                                                   *g:ale_zeek_zeek_executable*
+g:ale_zeek_zeek_executable                         *g:ale_zeek_zeek_executable*
                                                    *b:ale_zeek_zeek_executable*
-zeek_zeek_executable
-g:ale_zeek_zeek_executable
   Type: |String|
   Default: `'zeek'`
 

@@ -22,23 +22,19 @@ better:
                                 \ let b:ale_linters = {'yaml': ['actionlint']}
 <
 
--------------------------------------------------------------------------------
 Options
-                                       *ale-options.yaml_actionlint_executable*
-                                             *g:ale_yaml_actionlint_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_actionlint_executable             *g:ale_yaml_actionlint_executable*
                                              *b:ale_yaml_actionlint_executable*
-yaml_actionlint_executable
-g:ale_yaml_actionlint_executable
   Type: |String|
   Default: `'actionlint'`
 
   This variable can be set to change the path to actionlint.
 
-                                          *ale-options.yaml_actionlint_options*
-                                                *g:ale_yaml_actionlint_options*
+g:ale_yaml_actionlint_options                   *g:ale_yaml_actionlint_options*
                                                 *b:ale_yaml_actionlint_options*
-yaml_actionlint_options
-g:ale_yaml_actionlint_options
+
   Type: |String|
   Default: `''`
 
@@ -103,23 +99,18 @@ Install spectral either globally or locally: >
   npm install @stoplight/spectral     # local
 <
 
--------------------------------------------------------------------------------
 Options
-                                         *ale-options.yaml_spectral_executable*
-                                               *g:ale_yaml_spectral_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_spectral_executable                 *g:ale_yaml_spectral_executable*
                                                *b:ale_yaml_spectral_executable*
-yaml_spectral_executable
-g:ale_yaml_spectral_executable
   Type: |String|
   Default: `'spectral'`
 
   This variable can be set to change the path to spectral.
 
-                                         *ale-options.yaml_spectral_use_global*
-                                               *g:ale_yaml_spectral_use_global*
+g:ale_yaml_spectral_use_global                 *g:ale_yaml_spectral_use_global*
                                                *b:ale_yaml_spectral_use_global*
-yaml_spectral_use_global
-g:ale_yaml_spectral_use_global
   Type: |String|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 
@@ -141,23 +132,19 @@ Install swaglint either globally or locally: >
   npm install swaglint     # local
 <
 
--------------------------------------------------------------------------------
 Options
-                                         *ale-options.yaml_swaglint_executable*
-                                               *g:ale_yaml_swaglint_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_swaglint_executable                 *g:ale_yaml_swaglint_executable*
                                                *b:ale_yaml_swaglint_executable*
-yaml_swaglint_executable
-g:ale_yaml_swaglint_executable
   Type: |String|
   Default: `'swaglint'`
 
   This variable can be set to change the path to swaglint.
 
-                                         *ale-options.yaml_swaglint_use_global*
-                                               *g:ale_yaml_swaglint_use_global*
+
+g:ale_yaml_swaglint_use_global                 *g:ale_yaml_swaglint_use_global*
                                                *b:ale_yaml_swaglint_use_global*
-yaml_swaglint_use_global
-g:ale_yaml_swaglint_use_global
   Type: |String|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 
@@ -179,58 +166,38 @@ Install yaml-language-server either globally or locally: >
   npm install yaml-language-server     # local
 
 
--------------------------------------------------------------------------------
 Options
-                                               *ale-options.yaml_ls_executable*
-                                                     *g:ale_yaml_ls_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_ls_executable                             *g:ale_yaml_ls_executable*
                                                      *b:ale_yaml_ls_executable*
-yaml_ls_executable
-g:ale_yaml_ls_executable
   Type: |String|
   Default: `'yaml-language-server'`
 
   This variable can be set to change the path to yaml-language-server.
 
-                                                   *ale-options.yaml_ls_config*
-                                                         *g:ale_yaml_ls_config*
+
+g:ale_yaml_ls_config                                     *g:ale_yaml_ls_config*
                                                          *b:ale_yaml_ls_config*
-yaml_ls_config
-g:ale_yaml_ls_config
   Type: |Dictionary|
   Default: `{}`
 
-  A Dictionary for settings to pass to the language server. For example, to
-  enable the schema store, you can do use the following in your yaml ftplugin
-  file: >
-
-  let b:ale_yaml_ls_config = {
-  \   'yaml': {
-  \       'schemaStore': {
-  \           'enable': v:true,
-  \       },
-  \   },
-  \}
-<
-  Or in Lua: >
-
-  require("ale").setup.buffer({
-      yaml_ls_config = {
-          yaml = {
-              schemaStore = {
-                  enable = true,
-              },
-          },
-      },
-  })
+  Dictionary containing configuration settings that will be passed to the
+  language server.  For example, to enable schema store: >
+      {
+    \   'yaml': {
+    \     'schemaStore': {
+    \         'enable': v:true,
+    \     },
+    \   },
+    \ }
 <
   Consult the yaml-language-server documentation for more information about
   settings.
 
-                                               *ale-options.yaml_ls_use_global*
-                                                     *g:ale_yaml_ls_use_global*
+
+g:ale_yaml_ls_use_global                             *g:ale_yaml_ls_use_global*
                                                      *b:ale_yaml_ls_use_global*
-yaml_ls_use_global
-g:ale_yaml_ls_use_global
   Type: |String|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 
@@ -251,33 +218,25 @@ Install yamlfix: >
   pip install yamlfix
 <
 
--------------------------------------------------------------------------------
 Options
-                                          *ale-options.yaml_yamlfix_executable*
-                                                *g:ale_yaml_yamlfix_executable*
+-------------------------------------------------------------------------------
+g:ale_yaml_yamlfix_executable                   *g:ale_yaml_yamlfix_executable*
                                                 *b:ale_yaml_yamlfix_executable*
-yaml_yamlfix_executable
-g:ale_yaml_yamlfix_executable
   Type: |String|
   Default: `'yamlfix'`
 
   See |ale-integrations-local-executables|
 
-                                             *ale-options.yaml_yamlfix_options*
-                                                   *g:ale_yaml_yamlfix_options*
+
+g:ale_yaml_yamlfix_options                         *g:ale_yaml_yamlfix_options*
                                                    *b:ale_yaml_yamlfix_options*
-yaml_yamlfix_options
-g:ale_yaml_yamlfix_options
   Type: |String|
   Default: `''`
 
   This variable can be set to pass extra options to yamlfix.
 
-                                          *ale-options.yaml_yamlfix_use_global*
-                                                *g:ale_yaml_yamlfix_use_global*
+g:ale_yaml_yamlfix_use_global                   *g:ale_yaml_yamlfix_use_global*
                                                 *b:ale_yaml_yamlfix_use_global*
-yaml_yamlfix_use_global
-g:ale_yaml_yamlfix_use_global
   Type: |Number|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 
@@ -290,41 +249,32 @@ yamlfmt                                                      *ale-yaml-yamlfmt*
 Website: https://github.com/google/yamlfmt
 
 
--------------------------------------------------------------------------------
 Installation
+-------------------------------------------------------------------------------
 
 Install yamlfmt:
 
   See the website.
 
-
--------------------------------------------------------------------------------
 Options
-                                          *ale-options.yaml_yamlfmt_executable*
-                                                *g:ale_yaml_yamlfmt_executable*
+-------------------------------------------------------------------------------
+g:ale_yaml_yamlfmt_executable                   *g:ale_yaml_yamlfmt_executable*
                                                 *b:ale_yaml_yamlfmt_executable*
-yaml_yamlfmt_executable
-g:ale_yaml_yamlfmt_executable
   Type: |String|
   Default: `'yamlfmt'`
 
   See |ale-integrations-local-executables|
 
-                                             *ale-options.yaml_yamlfmt_options*
-                                                   *g:ale_yaml_yamlfmt_options*
+
+g:ale_yaml_yamlfmt_options                         *g:ale_yaml_yamlfmt_options*
                                                    *b:ale_yaml_yamlfmt_options*
-yaml_yamlfmt_options
-g:ale_yaml_yamlfmt_options
   Type: |String|
   Default: `''`
 
   This variable can be set to pass extra options to yamlfmt.
 
-                                          *ale-options.yaml_yamlfmt_use_global*
-                                                *g:ale_yaml_yamlfmt_use_global*
+g:ale_yaml_yamlfmt_use_global                   *g:ale_yaml_yamlfmt_use_global*
                                                 *b:ale_yaml_yamlfmt_use_global*
-yaml_yamlfmt_use_global
-g:ale_yaml_yamlfmt_use_global
   Type: |Number|
   Default: `get(g:, 'ale_use_global_executables', 0)`
 
@@ -337,8 +287,8 @@ yamllint                                                    *ale-yaml-yamllint*
 Website: https://github.com/adrienverge/yamllint
 
 
--------------------------------------------------------------------------------
 Installation
+-------------------------------------------------------------------------------
 
 Install yamllint in your a virtualenv directory, locally, or globally: >
 
@@ -350,23 +300,19 @@ See |g:ale_virtualenv_dir_names| for configuring how ALE searches for
 virtualenv directories.
 
 
--------------------------------------------------------------------------------
 Options
-                                         *ale-options.yaml_yamllint_executable*
-                                               *g:ale_yaml_yamllint_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_yamllint_executable                 *g:ale_yaml_yamllint_executable*
                                                *b:ale_yaml_yamllint_executable*
-yaml_yamllint_executable
-g:ale_yaml_yamllint_executable
   Type: |String|
   Default: `'yamllint'`
 
   This variable can be set to change the path to yamllint.
 
-                                            *ale-options.yaml_yamllint_options*
-                                                  *g:ale_yaml_yamllint_options*
+
+g:ale_yaml_yamllint_options                       *g:ale_yaml_yamllint_options*
                                                   *b:ale_yaml_yamllint_options*
-yaml_yamllint_options
-g:ale_yaml_yamllint_options
   Type: |String|
   Default: `''`
 
@@ -379,8 +325,8 @@ gitlablint                                                  *ale-yaml-gitlablint
 Website: https://github.com/elijah-roberts/gitlab-lint
 
 
--------------------------------------------------------------------------------
 Installation
+-------------------------------------------------------------------------------
 
 Install yamllint in your a virtualenv directory, locally, or globally: >
 
@@ -401,23 +347,19 @@ applies to 'gitlab-ci.yml' files and not all yaml files:
   \}
 <
 
--------------------------------------------------------------------------------
 Options
-                                       *ale-options.yaml_gitlablint_executable*
-                                             *g:ale_yaml_gitlablint_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_gitlablint_executable               *g:ale_yaml_gitlablint_executable*
                                                *b:ale_yaml_gitlablint_executable*
-yaml_gitlablint_executable
-g:ale_yaml_gitlablint_executable
   Type: |String|
   Default: `'gll'`
 
   This variable can be set to change the path to gll.
 
-                                          *ale-options.yaml_gitlablint_options*
-                                                *g:ale_yaml_gitlablint_options*
+
+g:ale_yaml_gitlablint_options                     *g:ale_yaml_gitlablint_options*
                                                   *b:ale_yaml_gitlablint_options*
-yaml_gitlablint_options
-g:ale_yaml_gitlablint_options
   Type: |String|
   Default: `''`
 
@@ -430,41 +372,33 @@ yq                                                                  *ale-yaml-yq
 Website: https://github.com/mikefarah/yq
 
 
--------------------------------------------------------------------------------
 Installation
+-------------------------------------------------------------------------------
 
 Install yq: >
 
   wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - | tar xz && mv ${BINARY} /usr/bin/yq
 
-
--------------------------------------------------------------------------------
 Options
-                                               *ale-options.yaml_yq_executable*
-                                                     *g:ale_yaml_yq_executable*
+-------------------------------------------------------------------------------
+
+g:ale_yaml_yq_executable                               *g:ale_yaml_yq_executable*
                                                        *b:ale_yaml_yq_executable*
-yaml_yq_executable
-g:ale_yaml_yq_executable
   Type: |String|
   Default: `'yq'`
 
   This variable can be set to change the path to yq.
 
-                                                  *ale-options.yaml_yq_options*
-                                                        *g:ale_yaml_yq_options*
+
+g:ale_yaml_yq_options                                     *g:ale_yaml_yq_options*
                                                           *b:ale_yaml_yq_options*
-yaml_yq_options
-g:ale_yaml_yq_options
   Type: |String|
   Default: `''`
 
   This variable can be set to pass additional options to yq.
 
-                                                  *ale-options.yaml_yq_filters*
-                                                        *g:ale_yaml_yq_filters*
+g:ale_yaml_yq_filters                                     *g:ale_yaml_yq_filters
                                                           *b:ale_yaml_yq_filters*
-yaml_yq_filters
-g:ale_yaml_yq_filters
   Type: |String|
   Default: `'.'`
 

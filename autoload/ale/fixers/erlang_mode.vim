@@ -17,11 +17,10 @@ let s:variables = {
 \}
 
 function! ale#fixers#erlang_mode#Fix(buffer) abort
-    let l:emacs_executable =
+    let emacs_executable =
     \   ale#Var(a:buffer, 'erlang_erlang_mode_emacs_executable')
 
     let l:exprs = [
-    \   '(setq enable-local-variables :safe)',
     \   s:SetqDefault(a:buffer, s:variables),
     \   '(erlang-mode)',
     \   '(font-lock-fontify-region (point-min) (point-max))',

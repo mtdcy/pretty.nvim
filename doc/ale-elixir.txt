@@ -8,11 +8,9 @@ mix                                                            *ale-elixir-mix*
 The `mix` linter is disabled by default, as it can be too expensive to run.
 See `:help g:ale_linters`
 
-                                               *ale-options.elixir_mix_options*
-                                                     *g:ale_elixir_mix_options*
+
+g:ale_elixir_mix_options                             *g:ale_elixir_mix_options*
                                                      *b:ale_elixir_mix_options*
-elixir_mix_options
-g:ale_elixir_mix_options
   Type: |String|
   Default: `'mix'`
 
@@ -23,11 +21,8 @@ g:ale_elixir_mix_options
 ===============================================================================
 mix_format                                              *ale-elixir-mix-format*
 
-                                        *ale-options.elixir_mix_format_options*
-                                              *g:ale_elixir_mix_format_options*
+g:ale_elixir_mix_format_options               *g:ale_elixir_mix_format_options*
                                               *b:ale_elixir_mix_format_options*
-elixir_mix_format_options
-g:ale_elixir_mix_format_options
   Type: |String|
   Default: `''`
 
@@ -57,33 +52,26 @@ elixir-ls                                                *ale-elixir-elixir-ls*
 
 Elixir Language Server (https://github.com/JakeBecker/elixir-ls)
 
-                                         *ale-options.elixir_elixir_ls_release*
-                                               *g:ale_elixir_elixir_ls_release*
+g:ale_elixir_elixir_ls_release                 *g:ale_elixir_elixir_ls_release*
                                                *b:ale_elixir_elixir_ls_release*
-elixir_elixir_ls_release
-g:ale_elixir_elixir_ls_release
   Type: |String|
   Default: `'elixir-ls'`
 
   Location of the elixir-ls release directory. This directory must contain
   the language server scripts (language_server.sh and language_server.bat).
 
-                                          *ale-options.elixir_elixir_ls_config*
-                                                *g:ale_elixir_elixir_ls_config*
+g:ale_elixir_elixir_ls_config                   *g:ale_elixir_elixir_ls_config*
                                                 *b:ale_elixir_elixir_ls_config*
-elixir_elixir_ls_config
-g:ale_elixir_elixir_ls_config
   Type: |Dictionary|
   Default: `{}`
 
   Dictionary containing configuration settings that will be passed to the
   language server. For example, to disable Dialyzer: >
-
-  let g:ale_elixir_elixir_ls_config = {
-  \   'elixirLS': {
-  \       'dialyzerEnabled': v:false,
-  \   },
-  \}
+      {
+    \   'elixirLS': {
+    \     'dialyzerEnabled': v:false,
+    \   },
+    \ }
 <
   Consult the ElixirLS documentation for more information about settings.
 
@@ -93,22 +81,17 @@ credo                                                        *ale-elixir-credo*
 
 Credo (https://github.com/rrrene/credo)
 
-                                              *ale-options.elixir_credo_strict*
-                                                    *g:ale_elixir_credo_strict*
-                                                    *b:ale_elixir_credo_strict*
-elixir_credo_strict
-g:ale_elixir_credo_strict
+g:ale_elixir_credo_strict                           *g:ale_elixir_credo_strict*
+
   Type: |Integer|
   Default: `0`
 
   Tells credo to run in strict mode or suggest mode.  Set variable to 1 to
   enable --strict mode.
 
-                                         *ale-options.elixir_credo_config_file*
-                                               *g:ale_elixir_credo_config_file*
-                                               *b:ale_elixir_credo_config_file*
-elixir_credo_config_file
-g:ale_elixir_credo_config_file
+
+g:ale_elixir_credo_config_file                 *g:ale_elixir_credo_config_file*
+
   Type: |String|
   Default: `''`
 
@@ -126,11 +109,8 @@ lexical                                                    *ale-elixir-lexical*
 
 Lexical (https://github.com/lexical-lsp/lexical)
 
-                                           *ale-options.elixir_lexical_release*
-                                                 *g:ale_elixir_lexical_release*
+g:ale_elixir_lexical_release                     *g:ale_elixir_lexical_release*
                                                  *b:ale_elixir_lexical_release*
-elixir_lexical_release
-g:ale_elixir_lexical_release
   Type: |String|
   Default: `'lexical'`
 

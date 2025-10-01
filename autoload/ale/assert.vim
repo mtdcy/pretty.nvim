@@ -205,10 +205,7 @@ endfunction
 function! ale#assert#LSPLanguage(expected_language) abort
     let l:buffer = bufnr('')
     let l:linter = s:GetLinter()
-    let l:Language = l:linter.language
-    let l:language = type(l:Language) is v:t_func
-    \   ? l:Language(l:buffer)
-    \   : l:Language
+    let l:language = ale#linter#GetLanguage(l:buffer, l:linter)
 
     AssertEqual a:expected_language, l:language
 endfunction

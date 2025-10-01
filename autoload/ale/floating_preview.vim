@@ -68,8 +68,8 @@ function! s:NvimShow(lines, options) abort
 
     let [l:lines, l:width, l:height] = s:NvimPrepareWindowContent(a:lines)
 
-    call nvim_win_set_width(w:preview['id'], l:width)
-    call nvim_win_set_height(w:preview['id'], l:height)
+    call nvim_win_set_width(w:preview['id'], min([l:width, winwidth(0) / 2]))
+    call nvim_win_set_height(w:preview['id'], min([l:height, winheight(0) / 4]))
     call nvim_buf_set_lines(w:preview['buffer'], 0, -1, v:false, l:lines)
     call nvim_buf_set_option(w:preview['buffer'], 'modified', v:false)
     call nvim_buf_set_option(w:preview['buffer'], 'modifiable', v:false)
@@ -102,7 +102,8 @@ function! s:VimShow(lines, options) abort
 endfunction
 
 function! s:NvimPrepareWindowContent(lines) abort
-    let l:max_height = 10
+    " truncated with a reasonable value
+    let l:max_height = 100
 
     let l:width = max(map(copy(a:lines), 'strdisplaywidth(v:val)'))
     let l:height = min([len(a:lines), l:max_height])

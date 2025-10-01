@@ -11,7 +11,6 @@ let s:linters = {}
 " NOTE: Update the g:ale_linter_aliases documentation when modifying this.
 let s:default_ale_linter_aliases = {
 \   'Dockerfile': 'dockerfile',
-\   'bash': 'sh',
 \   'csh': 'sh',
 \   'javascriptreact': ['javascript', 'jsx'],
 \   'plaintex': 'tex',
@@ -446,4 +445,10 @@ function! ale#linter#GetAddress(buffer, linter) abort
     let l:Address = a:linter.address
 
     return type(l:Address) is v:t_func ? l:Address(a:buffer) : l:Address
+endfunction
+
+function! ale#linter#GetLanguage(buffer, linter) abort
+    let l:Language = a:linter.language
+
+    return type(l:Language) is v:t_func ? l:Language(a:buffer) : l:Language
 endfunction

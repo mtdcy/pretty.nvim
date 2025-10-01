@@ -12,10 +12,8 @@ nimcheck                                                     *ale-nim-nimcheck*
 ===============================================================================
 nimlsp                                                         *ale-nim-nimlsp*
 
-                                           *ale-options.nim_nimlsp_nim_sources*
-                                                 *g:ale_nim_nimlsp_nim_sources*
-                                                 *b:ale_nim_nimlsp_nim_sources*
-g:ale_nim_nimlsp_nim_sources
+g:nim_nimlsp_nim_sources                             *g:nim_nimlsp_nim_sources*
+
   Type: |String|
   Default: `''`
 
@@ -26,21 +24,17 @@ g:ale_nim_nimlsp_nim_sources
 ===============================================================================
 nimpretty                                                   *ale-nim-nimpretty*
 
-                                         *ale-options.nim_nimpretty_executable*
-                                               *g:ale_nim_nimpretty_executable*
+
+g:ale_nim_nimpretty_executable                 *g:ale_nim_nimpretty_executable*
                                                *b:ale_nim_nimpretty_executable*
-nim_nimpretty_executable
-g:ale_nim_nimpretty_executable
   Type: |String|
   Default: `'nimpretty'`
 
   This variable can be changed to use a different executable for nimpretty.
 
-                                            *ale-options.nim_nimpretty_options*
-                                                  *g:ale_nim_nimpretty_options*
+
+g:ale_nim_nimpretty_options                       *g:ale_nim_nimpretty_options*
                                                   *b:ale_nim_nimpretty_options*
-nim_nimpretty_options
-g:ale_nim_nimpretty_options
   Type: |String|
   Default: `'--maxLineLen:80'`
 

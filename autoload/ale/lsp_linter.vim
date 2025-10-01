@@ -23,26 +23,6 @@ function! ale#lsp_linter#SetLSPLinterMap(replacement_map) abort
     let s:lsp_linter_map = a:replacement_map
 endfunction
 
-" A map for tracking URIs for diagnostic request IDs
-if !has_key(s:, 'diagnostic_uri_map')
-    let s:diagnostic_uri_map = {}
-endif
-
-" For internal use only.
-function! ale#lsp_linter#ClearDiagnosticURIMap() abort
-    let s:diagnostic_uri_map = {}
-endfunction
-
-" For internal use only.
-function! ale#lsp_linter#GetDiagnosticURIMap() abort
-    return s:diagnostic_uri_map
-endfunction
-
-" Just for tests.
-function! ale#lsp_linter#SetDiagnosticURIMap(replacement_map) abort
-    let s:diagnostic_uri_map = a:replacement_map
-endfunction
-
 " Get all enabled LSP linters.
 " This list still includes linters ignored with `ale_linters_ignore`.
 "
@@ -97,17 +77,14 @@ function! s:ShouldIgnoreDiagnostics(buffer, linter) abort
     return 0
 endfunction
 
-" Handle LSP diagnostics for a given URI.
-" The special value 'unchanged' can be used for diagnostics to indicate
-" that diagnostics haven't changed since we last checked.
-function! ale#lsp_linter#HandleLSPDiagnostics(conn_id, uri, diagnostics) abort
+function! s:HandleLSPDiagnostics(conn_id, response) abort
     let l:linter = get(s:lsp_linter_map, a:conn_id)
 
     if empty(l:linter)
         return
     endif
 
-    let l:filename = ale#util#ToResource(a:uri)
+    let l:filename = ale#util#ToResource(a:response.params.uri)
     let l:escaped_name = escape(
     \   fnameescape(l:filename),
     \   has('win32') ? '^' : '^,}]'
@@ -123,12 +100,9 @@ function! ale#lsp_linter#HandleLSPDiagnostics(conn_id, uri, diagnostics) abort
         return
     endif
 
-    if a:diagnostics is# 'unchanged'
-        call ale#engine#MarkLinterInactive(l:info, l:linter)
-    else
-        let l:loclist = ale#lsp#response#ReadDiagnostics(a:diagnostics)
-        call ale#engine#HandleLoclist(l:linter.name, l:buffer, l:loclist, 0)
-    endif
+    let l:loclist = ale#lsp#response#ReadDiagnostics(a:response)
+
+    call ale#engine#HandleLoclist(l:linter.name, l:buffer, l:loclist, 0)
 endfunction
 
 function! s:HandleTSServerDiagnostics(response, error_type) abort
@@ -230,17 +204,7 @@ function! ale#lsp_linter#HandleLSPResponse(conn_id, response) abort
 
         call s:HandleLSPErrorMessage(l:linter, a:response)
     elseif l:method is# 'textDocument/publishDiagnostics'
-        let l:uri = a:response.params.uri
-        let l:diagnostics = a:response.params.diagnostics
-
-        call ale#lsp_linter#HandleLSPDiagnostics(a:conn_id, l:uri, l:diagnostics)
-    elseif has_key(s:diagnostic_uri_map, get(a:response, 'id'))
-        let l:uri = remove(s:diagnostic_uri_map, a:response.id)
-        let l:diagnostics = a:response.result.kind is# 'unchanged'
-        \   ? 'unchanged'
-        \   : a:response.result.items
-
-        call ale#lsp_linter#HandleLSPDiagnostics(a:conn_id, l:uri, l:diagnostics)
+        call s:HandleLSPDiagnostics(a:conn_id, a:response)
     elseif l:method is# 'window/showMessage'
         call ale#lsp_window#HandleShowMessage(
         \   s:lsp_linter_map[a:conn_id].name,
@@ -255,7 +219,7 @@ function! ale#lsp_linter#HandleLSPResponse(conn_id, response) abort
         call s:HandleTSServerDiagnostics(a:response, 'syntax')
     elseif get(a:response, 'type', '') is# 'event'
     \&& get(a:response, 'event', '') is# 'suggestionDiag'
-    \&& get(g:, 'ale_lsp_suggestions')
+    \&& get(g:, 'ale_lsp_suggestions', '1') == 1
         call s:HandleTSServerDiagnostics(a:response, 'suggestion')
     endif
 endfunction
@@ -342,10 +306,11 @@ function! ale#lsp_linter#OnInit(linter, details, Callback) abort
     let l:command = a:details.command
 
     let l:config = ale#lsp_linter#GetConfig(l:buffer, a:linter)
+    let l:language_id = ale#linter#GetLanguage(l:buffer, a:linter)
 
     call ale#lsp#UpdateConfig(l:conn_id, l:buffer, l:config)
 
-    if ale#lsp#OpenDocument(l:conn_id, l:buffer)
+    if ale#lsp#OpenDocument(l:conn_id, l:buffer, l:language_id)
         if g:ale_history_enabled && !empty(l:command)
             call ale#history#Add(l:buffer, 'started', l:conn_id, l:command)
         endif
@@ -392,21 +357,11 @@ function! s:StartLSP(options, address, executable, command) abort
     let l:init_options = ale#lsp_linter#GetOptions(l:buffer, l:linter)
 
     if l:linter.lsp is# 'socket'
-        let l:conn_id = ale#lsp#Register(
-        \   a:address,
-        \   l:root,
-        \   l:linter.language,
-        \   l:init_options
-        \)
+        let l:conn_id = ale#lsp#Register(a:address, l:root, l:init_options)
         let l:ready = ale#lsp#ConnectToAddress(l:conn_id, a:address)
         let l:command = ''
     else
-        let l:conn_id = ale#lsp#Register(
-        \   a:executable,
-        \   l:root,
-        \   l:linter.language,
-        \   l:init_options
-        \)
+        let l:conn_id = ale#lsp#Register(a:executable, l:root, l:init_options)
 
         " tsserver behaves differently, so tell the LSP API that it is tsserver.
         if l:linter.lsp is# 'tsserver'
@@ -556,33 +511,17 @@ function! s:CheckWithLSP(linter, details) abort
         if l:notified
             call ale#engine#MarkLinterActive(l:info, a:linter)
         endif
-    elseif !g:ale_use_neovim_lsp_api
+    else
         let l:notified = ale#lsp#NotifyForChanges(l:id, l:buffer)
+    endif
 
-        " If this was a file save event, also notify the server of that.
-        if getbufvar(l:buffer, 'ale_save_event_fired', 0)
-        \&& ale#lsp#HasCapability(l:id, 'did_save')
-            let l:include_text = ale#lsp#HasCapability(l:id, 'includeText')
-            let l:save_message = ale#lsp#message#DidSave(l:buffer, l:include_text)
-            let l:notified = ale#lsp#Send(l:id, l:save_message) != 0
-        endif
-
-        let l:diagnostic_request_id = 0
-
-        " If the document is updated and we can pull diagnostics, try to.
-        if ale#lsp#HasCapability(l:id, 'pull_model')
-            let l:diagnostic_message = ale#lsp#message#Diagnostic(l:buffer)
-
-            let l:diagnostic_request_id = ale#lsp#Send(l:id, l:diagnostic_message)
-        endif
-
-        " If we are going to pull diagnostics, then mark the linter as active,
-        " and remember the URI we sent the request for.
-        if l:diagnostic_request_id
-            call ale#engine#MarkLinterActive(l:info, a:linter)
-            let s:diagnostic_uri_map[l:diagnostic_request_id] =
-            \   l:diagnostic_message[2].textDocument.uri
-        endif
+    " If this was a file save event, also notify the server of that.
+    if a:linter.lsp isnot# 'tsserver'
+    \&& getbufvar(l:buffer, 'ale_save_event_fired', 0)
+    \&& ale#lsp#HasCapability(l:id, 'did_save')
+        let l:include_text = ale#lsp#HasCapability(l:id, 'includeText')
+        let l:save_message = ale#lsp#message#DidSave(l:buffer, l:include_text)
+        let l:notified = ale#lsp#Send(l:id, l:save_message) != 0
     endif
 endfunction
 
