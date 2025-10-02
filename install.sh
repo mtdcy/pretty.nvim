@@ -4,6 +4,9 @@ echo "$0 $@"
 
 set -eo pipefail
 
+# set in nvim entry when do `nvim --update'
+unset XDG_CONFIG_HOME
+
 info() { echo -e "\\033[31m$*\\033[39m"; }
 
 case "$OSTYPE" in
@@ -167,17 +170,24 @@ check_host lua-language-server  Lua             || true
 check_host luacheck             Luacheck        || true
 check_host stylua               "Lua formatter" || true
 
-# install symlinks
-INSTBIN=/usr/local/bin
-info "== Install nvim symlinks to $INSTBIN"
-
-sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
-sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
-sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
-
+# install
 if which launchctl; then
     PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
     cp scripts/ncopyd.plist "$PLIST"
     launchctl unload "$PLIST" 2>/dev/null || true
     launchctl load -w "$PLIST"
 fi
+
+if which lazygit; then
+    conf="$(lazygit -cd)"
+    if mkdir -p "$conf"; then
+        info "== install lazygit.yml => $conf/config.yml"
+        ln -sfv "$(pwd -P)/lazygit.yml" "$conf/config.yml"
+    fi
+fi
+INSTBIN=/usr/local/bin
+info "== Install nvim symlinks to $INSTBIN"
+
+sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
+sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
+sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
