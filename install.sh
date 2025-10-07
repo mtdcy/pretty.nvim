@@ -90,6 +90,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     chmod a+x cmdlets.sh
     ./cmdlets.sh fetch "${tools[@]}" || true
     find prebuilts -name "*.tar.*" -exec rm -fv {} \; || true
+    find prebuilts -type d -empty -exec rm -rfv {} \; || true
 
     [ "$1" = "--update-core" ] || exit 0
 
