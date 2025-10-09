@@ -2,6 +2,8 @@
 
 Prebuilt nvim and well-tuned plugins, plug and play ready.
 
+** We stick with nvim 0.10.4 as lightline is not compatible with newer versions **
+
 ## UI / TermUI
 
 ![ui](picture/ui.png)
