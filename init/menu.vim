@@ -123,13 +123,6 @@ if g:denite_enabled
                 \   [ 'Edit nvim ...      ', 'Denite menu:nvim  '],
                 \ ]}
 
-    let s:menus.tool = {
-                \ 'command_candidates' : [
-                \   [ 'Explorer          F9 ', 'Explorer    '],
-                \   [ 'Taglist          F10 ', 'Taglist     '],
-                \   [ 'LazyGit          F12 ', 'VCS         '],
-                \ ]}
-
     let s:menus.move = {
                 \ 'command_candidates' : [
                 \   [ 'Move to above    CTRL-k ', 'wincmd k '],
@@ -143,9 +136,11 @@ if g:denite_enabled
                 \   [ 'Finder       CTRL-o ', 'Denite -start-filter file/rec            '],
                 \   [ 'Buffer       CTRL-e ', 'Denite buffer                            '],
                 \   [ 'Search       CTRL-g ', 'Denite -start-filter grep:::!            '],
+                \   [ 'Explorer         F9 ', 'Explorer                                 '],
+                \   [ 'Taglist         F10 ', 'Taglist                                  '],
+                \   [ 'LazyGit         F12 ', 'VCS                                      '],
                 \   [ 'Edit ...            ', 'Denite menu:edit                         '],
                 \   [ 'Move ...            ', 'Denite menu:move                         '],
-                \   [ 'Tool ...            ', 'Denite menu:tool                         '],
                 \   [ 'Close        CTRL-w ', 'BufferClose                              '],
                 \   [ 'Quit                ', 'confirm quit                             '],
                 \   [ 'Help                ', 'edit ' . g:pretty_home . '/README.md     '],
