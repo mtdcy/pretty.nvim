@@ -86,6 +86,11 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
         exit 1
     }
 
+    # fruzzy_mod.so
+    if test -f prebuilts/fruzzy_mod.so; then
+        ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
+    fi
+
     _curl cmdlets.sh "${cmdlets[@]}" || {
         info "== Download cmdlets failed"
         exit 2
