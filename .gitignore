@@ -7,7 +7,8 @@
 /nvim
 package-lock.json
 /.npmrc
-/rplugin/python3/fruzzy_mod.so
 /scripts/prebuilts
 prebuilts
 cmdlets.sh
+/rplugin/python3/fruzzy_mod.so
+/rplugin/python3/fruzzy_mod_mac.so

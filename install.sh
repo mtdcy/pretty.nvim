@@ -88,7 +88,11 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
 
     # fruzzy_mod.so
     if test -f prebuilts/fruzzy_mod.so; then
-        ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
+        if [ "$(uname -s)" = "Darwin" ]; then
+            ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/fruzzy_mod_mac.so
+        else
+            ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
+        fi
     fi
 
     _curl cmdlets.sh "${cmdlets[@]}" || {
