@@ -13,8 +13,8 @@ set noequalalways
 set cmdheight=1
 
 " windows id
-let g:winids = [ win_getid(), 0, 0, 0, 0, 0 ]
-" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar, 5 - toc(right)
+let g:winids = [ win_getid(), 0, 0, 0, 0 ]
+" 1 - leftbar, 2 - headbar, 3 - footbar, 4 - rightbar
 
 " find current wmid => '-1' for unclassified
 function! s:wmid() abort
@@ -45,9 +45,9 @@ function! s:winnr2wmid(winnr) abort
 endfunction
 
 " check window parts, return filetype if it's sidebar.
-function! s:wmtype(buf) abort
+function! s:wmtype(bufnr) abort
     " bufnr can accept self as input, but winnr can't.
-    let ftype = getbufvar(bufnr(a:buf), '&ft')
+    let ftype = getbufvar(bufnr(a:bufnr), '&ft')
     " for developer: edit any file in main window
     if winnr() == s:wmwinnr(0)
         return ''
@@ -55,7 +55,7 @@ function! s:wmtype(buf) abort
         return ftype
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
-    elseif ftype ==? 'qf' || getbufvar(bufnr(a:buf), '&bt') ==? 'quickfix'
+    elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
         return 'quickfix'
     endif
     return ''
@@ -92,7 +92,7 @@ function! s:wmcreate(wmid) abort
         "let cmds = ['', ':NERDTree', 'help', 'lopen', ':TagbarOpen']
         let cmds = ['', 'Explorer', 'help', 'lopen', 'Taglist']
         exe index(cmds, a:wmid)
-        let g:winids[a:wmid] = win_getid()
+        call s:wmwinidset(a:wmid, win_getid())
         exe saved 'wincmd w'
     endif
 endfunction
@@ -107,12 +107,12 @@ function! s:wmsettle(wmid) abort
 endfunction
 
 function! s:wminfo() abort
-    echo '== wmid:' . s:wmid()
+    echom '== wmid:' . s:wmid() . '|wmtype:' . s:wmtype('%')
                 \ . '|winid:' . win_getid()
                 \ . '|winnr:' . winnr() . '#' . winnr('$')
                 \ . '|type:' . win_gettype() . '|winbufnr:' . winbufnr(0)
                 \ . '|list:' . &list . '|cpoptionprettifier#wm#' . &cpoptions
-                \ . '|buf:' . bufname('%') . '|alt:' . bufname('#') . ''
+                \ . '|bufname:' . bufname('%') . '|alt:' . bufname('#') . ''
                 \ . '|bufnr:' . bufnr('%') . '#' . bufnr('$')
                 \ . '|bufwinr:' . bufwinnr('%')
                 \ . '|ft:' . &ft . '|bt:' . &bt . '|mod:' . &mod . '|modi:'. &modifiable
@@ -121,24 +121,22 @@ endfunction
 
 function! s:wm_update() abort
     if g:wm_debug | call s:wminfo() | endif
-    let bufnr = bufnr('%')
-    let type  = s:wmtype(bufnr)
+    let type  = s:wmtype('%')
 
     " 1. sticky buffer: buffer mis-placed?
     let wmid = s:type2wmid(type)
     if s:wmid() > 0 && wmid != s:wmid()
-        "echom '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
+        echom '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
         if bufwinnr('#') > 0
-            "echom '== settle window'
+            echom '== settle window'
             call s:wmsettle(wmid)
         else
-            "echom '== move buffer'
-            call s:wmmove(bufnr)
+            echom '== move buffer'
+            call s:wmmove('%')
         endif
     endif
 
-    " 2. update winids
-    " footbar & toc are quickfix|loclist, no way to tell here.
+    " 2. update winids for side windows
     if wmid > 0
         setlocal nobuflisted
         let winid = bufwinid('%')
@@ -147,10 +145,10 @@ function! s:wm_update() abort
         if winid != s:wmwinid(wmid)
             " how to deal with the new window?
             if s:wmwinid(wmid) > 0
-                "echom '== move buffer to window ' . s:wmwinid(wmid)
+                echom '== move buffer to window ' . s:wmwinid(wmid)
                 call s:wmsettle(wmid)
             else
-                "echom '== set new window ' . winid . ' for type ' . type
+                echom '== set new window ' . winid . ' for type ' . type
                 call s:wmwinidset(wmid, winid)
                 if type ==? 'docs' || type ==? 'quickfix'
                     exe 'resize ' . g:wm_height
@@ -169,16 +167,18 @@ endfunction
 
 " clean records on window close
 function! s:wm_on_winclosed(winid) abort
+    echom "== window " . a:winid . " closed"
     let wmid = s:winid2wmid(a:winid)
     if wmid >= 0
-        call s:wmwinidset(wmid, -1)
+        call s:wmwinidset(wmid, 0)
     endif
 
     " find another main window
     if s:wmwinid(0) < 0
+        echo '== main window closed'
         let li = filter(range(1, winnr('$')), "v:val != winnr() && s:winnr2wmid(v:val) < 0")
         if len(li) > 0
-            echom '== main window closed, switch to ' . win_getid(li[0])
+            echo '== main window closed, switch to ' . win_getid(li[0])
             call s:wmwinidset(0, win_getid(li[0]))
         endif
     endif
@@ -188,14 +188,14 @@ function! s:close() abort
     if win_getid() != s:wmwinid(0)
         exe 'quit'
     else
-        echohl WarningMsg
         let bufnr = bufnr('%') " save bufnr
-        if len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) > 1
-            exe 'confirm bdelete'
+        let li = filter(range(1, bufnr('$')), 'buflisted(v:val) == 1 && v:val != ' . bufnr)
+        if len(li) > 0
+            echom "close " . bufname(bufnr) . " => " . bufname(li[0])
+            exe 'buffer ' . bufname(li[0]) . ' | bdelete ' . bufname(bufnr)
         else
-            echo "Last buffer, close it with :quit"
+            echom "Last buffer, close it with :qa"
         endif
-        echohl None
     endif
 endfunction
 
@@ -223,7 +223,7 @@ augroup WM
     autocmd BufLeave    term://* stopinsert
 augroup END
 
-if g:wm_debug | nnoremap <C-Y> :call <sid>wminfo()<cr> | endif
+"if g:wm_debug | nnoremap <C-Y> :call <sid>wminfo()<cr> | endif
 
 command! -nargs=0 BufferClose call <sid>close()
 command! -nargs=0 BufferNext  call <sid>next()
