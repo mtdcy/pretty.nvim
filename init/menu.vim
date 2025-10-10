@@ -3,9 +3,22 @@
 let g:denite_enabled = 1
 
 if g:denite_enabled
-    " Settings {{{
+    command! -nargs=0 Finder Denite -buffer-name=search -start-filter file/rec
+    command! -nargs=0 Buffer Denite -buffer-name=search -no-empty buffer
+    command! -nargs=0 Search DeniteCursorWord -buffer-name=search -no-empty grep:::!
+    command! -nargs=0 Menu   Denite menu:main
+
+    " Denite Settings {{{
     " FIXME: close after lose focus
     function! s:denite_ready() abort
+        " line numbers for selection
+        if bufname('%') =~? 'search$'
+            setlocal number
+        else
+            setlocal number&
+        endif
+
+        " kep mappings
         nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
         nnoremap <silent><buffer><expr> <space> denite#do_map('toggle_select').'j'      " select and move down
 	    nnoremap <silent><buffer><expr> p       denite#do_map('do_action', 'preview')   " preview
@@ -23,6 +36,17 @@ if g:denite_enabled
         nnoremap <silent><buffer><expr> A       denite#do_map('quit').'A'
         nnoremap <silent><buffer><expr> u       denite#do_map('quit').'u'
         nnoremap <silent><buffer><expr> U       denite#do_map('quit').'U'
+
+        " select by numbers
+        nnoremap <silent><buffer><expr> 1       '1G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 2       '2G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 3       '3G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 4       '4G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 5       '5G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 6       '6G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 7       '7G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 8       '8G'.denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> 9       '9G'.denite#do_map('do_action')
     endfunction
 
     function! s:denite_filter() abort
@@ -106,51 +130,46 @@ if g:denite_enabled
     let g:fruzzy#sortonempty = 1
     " }}}
 
-    " Menu {{{
+    " Denite Menu {{{
     let s:menus = {}
 
     let s:menus.nvim = {
                 \ 'command_candidates' : [
-                \   [ 'init.vim',       'edit ' . $MYVIMRC ],
-                \   [ 'init/...',       'Denite -path=' . g:pretty_home . '/init file/rec' ],
+                \   [ '1. init.vim                  ', 'edit ' . $MYVIMRC                    ],
+                \   [ '2. init/...                  ', 'Denite -path=' . g:pretty_home . '/init file/rec' ],
                 \ ]}
 
     let s:menus.edit = {
                 \ 'command_candidates' : [
-                \   [ 'Undo             u ', 'undo              '],
-                \   [ 'Redo             U ', 'redo              '],
-                \   [ 'Format code        ', 'ALEFix            '],
-                \   [ 'Edit nvim ...      ', 'Denite menu:nvim  '],
+                \   [ '1. Undo               u  ', 'undo                                    '],
+                \   [ '2. Redo               U  ', 'redo                                    '],
+                \   [ '3. Format code           ', 'ALEFix                                  '],
+                \   [ '4. Edit nvim ...         ', 'Denite menu:nvim                        '],
                 \ ]}
 
     let s:menus.move = {
                 \ 'command_candidates' : [
-                \   [ 'Move to above    CTRL-k ', 'wincmd k '],
-                \   [ 'Move to below    CTRL-j ', 'wincmd j '],
-                \   [ 'Move to left     CTRL-h ', 'wincmd h '],
-                \   [ 'Move to right    CTRL-l ', 'wincmd l '],
+                \   [ '1. Move above    CTRL-k  ', 'wincmd k                                '],
+                \   [ '2. Move below    CTRL-j  ', 'wincmd j                                '],
+                \   [ '3. Move left     CTRL-h  ', 'wincmd h                                '],
+                \   [ '4. Move right    CTRL-l  ', 'wincmd l                                '],
                 \ ]}
 
     let s:menus.main = {
                 \ 'command_candidates' : [
-                \   [ 'Finder       CTRL-o ', 'Denite -start-filter file/rec            '],
-                \   [ 'Buffer       CTRL-e ', 'Denite buffer                            '],
-                \   [ 'Search       CTRL-g ', 'Denite -start-filter grep:::!            '],
-                \   [ 'Explorer         F9 ', 'Explorer                                 '],
-                \   [ 'Taglist         F10 ', 'Taglist                                  '],
-                \   [ 'LazyGit         F12 ', 'VCS                                      '],
-                \   [ 'Edit ...            ', 'Denite menu:edit                         '],
-                \   [ 'Move ...            ', 'Denite menu:move                         '],
-                \   [ 'Close        CTRL-w ', 'BufferClose                              '],
-                \   [ 'Quit                ', 'confirm quit                             '],
-                \   [ 'Help                ', 'edit ' . g:pretty_home . '/README.md     '],
+                \   [ '1. Finder        CTRL-o  ', 'Finder                                  '],
+                \   [ '2. Buffer        CTRL-e  ', 'Buffer                                  '],
+                \   [ '3. Search        CTRL-g  ', 'Denite -start-filter grep:::!           '],
+                \   [ '4. Edit ...              ', 'Denite menu:edit                        '],
+                \   [ '5. Move ...              ', 'Denite menu:move                        '],
+                \   [ '6. Explorer          F9  ', 'Explorer                                '],
+                \   [ '7. Taglist          F10  ', 'Taglist                                 '],
+                \   [ '8. LazyGit          F12  ', 'VCS                                     '],
+                \   [ '9. Close         CTRL-w  ', 'BufferClose                             '],
+                \   [ 'Quit                     ', 'confirm quit                            '],
+                \   [ 'Help                     ', 'edit ' . g:pretty_home . '/README.md    '],
                 \ ]}
 
     call denite#custom#var('menu', 'menus', s:menus)
     " }}}
-
-    command! -nargs=0 Finder Denite -start-filter file/rec
-    command! -nargs=0 Buffer Denite -no-empty buffer
-    command! -nargs=0 Search DeniteCursorWord -no-empty grep:::!
-    command! -nargs=0 Menu   Denite menu:main
 endif
