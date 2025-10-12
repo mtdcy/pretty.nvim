@@ -49,6 +49,7 @@ git:
   paging:
     colorArg: always
     useConfig: false
+    pager: 'delta --paging=never --color-only'
   commit:
     signOff: false
     autoWrapCommitMessage: false
@@ -83,10 +84,8 @@ keybinding:
     nextBlock-alt: ''                       #  # goto the next block / panel
     prevItem-alt: 'k'                       #  # go one line up
     nextItem-alt: 'j'                       #  # go one line down
-    nextTab: 'l'
-    prevTab: 'h'
-    nextTab-alt: '['
-    prevTab-alt: ']'
+    nextTab: ']'
+    prevTab: '['
     prevPage: '<pgup>'                      # ','  # go to next page in list
     nextPage: '<pgdown>'                    # '.'  # go to previous page in list
     gotoTop: '<home>'                       # '<'  # go to top of list
