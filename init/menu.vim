@@ -210,15 +210,15 @@ inoremap <F12>      <C-o>:VCS<cr>
 
 nnoremap <Enter>    :Menu<cr>
 " buffer explorer
-nnoremap <leader>be :Buffer<cr>
+"nnoremap <leader>be :Buffer<cr>
 nnoremap <C-e>      :Buffer<cr>
 inoremap <C-e>      <C-o>:Buffer<cr>
 " buffer open
-nnoremap <leader>bo :Finder<cr>
+"nnoremap <leader>bo :Finder<cr>
 nnoremap <C-o>      :Finder<cr>
 inoremap <C-o>      <C-o>:Finder<cr>
 " buffer grep
-nnoremap <leader>bg :Search<cr>
+"nnoremap <leader>bg :Search<cr>
 nnoremap <C-g>      :Search<cr>
 inoremap <C-g>      <C-o>:Search<cr>
 
