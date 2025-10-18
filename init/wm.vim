@@ -191,8 +191,9 @@ function! s:close() abort
         let bufnr = bufnr('%') " save bufnr
         let li = filter(range(1, bufnr('$')), 'buflisted(v:val) == 1 && v:val != ' . bufnr)
         if len(li) > 0
-            echom "close " . bufname(bufnr) . " => " . bufname(li[0])
-            exe 'buffer ' . bufname(li[0]) . ' | bdelete ' . bufname(bufnr)
+            " switch to previous buffer and delete current one
+            echom "close " . bufname(bufnr)
+            exe 'bprev | bdelete ' . bufname(bufnr)
         else
             echom "Last buffer, close it with :qa"
         endif
