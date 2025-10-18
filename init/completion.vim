@@ -113,12 +113,12 @@ if g:ale_enabled
                     \ |  let b:ale_yaml_yamlfix_options = s:find_lintrc('--env-prefix "YAMLFIX_" -c ', 'yamlfix.toml;.yamlfix.toml;pyproject.toml', 'lintrc/yamlfix.toml')
                     \ | endif
         " sh
-        autocmd FileType sh
-                    \ if CheckExecutable('shfmt', 'shell script format')
-                    \ |  call s:apply_default_fixers(['shfmt'])
-                    \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
-                    \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent --indent'
-                    \ | endif
+        "autocmd FileType sh
+        "            \ if CheckExecutable('shfmt', 'shell script format')
+        "            \ |  call s:apply_default_fixers(['shfmt'])
+        "            \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
+        "            \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent --indent'
+        "            \ | endif
         " rustfmt
         autocmd FileType rust
                     \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
@@ -134,6 +134,7 @@ if g:ale_enabled
     let g:ale_lsp_suggestions = 1
     let g:ale_lsp_show_message_format = '%linter%:: %severity%: %s'
     let g:ale_linters = {
+                \ 'sh'          : ['shellcheck'],
                 \ 'vim'         : ['vimls'],
                 \ 'python'      : ['jedils'],
                 \ 'c'           : ['cc'],
@@ -224,13 +225,11 @@ if g:ale_enabled
         autocmd FileType go
                     \ let b:ale_go_gofmt_options = '-s'
 
-        " shell
-        "  => bash-language-server is very slow
-        "  => shellcheck leaks memories on Apple Silicon
+        " shell => bash-language-server is very slow
         autocmd FileType sh
                     \ if s:apply_linters_conditional(".bashls", 'language_server', 0)
                     \ |  let b:ale_sh_language_server_executable = FindExecutable('bash-language-server')
-                    \ | elseif s:apply_linters_conditional(".shellcheck", 'shellcheck', 0)
+                    \ | else
                     \ |  let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck')
                     \ |  let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
                     \ | endif
