@@ -61,7 +61,7 @@ git:
     showGraph: 'always'                     # Deprecated: Configure this with `Log menu -> Show git graph` (<c-l> in the commits window by default).  #
     showWholeGraph: true                    # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)  #
 
-# don't delete keybinding lines, bind to '' instead.
+# lower case for local, upper case for remote
 keybinding:
   universal:
     jumpToBlock:  # goto the Nth block / panel
@@ -164,7 +164,8 @@ keybinding:
     ## branches  ##
     checkoutBranchByName: 'c'               # 'c'  # normal checkout = universal:select <space>
     renameBranch: 'e'                       # 'R'  # => universal:edit
-    mergeIntoCurrentBranch: 'M'             # 'M'  #
+    mergeIntoCurrentBranch: 'm'             # 'M'  #
+    rebaseBranch: 'r'                       # 'r'  # rebase current branch to the selected
 
     ## remote  ##
     fetchRemote: 'f'                        # 'f'  # fetch @ remote tab
@@ -176,7 +177,6 @@ keybinding:
 
     ## disabled actions  ##
     forceCheckoutBranch: ''                 # 'F'  #
-    rebaseBranch: ''                        # 'r'  #
     fastForward: ''                         # 'f'  # fast-forward @ branch tab
     createPullRequest: ''                   # 'o'  #
     viewPullRequestOptions: ''              # 'O'  #
