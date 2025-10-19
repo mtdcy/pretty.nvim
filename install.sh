@@ -31,7 +31,7 @@ cmdlets=(
     https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
-tools=( lazygit ctags ripgrep checkmake shfmt )
+tools=( lazygit ctags rg checkmake shfmt )
 
 MIRRORS=https://mirrors.mtdcy.top
 
@@ -88,11 +88,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
 
     # fruzzy_mod.so
     if test -f prebuilts/fruzzy_mod.so; then
-        if [ "$(uname -s)" = "Darwin" ]; then
-            ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/fruzzy_mod_mac.so
-        else
-            ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
-        fi
+        ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
     fi
 
     _curl cmdlets.sh "${cmdlets[@]}" || {
@@ -185,6 +181,12 @@ if which launchctl; then
     cp scripts/ncopyd.plist "$PLIST"
     launchctl unload "$PLIST" 2>/dev/null || true
     launchctl load -w "$PLIST"
+fi
+
+if which git; then
+    info "== install ~/.gitconfig"
+    mv ~/.gitconfig ~/.gitconfig-old || true
+    cp -f gitconfig ~/.gitconfig
 fi
 
 if which lazygit; then
