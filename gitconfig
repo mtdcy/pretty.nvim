@@ -1,0 +1,38 @@
+[core]
+    pager = less -F -X
+    editor = nvim
+    autocrlf = false
+    mergeoptions = --no-edit
+    excludesfile = *.swp
+[pull]
+    rebase = true
+[push]
+    default = simple
+[diff]
+    tool = nvimdiff
+[mergetool]
+    prompt = false
+[merge]
+    ff = no
+    tool = nvimdiff
+    conflictstyle = diff3
+[alias]
+    pl = pull --rebase --recurse-submodules
+    st = status
+    co = checkout
+    ci = commit
+    br = branch
+    cp = cherry-pick --no-ff -x
+    lg1 = log --color --name-status --parents -n 1
+    lg  = log --color --graph --oneline --decorate
+    lga = log --color --graph --oneline --decorate --all
+    lgf = log --color --graph --oneline --decorate --reflog
+    #lg = log --color=always --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %ci)' --decorate
+    #lga = log --color --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %cr)' --decorate
+[safe]
+    directory = *
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
