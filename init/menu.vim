@@ -81,7 +81,7 @@ if g:denite_enabled
     " floating preview is not well defined
     call denite#custom#option('_', {
                 \   'max_dynamic_update_candidates' : 100000,
-                \   'split'                         : 'floating',
+                \   'split'                         : 'floating_relative_window',
                 \   'floating_border'               : 'rounded',
                 \   'floating_preview'              : 0,
                 \   'match_highlight'               : 0,
