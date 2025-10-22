@@ -3,20 +3,42 @@
 let g:denite_enabled = 1
 
 if g:denite_enabled
-    command! -nargs=0 Finder Denite -buffer-name=search -start-filter file/rec
-    command! -nargs=0 Buffer Denite -buffer-name=search -no-empty buffer
-    command! -nargs=0 Search DeniteCursorWord -buffer-name=search -no-empty grep:::!
-    command! -nargs=0 Menu   Denite menu:main
+    command! -nargs=0 Finder Denite -start-filter file/rec
+    command! -nargs=0 Buffer Denite -no-empty buffer
+
+    command! -nargs=0 DeniteSearch call s:denite_search()
+    function! s:denite_search() abort
+        if expand("<cword>") !=# ''
+            exe 'DeniteCursorWord -buffer-name=search grep:::!'
+        else
+            exe 'Denite -resume -buffer-name=search -start-filter grep:::!'
+        endif
+    endfunction
+
+    command! -nargs=0 DeniteSearchResume call s:denite_search_resume()
+    function! s:denite_search_resume() abort
+        if bufnr('search') >= 0
+            exe 'Denite -resume -buffer-name=search -start-filter grep:::!'
+        else
+            exe 'Denite -buffer-name=search -start-filter grep:::!'
+        endif
+    endfunction
+
+    command! -nargs=1 DeniteMenu call s:denite_menu(<q-args>)
+    function! s:denite_menu(menu) abort
+        exe 'Denite -buffer-name=menu ' . a:menu
+    endfunction
 
     " Denite Settings {{{
     " FIXME: close after lose focus
     function! s:denite_ready() abort
         " line numbers for selection
-        if bufname('%') =~? 'search$'
-            setlocal number
-        else
+        if bufname('%') =~? 'menu$'
             setlocal number&
+        else
+            setlocal number
         endif
+        setlocal signcolumn=no
 
         " kep mappings
         nnoremap <silent><buffer><expr> <cr>    denite#do_map('do_action')
@@ -81,12 +103,17 @@ if g:denite_enabled
     " floating preview is not well defined
     call denite#custom#option('_', {
                 \   'max_dynamic_update_candidates' : 100000,
-                \   'split'                         : 'floating_relative_window',
+                \   'split'                         : 'floating',
                 \   'floating_border'               : 'rounded',
                 \   'floating_preview'              : 0,
                 \   'match_highlight'               : 0,
-                \   'smartcase'                     : 0,
+                \   'filter_split_direction'        : 'floating',
+                \   'prompt'                        : '>',
+                \   'unique'                        : 1,
+                \   'smartcase'                     : 1,
                 \   'auto_resize'                   : 1,
+                \   'winminheight'                  : 3,
+                \   'statusline'                    : 1,
                 \ })
 
     " fruzzy is much faster than fuzzy
@@ -149,7 +176,7 @@ if g:denite_enabled
                 \   [ '1. Undo               u  ', 'undo                                    '],
                 \   [ '2. Redo               U  ', 'redo                                    '],
                 \   [ '3. Format code           ', 'ALEFix                                  '],
-                \   [ '4. Edit nvim ...         ', 'Denite menu:nvim                        '],
+                \   [ '4. Edit nvim ...         ', 'DeniteMenu menu:nvim                    '],
                 \ ]}
 
     let s:menus.move = {
@@ -164,9 +191,9 @@ if g:denite_enabled
                 \ 'command_candidates' : [
                 \   [ '1. Finder        CTRL-o  ', 'Finder                                  '],
                 \   [ '2. Buffer        CTRL-e  ', 'Buffer                                  '],
-                \   [ '3. Search        CTRL-g  ', 'Denite -start-filter grep:::!           '],
-                \   [ '4. Edit ...              ', 'Denite menu:edit                        '],
-                \   [ '5. Move ...              ', 'Denite menu:move                        '],
+                \   [ '3. Search        CTRL-g  ', 'DeniteSearchResume                      '],
+                \   [ '4. Edit ...              ', 'DeniteMenu menu:edit                    '],
+                \   [ '5. Move ...              ', 'DeniteMenu menu:move                    '],
                 \   [ '6. Explorer          F9  ', 'Explorer                                '],
                 \   [ '7. Taglist          F10  ', 'Taglist                                 '],
                 \   [ '8. LazyGit          F12  ', 'VCS                                     '],
@@ -208,7 +235,7 @@ inoremap <F10>      <C-o>:TaglistFocus<cr>
 nnoremap <F12>      :VCS<cr>
 inoremap <F12>      <C-o>:VCS<cr>
 
-nnoremap <Enter>    :Menu<cr>
+nnoremap <Enter>    :DeniteMenu menu:main<cr>
 " buffer explorer
 "nnoremap <leader>be :Buffer<cr>
 nnoremap <C-e>      :Buffer<cr>
@@ -219,8 +246,8 @@ nnoremap <C-o>      :Finder<cr>
 inoremap <C-o>      <C-o>:Finder<cr>
 " buffer grep
 "nnoremap <leader>bg :Search<cr>
-nnoremap <C-g>      :Search<cr>
-inoremap <C-g>      <C-o>:Search<cr>
+nnoremap <C-g>      :DeniteSearch<cr>
+inoremap <C-g>      <C-o>:DeniteSearch<cr>
 
 nnoremap <C-n>      :BufferNext<cr>
 inoremap <C-n>      <C-o>:BufferNext<cr>
