@@ -31,7 +31,7 @@ cmdlets=(
     https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
-tools=( lazygit ctags rg checkmake shfmt )
+tools=( lazygit ctags rg checkmake shfmt delta )
 
 MIRRORS=https://mirrors.mtdcy.top
 
