@@ -1,5 +1,5 @@
 [core]
-    pager = less -F -X
+	pager = delta
     editor = nvim
     autocrlf = false
     mergeoptions = --no-edit
@@ -15,7 +15,7 @@
 [merge]
     ff = no
     tool = nvimdiff
-    conflictstyle = diff3
+	conflictStyle = zdiff3
 [alias]
     pl = pull --rebase --recurse-submodules
     st = status
@@ -36,3 +36,10 @@
     smudge = git-lfs smudge -- %f
     process = git-lfs filter-process
     required = true
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+[credential]
+	helper = osxkeychain
