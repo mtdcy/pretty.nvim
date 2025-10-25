@@ -230,9 +230,10 @@ if g:ale_enabled
                     \ if s:apply_linters_conditional(".bashls", 'language_server', 0)
                     \ |  let b:ale_sh_language_server_executable = FindExecutable('bash-language-server')
                     \ | else
-                    \ |  let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck')
                     \ |  let b:ale_sh_shellcheck_options = s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
                     \ | endif
+                    " no local shellcheck executable
+                    "\ |  let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck')
 
         " Dockerfiles:
         autocmd FileType dockerfile
