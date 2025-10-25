@@ -17,7 +17,7 @@ if g:nerdtree_enabled
     let g:NERDTreeRespectWildIgnore = 1
     let g:NERDTreeWinSize = min([30, winwidth(0) / 4])
     let g:NERDTreeMinimalUI = 1
-    let g:NERDTreeMinimalMenu=1
+    let g:NERDTreeMinimalMenu=0
     let g:NERDTreeAutoDeleteBuffer=1 " drop invalid buffer after rename or delete
     let g:nerdtreedirarrowcollapsible=''
     let g:nerdtreedirarrowexpandable=''
