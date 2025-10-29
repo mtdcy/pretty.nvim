@@ -179,7 +179,7 @@ if g:ale_enabled
         for i in split(a:targets, ';')
             let l:config = findfile(i, '.;')
             if config !=# ''
-                return a:prefix . fnamemodify('.', ':p') . config
+                return a:prefix . config
             endif
         endfor
         return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
