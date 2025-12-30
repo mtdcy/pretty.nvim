@@ -18,7 +18,7 @@ if g:denite_enabled
     command! -nargs=0 DeniteSearchResume call s:denite_search_resume()
     function! s:denite_search_resume() abort
         if bufnr('search') >= 0
-            exe 'Denite -resume -buffer-name=search -start-filter grep:::!'
+            exe 'Denite -resume -buffer-name=search grep:::!'
         else
             exe 'Denite -buffer-name=search -start-filter grep:::!'
         endif

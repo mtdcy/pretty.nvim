@@ -122,7 +122,7 @@ keybinding:
     scrollUpMain-alt1: ''                   # 'K'       # main panel scroll up  #
     scrollDownMain-alt1: ''                 # 'J'       # main panel scroll down  #
 
-    openFile: ''                            # 'o'       #  #
+    openFile: 'o'                           # 'o'       #  #
     createRebaseOptionsMenu: ''             # 'm'       #  #
     createPatchOptionsMenu: ''              # '<c-p>'   #  #
     filteringMenu: ''                       # '<c-s>'   #  #
