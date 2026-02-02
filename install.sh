@@ -102,6 +102,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
 
     [ "$1" = "--update-core" ] || exit 0
 
+    rm -rf "$temp" # exec ignores trap
     exec "$0" --no-update
 fi
 
