@@ -28,6 +28,12 @@ gui:
     selectedLineBgColor:
       - reverse
 
+customCommands:
+  - key: 'p'
+    context: 'global'
+    command: 'git pull --rebase && git fetch --tags --force'
+    loadingText: 'Pull and rebase and fetching tags'
+
 git:
   mainBranches:
     - main
@@ -95,7 +101,7 @@ keybinding:
     select: '<space>'
     goInto: '<enter>'
     confirm: '<enter>'
-    pullFiles: 'p'                          #  # pull rebase
+    pullFiles: ''                           #  # pull rebase
     pushFiles: 'P'                          #  # Push (force)
     submitEditorText: '<enter>'
     remove: 'd'                             #  # Delete
