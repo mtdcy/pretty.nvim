@@ -130,7 +130,7 @@ else
     pip install -i "$MIRRORS/pypi/simple" -U pip # update before install modules
     pip install -i "$MIRRORS/pypi/simple" -r requirements.txt
 fi
-pip cache purge
+pip cache purge || true
 
 # pip install <package>
 # save with 'pip freeze > requirements.txt' in venv
