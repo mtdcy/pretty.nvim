@@ -4,20 +4,33 @@
 
 WORKDIR="$(readlink -f "$0" | xargs dirname)"
 
+NVIM="$WORKDIR/prebuilts/nvim"
+
 export XDG_CONFIG_HOME="$WORKDIR"
 
 # hack: nvim config => $XDG_CONFIG_HOME/nvim
 [ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
 
 case "$1" in
+    --update-plugins)
+        exec "$NVIM" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+        ;;
     --update*)
         cd "$WORKDIR" && exec ./install.sh "$@"
         ;;
     --help|-h)
-        "$WORKDIR/prebuilts/nvim" --help
-        echo -e "\n---\nTry update pretty.nvim with \`nvim --update'"
+        "$NVIM" --help
+
+        cat <<EOF
+
+---
+Extend Options:
+    --update                update pretty.nvim
+    --update-core           update nvim binaries
+    --update-plugins        update plugins' cache
+EOF
         exit
         ;;
 esac
 
-exec "$WORKDIR/prebuilts/nvim" "$@"
+exec "$NVIM" "$@"
