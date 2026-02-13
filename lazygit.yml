@@ -5,22 +5,20 @@ promptToReturnFromSubprocess: false
 disableStartupPopups: true
 
 gui:
-  border: 'rounded'                 # one of 'single' | 'double' | 'rounded' | 'hidden'  #
-  screenMode: 'normal'              # one of 'normal' | 'half' | 'full' default is 'normal'  #
-  mainPanelSplitMode: 'flexible'    # one of 'horizontal' | 'flexible' | 'vertical'  #
-  enlargedSideViewLocation: 'left'  # one of 'left' | 'top'  #
+  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'  #
+  screenMode: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'  #
+  mainPanelSplitMode: 'flexible' # one of 'horizontal' | 'flexible' | 'vertical'  #
+  enlargedSideViewLocation: 'left' # one of 'left' | 'top'  #
   nerdFontsVersion: 3
   showFileIcons: true
   showPanelJumps: true
   scrollOffMargin: 2
-  scrollOffBehavior: margin         # One of: 'margin' (default) | 'jump'  #
-
+  scrollOffBehavior: margin # One of: 'margin' (default) | 'jump'  #
   # show commit hashes alongside branch names in the branches view.
   showBranchCommitHash: false
   # Whether to show the divergence from the base branch in the branches view.
   # One of: 'none' | 'onlyArrow'  | 'arrowAndNumber'
   showDivergenceFromBaseBranch: 'arrowAndNumber'
-
   theme:
     activeBorderColor:
       - red
@@ -31,7 +29,7 @@ gui:
 customCommands:
   - key: 'p'
     context: 'global'
-    command: 'git pull --rebase && git fetch --tags --force'
+    command: 'git pull --rebase && git fetch --prune --tags'
     loadingText: 'Pull and rebase and fetching tags'
 
 git:
@@ -50,7 +48,6 @@ git:
   parseEmoji: true
   overrideGpg: false  # prevents lazygit from spawning a separate process when using GPG
   branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
-  allBranchesLogCmd: 'git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline'
   externalDiffCommand: 'nvim -d'
   paging:
     colorArg: always
@@ -60,12 +57,14 @@ git:
     signOff: false
     autoWrapCommitMessage: false
   merging:
-    manualCommit: false                     # only applicable to unix users  #
-    args: '--no-ff --no-edit'               # extra args passed to `git merge`, e.g. --no-ff  #
+    manualCommit: false # only applicable to unix users  #
+    args: '--no-ff --no-edit' # extra args passed to `git merge`, e.g. --no-ff  #
     squashMergeMessage: 'Squash merge {{selectedRef}} into {{currentBranch}}'
   log:
-    showGraph: 'always'                     # Deprecated: Configure this with `Log menu -> Show git graph` (<c-l> in the commits window by default).  #
-    showWholeGraph: true                    # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)  #
+    showGraph: 'always' # Deprecated: Configure this with `Log menu -> Show git graph` (<c-l> in the commits window by default).  #
+    showWholeGraph: true # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)  #
+  allBranchesLogCmds:
+    - git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline
 
 # lower case for local, upper case for remote
 keybinding:
@@ -76,35 +75,34 @@ keybinding:
       - '2'
       - '3'
       - '4'
-    quit: 'Q'                               #  # use return instead
-    quit-alt1: ''                           #  # alternative/alias of quit
-    return: '<esc>'                         #  # return to previous menu, will quit if there's nowhere to return
-    prevItem: '<up>'                        #  # go one line up
-    nextItem: '<down>'                      #  # go one line down
-
+    quit: 'Q' #  # use return instead
+    quit-alt1: '' #  # alternative/alias of quit
+    return: '<esc>' #  # return to previous menu, will quit if there's nowhere to return
+    prevItem: '<up>' #  # go one line up
+    nextItem: '<down>' #  # go one line down
     # panel & tab  #
-    togglePanel: '<tab>'                    #  # goto the next panel
-    prevBlock: 'h'                          #  # goto the previous block / panel
-    nextBlock: 'l'                          #  # goto the next block / panel
-    prevBlock-alt: ''                       #  # goto the previous block / panel
-    nextBlock-alt: ''                       #  # goto the next block / panel
-    prevItem-alt: 'k'                       #  # go one line up
-    nextItem-alt: 'j'                       #  # go one line down
+    togglePanel: '<tab>' #  # goto the next panel
+    prevBlock: 'h' #  # goto the previous block / panel
+    nextBlock: 'l' #  # goto the next block / panel
+    prevBlock-alt: '' #  # goto the previous block / panel
+    nextBlock-alt: '' #  # goto the next block / panel
+    prevItem-alt: 'k' #  # go one line up
+    nextItem-alt: 'j' #  # go one line down
     nextTab: ']'
     prevTab: '['
-    prevPage: '<pgup>'                      # ','  # go to next page in list
-    nextPage: '<pgdown>'                    # '.'  # go to previous page in list
-    gotoTop: '<home>'                       # '<'  # go to top of list
-    gotoBottom: '<end>'                     # '>'  # go to bottom of list
-    optionMenu: '?'                         #  # show help menu
+    prevPage: '<pgup>' # ','  # go to next page in list
+    nextPage: '<pgdown>' # '.'  # go to previous page in list
+    gotoTop: '<home>' # '<'  # go to top of list
+    gotoBottom: '<end>' # '>'  # go to bottom of list
+    optionMenu: '?' #  # show help menu
     extrasMenu: '@'
     select: '<space>'
     goInto: '<enter>'
     confirm: '<enter>'
-    pullFiles: ''                           #  # pull rebase
-    pushFiles: 'P'                          #  # Push (force)
+    pullFiles: '' #  # pull rebase
+    pushFiles: 'P' #  # Push (force)
     submitEditorText: '<enter>'
-    remove: 'd'                             #  # Delete
+    remove: 'd' #  # Delete
     new: 'n'
     edit: 'e'
     undo: 'u'
@@ -118,128 +116,109 @@ keybinding:
     # screen mode  #
     nextScreenMode: '\'
     prevScreenMode: 'q'
-
     ## disable actions  ##
-    scrollLeft: ''                          # 'H'       # scroll left within list view  #
-    scrollRight: ''                         # 'L'       # scroll right within list view  #
-    copyToClipboard: ''                     # '<c-o>'   #  #
-    scrollUpMain: ''                        # '<pgup>'  # main panel scroll up  #
-    scrollDownMain: ''                      # '<pgdown>'# main panel scroll down  #
-    scrollUpMain-alt1: ''                   # 'K'       # main panel scroll up  #
-    scrollDownMain-alt1: ''                 # 'J'       # main panel scroll down  #
-
-    openFile: 'o'                           # 'o'       #  #
-    createRebaseOptionsMenu: ''             # 'm'       #  #
-    createPatchOptionsMenu: ''              # '<c-p>'   #  #
-    filteringMenu: ''                       # '<c-s>'   #  #
-    diffingMenu: ''                         # 'W'  #
-    diffingMenu-alt: ''                     # '<c-e>'   #  # deprecated
-    rangeSelectUp: ''                       # '<s-up>'  #  #
-    rangeSelectDown: ''                     # '<s-down>'#  #
+    scrollLeft: '' # 'H'       # scroll left within list view  #
+    scrollRight: '' # 'L'       # scroll right within list view  #
+    copyToClipboard: '' # '<c-o>'   #  #
+    scrollUpMain: '' # '<pgup>'  # main panel scroll up  #
+    scrollDownMain: '' # '<pgdown>'# main panel scroll down  #
+    scrollUpMain-alt1: '' # 'K'       # main panel scroll up  #
+    scrollDownMain-alt1: '' # 'J'       # main panel scroll down  #
+    openFile: 'o' # 'o'       #  #
+    createRebaseOptionsMenu: '' # 'm'       #  #
+    createPatchOptionsMenu: '' # '<c-p>'   #  #
+    filteringMenu: '' # '<c-s>'   #  #
+    diffingMenu: '' # 'W'  #
+    diffingMenu-alt: '' # '<c-e>'   #  # deprecated
+    rangeSelectUp: '' # '<s-up>'  #  #
+    rangeSelectDown: '' # '<s-down>'#  #
     increaseContextInDiffView: '}'
     decreaseContextInDiffView: '{'
-    toggleWhitespaceInDiffView: ''          # '<c-w>'   #  #
-    quitWithoutChangingDirectory: ''        # 'Q'       #  #
-
+    toggleWhitespaceInDiffView: '' # '<c-w>'   #  #
+    quitWithoutChangingDirectory: '' # 'Q'       #  #
   status:
-    checkForUpdate: ''                      # 'u'       #  #
-    recentRepos: ''                         # '<enter>' #  #
-
+    checkForUpdate: '' # 'u'       #  #
+    recentRepos: '' # '<enter>' #  #
   files:
     ### files: commit & amend is enough.  ###
-    ignoreFile: 'i'                         # 'i'       # ignore file  #
-    commitChanges: 'c'                      # 'c'       # commit  #
-    amendLastCommit: 'a'                    # 'A'       # amend  #
-    toggleStagedAll: '<space>'              # => universal:select  #
-
+    ignoreFile: 'i' # 'i'       # ignore file  #
+    commitChanges: 'c' # 'c'       # commit  #
+    amendLastCommit: 'a' # 'A'       # amend  #
+    toggleStagedAll: '<space>' # => universal:select  #
     ## disable actions  ##
-    fetch: ''                               # 'f'       #  #
-    refreshFiles: ''                        # 'R'       #  #
-    openMergeTool: ''                       # 'M'       #  #
-    confirmDiscard: ''                      # 'x'       #  => universal:remove  #
-    toggleTreeView: ''                      # '`'       #  #
-    stashAllChanges: ''                     # 's'       #  #
-    viewStashOptions: ''                    # 'S'       #  #
-    viewResetOptions: ''                    # 'D'       #  #
-    openStatusFilter: ''                    # '<c-b>'   #  #
-    findBaseCommitForFixup: ''              # '<c-f>'   #  #
-    commitChangesWithEditor: ''             # 'C'       #  #
-    commitChangesWithoutHook: ''            # 'w'       #  #
-
+    fetch: '' # 'f'       #  #
+    refreshFiles: '' # 'R'       #  #
+    openMergeTool: '' # 'M'       #  #
+    confirmDiscard: '' # 'x'       #  => universal:remove  #
+    toggleTreeView: '' # '`'       #  #
+    stashAllChanges: '' # 's'       #  #
+    viewStashOptions: '' # 'S'       #  #
+    viewResetOptions: '' # 'D'       #  #
+    openStatusFilter: '' # '<c-b>'   #  #
+    findBaseCommitForFixup: '' # '<c-f>'   #  #
+    commitChangesWithEditor: '' # 'C'       #  #
+    commitChangesWithoutHook: '' # 'w'       #  #
   branches:
     ## branches  ##
-    checkoutBranchByName: 'c'               # 'c'  # normal checkout = universal:select <space>
-    renameBranch: 'e'                       # 'R'  # => universal:edit
-    mergeIntoCurrentBranch: 'm'             # 'M'  #
-    rebaseBranch: 'r'                       # 'r'  # rebase current branch to the selected
-
+    checkoutBranchByName: 'c' # 'c'  # normal checkout = universal:select <space>
+    renameBranch: 'e' # 'R'  # => universal:edit
+    mergeIntoCurrentBranch: 'm' # 'M'  #
+    rebaseBranch: 'r' # 'r'  # rebase current branch to the selected
     ## remote  ##
-    fetchRemote: 'f'                        # 'f'  # fetch @ remote tab
-    setUpstream: 'e'                        # 'u'  # => universal:edit
-
+    fetchRemote: 'f' # 'f'  # fetch @ remote tab
+    setUpstream: 'e' # 'u'  # => universal:edit
     ## Tags  ##
-    createTag: 't'                          # 'T'  #
-    pushTag: 'P'                            # 'P'  # push(force) won't push tags => universal:Push
-
+    createTag: 't' # 'T'  #
+    pushTag: 'P' # 'P'  # push(force) won't push tags => universal:Push
     ## disabled actions  ##
-    forceCheckoutBranch: ''                 # 'F'  #
-    fastForward: ''                         # 'f'  # fast-forward @ branch tab
-    createPullRequest: ''                   # 'o'  #
-    viewPullRequestOptions: ''              # 'O'  #
-    viewGitFlowOptions: ''                  # 'i'  #
-    checkoutPreviousBranch: ''              # '-'  #
-    moveCommitsToNewBranch: ''              # 'N'  #
-
+    forceCheckoutBranch: '' # 'F'  #
+    fastForward: '' # 'f'  # fast-forward @ branch tab
+    createPullRequest: '' # 'o'  #
+    viewPullRequestOptions: '' # 'O'  #
+    viewGitFlowOptions: '' # 'i'  #
+    checkoutPreviousBranch: '' # '-'  #
+    moveCommitsToNewBranch: '' # 'N'  #
   commits:
     ## Commits  ##
-    checkoutCommit: '<space>'               # ''    # => universal:select  #
-    renameCommit: 'e'                       # 'r'   # => universal:edit (TUI: reword commit, **wired**)  #
-    revertCommit: 'r'                       # 't'   # revert/remove commit  #
-    openLogMenu: 'l'                        # ''    # log/list commits options  #
-    viewResetOptions: 'c'                   # 'g'   # Reset soft/mixed/hard => branches:checkoutBranchByName  #
-
+    checkoutCommit: '<space>' # ''    # => universal:select  #
+    renameCommit: 'e' # 'r'   # => universal:edit (TUI: reword commit, **wired**)  #
+    revertCommit: 'r' # 't'   # revert/remove commit  #
+    openLogMenu: 'l' # ''    # log/list commits options  #
+    viewResetOptions: 'c' # 'g'   # Reset soft/mixed/hard => branches:checkoutBranchByName  #
     ## Fixup  ##
-    createFixupCommit: 'f'                  # 'f'   # create fixup commit for this commit  #
-    squashAboveCommits: 'F'                 # 'S'   # squash fixup commits into one (must be together)  #
-    squashDown: 's'                         #       # alt choice for fix & amend  #
-    amendToCommit: 'a'                      # 'A'   # => files:amendLastCommit  #
-    tagCommit: 't'                          # 'T'   # => branches:createTag  #
-
+    createFixupCommit: 'f' # 'f'   # create fixup commit for this commit  #
+    squashAboveCommits: 'F' # 'S'   # squash fixup commits into one (must be together)  #
+    squashDown: 's' #       # alt choice for fix & amend  #
+    amendToCommit: 'a' # 'A'   # => files:amendLastCommit  #
+    tagCommit: 't' # 'T'   # => branches:createTag  #
     ## Move commits  ##
-    moveUpCommit: 'K'                       #       # move commit up one  #
-    moveDownCommit: 'J'                     #       # move commit down one  #
-    cherryPickCopy: '<c-c>'                 # 'C'   # pick commits in one branch  #
-    pasteCommits: '<c-v>'                   # 'V'   # paste in another  #
-
+    moveUpCommit: 'K' #       # move commit up one  #
+    moveDownCommit: 'J' #       # move commit down one  #
+    cherryPickCopy: '<c-c>' # 'C'   # pick commits in one branch  #
+    pasteCommits: '<c-v>' # 'V'   # paste in another  #
     ## disabled actions  ##
-    renameCommitWithEditor: ''              # 'R'   #  #
-    markCommitAsFixup: ''                   # 'f'   # mark as fixup & amend  #
-    pickCommit: ''                          # 'p'   # pick commit (when mid-rebase)  #
-    copyCommitMessageToClipboard: ''        # ''    #  #
-    amendAttributeMenu: ''                  # 'a'   #  #
-    resetCherryPick: ''                     #  #
-    viewBisectOptions: ''                   # 'b'   #  #
-
+    renameCommitWithEditor: '' # 'R'   #  #
+    markCommitAsFixup: '' # 'f'   # mark as fixup & amend  #
+    pickCommit: '' # 'p'   # pick commit (when mid-rebase)  #
+    copyCommitMessageToClipboard: '' # ''    #  #
+    amendAttributeMenu: '' # 'a'   #  #
+    resetCherryPick: '' #  #
+    viewBisectOptions: '' # 'b'   #  #
   stash:
-    popStash: 'u'                           # 'g'   # => universal:undo  #
-    renameStash: 'e'                        # 'r'   # => universal:edit  #
-
+    popStash: 'u' # 'g'   # => universal:undo  #
+    renameStash: 'e' # 'r'   # => universal:edit  #
   commitFiles:
-    checkoutCommitFile: ''                  # 'c'   #  #
-
+    checkoutCommitFile: '' # 'c'   #  #
   main:
-    toggleSelectHunk: ''                    # 'a'   #  #
-    pickBothHunks: ''                       # 'b'   #  #
-
+    toggleSelectHunk: '' # 'a'   #  #
+    pickBothHunks: '' # 'b'   #  #
   submodules:
     init: 'i'
-    update: 'p'                             # 'u'   # => universal:pull  #
-    bulkMenu: ''                            # 'b'   #  #
-
+    update: 'p' # 'u'   # => universal:pull  #
+    bulkMenu: '' # 'b'   #  #
   commitMessage:
-    commitMenu: ''                          #       #  #
-
+    commitMenu: '' #       #  #
   amendAttribute:
-    addCoAuthor: ''                         # 'c'   #  #
-    resetAuthor: ''                         # 'a'   #  #
-    setAuthor: ''                           # 'A'   #  #
+    addCoAuthor: '' # 'c'   #  #
+    resetAuthor: '' # 'a'   #  #
+    setAuthor: '' # 'A'   #  #
