@@ -4,6 +4,8 @@ echo "$0 $@"
 
 set -eo pipefail
 
+: "${INSTBINDIR:=/usr/local/bin}"
+
 # set in nvim entry when do `nvim --update'
 unset XDG_CONFIG_HOME
 
@@ -197,9 +199,9 @@ if which lazygit; then
         ln -sfv "$(pwd -P)/lazygit.yml" "$conf/config.yml"
     fi
 fi
-INSTBIN=/usr/local/bin
-info "== Install nvim symlinks to $INSTBIN"
 
-sudo ln -svf "$(pwd -P)/run"                "$INSTBIN/nvim"
-sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBIN"
-sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBIN"
+info "== Install nvim symlinks to $INSTBINDIR"
+
+sudo ln -svf "$(pwd -P)/run"                "$INSTBINDIR/nvim"
+sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBINDIR"
