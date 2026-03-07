@@ -112,6 +112,10 @@ if g:ale_enabled
                     \ if s:apply_default_fixers(['yamlfix'])
                     \ |  let b:ale_yaml_yamlfix_options = s:find_lintrc('--env-prefix "YAMLFIX_" -c ', 'yamlfix.toml;.yamlfix.toml;pyproject.toml', 'lintrc/yamlfix.toml')
                     \ | endif
+        " json
+        autocmd FileType json
+                    \ call s:apply_default_fixers(['fixjson', 'jq'])
+
         " sh
         "autocmd FileType sh
         "            \ if CheckExecutable('shfmt', 'shell script format')
