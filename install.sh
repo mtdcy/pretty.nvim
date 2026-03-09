@@ -206,6 +206,8 @@ fi
 _lazygit="$(./prebuilts/bin/lazygit -cd)"
 mkdir -p "$_lazygit"
 info "🚀 Install lazygit.yml => $_lazygit/config.yml"
+
+test -L "$_lazygit/config.yml" || mv "$_lazygit/config.yml"{,.old} || true
 ln -sfv "$(pwd -P)/lazygit.yml" "$_lazygit/config.yml"
 
 info "🚀 Install pretty.nvim to $INSTBINDIR"
