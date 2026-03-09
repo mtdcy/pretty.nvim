@@ -132,6 +132,9 @@ rm -rf py3env || true
 # 'Text file busy' if nvim is openned
 python3 -m venv --copies --upgrade-deps py3env
 
+# update wheels with:
+#  pip install pur
+#  pur -r requirements.txt
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
     pip install -U pip # update before install modules
@@ -147,6 +150,9 @@ pip cache purge || true
 deactivate
 
 # Install node modules locally
+#  update package.json:
+#    npm install -g npm-check-updates
+#    ncu -u
 if which npm; then
     info "🚀 Install node modules with npm"
     # new version npm does not support url subdir
