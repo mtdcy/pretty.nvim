@@ -166,9 +166,10 @@ fi
 
 # nvim final prepare
 ./run -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
-./run -c 'call fruzzy#install()' +quit || true
-./run -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
+test -f prebuilts/fruzzy_mod.so || ./run -c 'call fruzzy#install()' +quit
 
+# test
+./run -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 trap "rm -f /tmp/$$-nvim-install.txt" EXIT
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
     info "❌ Something went wrong with pretty.nvim"
