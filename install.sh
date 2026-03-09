@@ -143,7 +143,8 @@ info "🚀 Install python wheels"
 rm -rf py3env || true
 
 # 'Text file busy' if nvim is openned
-python3 -m venv --copies --upgrade-deps py3env
+#  no --upgrade-deps with python 3.8-
+python3 -m venv --copies py3env
 
 # update wheels with:
 #  pip install pur
