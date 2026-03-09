@@ -29,8 +29,6 @@
     lgf = log --color --graph --oneline --decorate --reflog
     #lg = log --color=always --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %ci)' --decorate
     #lga = log --color --graph --all --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cn - %cr)' --decorate
-[safe]
-    directory = *
 [filter "lfs"]
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f

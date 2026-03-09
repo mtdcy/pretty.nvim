@@ -46,7 +46,7 @@ __curl -I "$MIRRORS" -o /dev/null || unset MIRRORS
 # _curl file urls...
 _curl() {
     for url in "${@:2}"; do
-        info "== curl < $url"
+        info "🚀 curl < $url"
         __curl -I "$url" -o /dev/null || continue
         __curl    "$url" -o "$1" && return 0 || true
     done
@@ -56,10 +56,10 @@ _curl() {
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
         pushd "$(dirname "$0")"
-        info "== update pretty.nvim @ $PWD"
+        info "🚀 update pretty.nvim @ $PWD"
         git pull --rebase --force
     elif [ -d "$HOME/.nvim" ]; then
-        info "== update pretty.nvim @ ~/.nvim"
+        info "🚀 update pretty.nvim @ ~/.nvim"
         pushd "$HOME/.nvim"
         git pull --rebase --force
     else
@@ -67,7 +67,7 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
             # test connection
             __curl -I "$repo" -o /dev/null || continue
 
-            info "== clone pretty.nvim < $repo"
+            info "🚀 clone pretty.nvim < $repo"
             git clone --depth=1 "$repo" "$HOME/.nvim" && break || true
         done
         pushd "$HOME/.nvim"
@@ -77,28 +77,35 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
 fi
 
 if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
-    # download prebuilts
+    rm -rf prebuilts
     mkdir -p prebuilts
 
     # shellcheck disable=SC2064
     temp="$(mktemp -d)" && trap "rm -rf $temp" EXIT
 
-    _curl "$temp/$ARCH.tar.gz" "${PREBUILTS[@]}" && tar -C prebuilts -xzf "$temp/$ARCH.tar.gz" || {
-        info "== Download prebuilts failed"
+    if _curl "$temp/$ARCH.tar.gz" "${PREBUILTS[@]}" && tar -C prebuilts -xzf "$temp/$ARCH.tar.gz"; then
+        info "✅ Download $(./prebuilts/bin/nvim --version | grep "^NVIM")"
+    else
+        info "❌ Download prebuilts failed"
         exit 1
-    }
+    fi
 
     # fruzzy_mod.so
     if test -f prebuilts/fruzzy_mod.so; then
         ln -sfv ../../prebuilts/fruzzy_mod.so rplugin/python3/
+    else
+        info "⚠️  missing fruzzy_mod.so"
     fi
 
     _curl cmdlets.sh "${cmdlets[@]}" || {
-        info "== Download cmdlets failed"
+        info "❌ Download cmdlets failed"
         exit 2
     }
     chmod a+x cmdlets.sh
-    ./cmdlets.sh fetch "${tools[@]}" || true
+    ./cmdlets.sh fetch "${tools[@]}"
+
+    # remove unneeded files
+    rm -rf prebuilts/caveats || true
     find prebuilts -name "*.tar.*" -exec rm -fv {} \; || true
     find prebuilts -type d -empty -exec rm -rfv {} \; || true
 
@@ -111,26 +118,27 @@ fi
 # Host prepare
 requirements=(curl python3)
 for x in "${requirements[@]}"; do
-    which "$x" || { info "== Please install host tool $x first"; exit 1; }
+    if ! which "$x"; then
+        info "❌ Please install $x first"
+        exit 1
+    fi
 done
 
-# install python modules with venv => python3.10 preferred
-#  python3.13 has problems to install modules.
-py3="$(which python3.10)" || py3="$(which python3)"
+info "🚀 Install python wheels"
 
 # remove py3env => may cause problems
 rm -rf py3env || true
 
 # 'Text file busy' if nvim is openned
-$py3 -m venv --copies --upgrade-deps py3env || true
+python3 -m venv --copies --upgrade-deps py3env
 
 source py3env/bin/activate
 if [ -z "$MIRRORS" ]; then
     pip install -U pip # update before install modules
-    pip install -r requirements.txt
+    pip install -r requirements.txt --quiet
 else
     pip install -i "$MIRRORS/pypi/simple" -U pip # update before install modules
-    pip install -i "$MIRRORS/pypi/simple" -r requirements.txt
+    pip install -i "$MIRRORS/pypi/simple" -r requirements.txt --quiet
 fi
 pip cache purge || true
 
@@ -138,15 +146,16 @@ pip cache purge || true
 # save with 'pip freeze > requirements.txt' in venv
 deactivate
 
-# install node modules locally
+# Install node modules locally
 if which npm; then
+    info "🚀 Install node modules with npm"
     # new version npm does not support url subdir
-    [ -n "$MIRRORS" ] && npm config set registry "${MIRRORS/mirrors/npmjs}" || true
-    npm install
+    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs" || true
+    npm install --quiet
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
 else
-    info "== Please install npm|nodejs for full features"
+    info "⚠️  Please install npm|nodejs for full features"
 fi
 
 # nvim final prepare
@@ -156,15 +165,50 @@ fi
 
 trap "rm -f /tmp/$$-nvim-install.txt" EXIT
 [ "$(cat /tmp/$$-nvim-install.txt)" = "Hello NeoVim!" ] || {
-    info "== Something went wrong with pretty.nvim"
+    info "❌ Something went wrong with pretty.nvim"
     exit 1
 }
+
+# Install git config
+touch "$HOME/.gitconfig"
+if ! grep -q "pretty.nvim gitconfig" "$HOME/.gitconfig"; then
+    info "🚀 Install pretty.nvim gitconfig"
+    cat << EOF >> "$HOME/.gitconfig"
+
+# Include pretty.nvim gitconfig
+[include]
+    path = $(pwd -P)/gitconfig
+
+EOF
+fi
+
+# Install lazygit config (always override existings)
+_lazygit="$(./prebuilts/bin/lazygit -cd)"
+mkdir -p "$_lazygit"
+info "🚀 Install lazygit.yml => $_lazygit/config.yml"
+ln -sfv "$(pwd -P)/lazygit.yml" "$_lazygit/config.yml"
+
+info "🚀 Install pretty.nvim to $INSTBINDIR"
+
+sudo ln -svf "$(pwd -P)/run"                "$INSTBINDIR/nvim"
+sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBINDIR"
+
+# Install launch daemons
+if which launchctl; then
+    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
+    info "🚀 Install $PLIST"
+
+    cp scripts/ncopyd.plist "$PLIST"
+    launchctl unload "$PLIST" 2>/dev/null || true
+    launchctl load -w "$PLIST"
+fi
 
 check_host() {
     if which "$1"; then
         return 0
     else
-        info "== Please install $1 for $2 support"
+        info "⚠️  Please install $1 for $2 support"
         return 1
     fi
 }
@@ -172,36 +216,3 @@ check_host() {
 check_host ccls                 "better C/C++"  || true
 check_host go                   Go              || true
 check_host rustc                Rust            || true
-
-# Lua
-check_host lua-language-server  Lua             || true
-check_host luacheck             Luacheck        || true
-check_host stylua               "Lua formatter" || true
-
-# install
-if which launchctl; then
-    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
-    cp scripts/ncopyd.plist "$PLIST"
-    launchctl unload "$PLIST" 2>/dev/null || true
-    launchctl load -w "$PLIST"
-fi
-
-if which git; then
-    info "== install ~/.gitconfig"
-    mv ~/.gitconfig ~/.gitconfig-old || true
-    cp -f gitconfig ~/.gitconfig
-fi
-
-if which lazygit; then
-    conf="$(lazygit -cd)"
-    if mkdir -p "$conf"; then
-        info "== install lazygit.yml => $conf/config.yml"
-        ln -sfv "$(pwd -P)/lazygit.yml" "$conf/config.yml"
-    fi
-fi
-
-info "== Install nvim symlinks to $INSTBINDIR"
-
-sudo ln -svf "$(pwd -P)/run"                "$INSTBINDIR/nvim"
-sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBINDIR"
-sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBINDIR"
