@@ -33,7 +33,10 @@ cmdlets=(
     https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
 )
 
-tools=( lazygit ctags rg checkmake shfmt delta )
+# mandatory tools
+tools=( lazygit rg )
+
+optionals=( ctags checkmake shfmt delta )
 
 MIRRORS=https://mirrors.mtdcy.top
 
@@ -97,12 +100,22 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
         info "⚠️  missing fruzzy_mod.so"
     fi
 
-    _curl cmdlets.sh "${cmdlets[@]}" || {
-        info "❌ Download cmdlets failed"
+    if _curl cmdlets.sh "${cmdlets[@]}"; then
+        info "✅ Download cmdlets.sh"
+    else
+        info "❌ Download cmdlets.sh failed"
         exit 2
-    }
+    fi
     chmod a+x cmdlets.sh
-    ./cmdlets.sh fetch "${tools[@]}"
+
+    if ./cmdlets.sh fetch "${tools[@]}"; then
+        info "✅ Download ${tools[*]}"
+    else
+        info "❌ Download ${tools[*]} failed"
+        exit 3
+    fi
+
+    ./cmdlets.sh fetch "${optionals[@]}" || true
 
     # remove unneeded files
     rm -rf prebuilts/caveats || true
