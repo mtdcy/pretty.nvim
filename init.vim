@@ -238,3 +238,51 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call webdevicons#refresh()<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
+
+" Auto cd to git root when opening file {{{
+" Find .git directory in current or parent directories
+function! FindGitRoot() abort
+    let l:current_dir = expand('%:p:h')
+    let l:check_dir = l:current_dir
+
+    " Walk up the directory tree
+    while l:check_dir != '/' && l:check_dir != ''
+        if isdirectory(l:check_dir . '/.git')
+            return l:check_dir
+        endif
+        let l:parent_dir = fnamemodify(l:check_dir, ':h')
+        if l:parent_dir == l:check_dir
+            break
+        endif
+        let l:check_dir = l:parent_dir
+    endwhile
+
+    return ''
+endfunction
+
+" Auto cd to git root when opening a file
+augroup AutoGitRoot
+    autocmd!
+    autocmd BufReadPost,BufNewFile * call s:AutoCdToGitRoot()
+augroup END
+
+function! s:AutoCdToGitRoot() abort
+    " Skip for no-name buffers (e.g. [No Name])
+    if expand('%') == ''
+        return
+    endif
+
+    " Skip for remote files (ssh://, http://, etc.)
+    if expand('%:p') =~# '^\(ssh\|http\|https\|ftp\)://'
+        return
+    endif
+
+    let l:git_root = FindGitRoot()
+    if l:git_root != ''
+        " Only cd if not already in git root
+        if expand('%:p:h') != l:git_root
+            execute 'lcd ' . fnameescape(l:git_root)
+        endif
+    endif
+endfunction
+" }}}
