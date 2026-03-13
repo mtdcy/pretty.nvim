@@ -239,14 +239,22 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
 
-" Auto cd to git root when opening file {{{
+" Auto cd to git root when opening FIRST file {{{
 " Use git rev-parse --show-toplevel to find git root
+" Only run once per nvim session
+let g:auto_cd_done = v:false
+
 augroup AutoGitRoot
     autocmd!
     autocmd BufReadPost,BufNewFile * call s:AutoCdToGitRoot()
 augroup END
 
 function! s:AutoCdToGitRoot() abort
+    " Only run once per session
+    if g:auto_cd_done
+        return
+    endif
+
     " Skip for no-name buffers (e.g. [No Name])
     if expand('%') == ''
         return
@@ -263,6 +271,7 @@ function! s:AutoCdToGitRoot() abort
     " Check if git command succeeded (v:shell_error == 0)
     if v:shell_error == 0 && filereadable(l:git_root . '/.git/config')
         execute 'lcd ' . fnameescape(l:git_root)
+        let g:auto_cd_done = v:true
     endif
 endfunction
 " }}}
