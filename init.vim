@@ -240,7 +240,7 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#bufferline#reload()<cr>
 
 " Auto cd to git root when opening FIRST file {{{
-" Use git rev-parse --show-toplevel to find git root
+" Use finddir() to find .git directory (no external command needed)
 " Only run once per nvim session
 let g:auto_cd_done = v:false
 
@@ -251,26 +251,18 @@ augroup END
 
 function! s:AutoCdToGitRoot() abort
     " Only run once per session
-    if g:auto_cd_done
-        return
-    endif
+    if g:auto_cd_done | return | endif
 
     " Skip for no-name buffers (e.g. [No Name])
-    if expand('%') == ''
-        return
-    endif
+    if expand('%') == '' | return | endif
 
     " Skip for remote files (ssh://, http://, etc.)
-    if expand('%:p') =~# '^\(ssh\|http\|https\|ftp\)://'
-        return
-    endif
+    if expand('%:p') =~# '^\(ssh\|http\|https\|ftp\)://' | return | endif
 
-    " Use git command to find root (simpler and more reliable)
-    let l:git_root = systemlist('git -C ' . shellescape(expand('%:p:h')) . ' rev-parse --show-toplevel')[0]
-
-    " Check if git command succeeded (v:shell_error == 0)
-    if v:shell_error == 0 && filereadable(l:git_root . '/.git/config')
-        execute 'lcd ' . fnameescape(l:git_root)
+    " Use finddir() to find .git directory (Vim built-in, no shell call)
+    let l:gitroot = finddir('.git', expand('%:p:h') . ';')
+    if l:gitroot !=# ''
+        execute 'lcd ' . fnameescape(fnamemodify(l:gitroot, ':h'))
         let g:auto_cd_done = v:true
     endif
 endfunction
