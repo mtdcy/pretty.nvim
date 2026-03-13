@@ -240,27 +240,7 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#bufferline#reload()<cr>
 
 " Auto cd to git root when opening file {{{
-" Find .git directory in current or parent directories
-function! FindGitRoot() abort
-    let l:current_dir = expand('%:p:h')
-    let l:check_dir = l:current_dir
-
-    " Walk up the directory tree
-    while l:check_dir != '/' && l:check_dir != ''
-        if isdirectory(l:check_dir . '/.git')
-            return l:check_dir
-        endif
-        let l:parent_dir = fnamemodify(l:check_dir, ':h')
-        if l:parent_dir == l:check_dir
-            break
-        endif
-        let l:check_dir = l:parent_dir
-    endwhile
-
-    return ''
-endfunction
-
-" Auto cd to git root when opening a file
+" Use git rev-parse --show-toplevel to find git root
 augroup AutoGitRoot
     autocmd!
     autocmd BufReadPost,BufNewFile * call s:AutoCdToGitRoot()
@@ -277,12 +257,12 @@ function! s:AutoCdToGitRoot() abort
         return
     endif
 
-    let l:git_root = FindGitRoot()
-    if l:git_root != ''
-        " Only cd if not already in git root
-        if expand('%:p:h') != l:git_root
-            execute 'lcd ' . fnameescape(l:git_root)
-        endif
+    " Use git command to find root (simpler and more reliable)
+    let l:git_root = systemlist('git -C ' . shellescape(expand('%:p:h')) . ' rev-parse --show-toplevel')[0]
+
+    " Check if git command succeeded (v:shell_error == 0)
+    if v:shell_error == 0 && filereadable(l:git_root . '/.git/config')
+        execute 'lcd ' . fnameescape(l:git_root)
     endif
 endfunction
 " }}}
