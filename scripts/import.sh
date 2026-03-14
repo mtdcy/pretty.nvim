@@ -15,7 +15,7 @@ else
     git remote set-url "$repo" "$url"
 fi
 git fetch "$repo"
-git merge "$repo/$branch" --allow-unrelated-histories --no-commit --squash -X theirs
+git merge "$repo/$branch" --allow-unrelated-histories --no-commit --squash --ff -X theirs
 git restore --staged .
 git checkout HEAD -- README.md .gitignore .github   # checkout ours
 git clean -f -d .github                             # clean unneeded
