@@ -1,9 +1,7 @@
----
 # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 quitOnTopLevelReturn: true
 promptToReturnFromSubprocess: false
 disableStartupPopups: true
-
 gui:
   border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'  #
   screenMode: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'  #
@@ -25,13 +23,11 @@ gui:
       - bold
     selectedLineBgColor:
       - reverse
-
 customCommands:
   - key: 'p'
     context: 'global'
     command: 'git pull --rebase && git fetch --prune --tags'
     loadingText: 'Pull and rebase and fetching tags'
-
 git:
   mainBranches:
     - main
@@ -46,13 +42,13 @@ git:
   fetchAll: true
   disableForcePushing: false
   parseEmoji: true
-  overrideGpg: false  # prevents lazygit from spawning a separate process when using GPG
+  overrideGpg: false # prevents lazygit from spawning a separate process when using GPG
   branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
   externalDiffCommand: 'nvim -d'
-  paging:
-    colorArg: always
-    useConfig: false
-    pager: 'delta --paging=never --color-only'
+  pagers:
+    - colorArg: always
+      useConfig: false
+      pager: 'delta --paging=never --color-only'
   commit:
     signOff: false
     autoWrapCommitMessage: false
@@ -65,11 +61,10 @@ git:
     showWholeGraph: true # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)  #
   allBranchesLogCmds:
     - git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline
-
 # lower case for local, upper case for remote
 keybinding:
   universal:
-    jumpToBlock:  # goto the Nth block / panel
+    jumpToBlock: # goto the Nth block / panel
       - ''
       - '1'
       - '2'
@@ -148,7 +143,7 @@ keybinding:
     ## disable actions  ##
     fetch: '' # 'f'       #  #
     refreshFiles: '' # 'R'       #  #
-    openMergeTool: '' # 'M'       #  #
+    openMergeOptions: '' # 'M'       #  #
     confirmDiscard: '' # 'x'       #  => universal:remove  #
     toggleTreeView: '' # '`'       #  #
     stashAllChanges: '' # 's'       #  #
