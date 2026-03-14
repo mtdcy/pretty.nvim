@@ -6,7 +6,7 @@
 
 let g:wm_debug  = 0
 let g:wm_height = min([12, winheight(0) / 4])
-let g:wm_width  = min([24, winwidth(0) / 4])
+let g:wm_width  = max([min([40, winwidth(0) / 2]), winwidth(0) / 4])
 
 set wildignore&
 set noequalalways
@@ -55,8 +55,8 @@ function! s:wmtype(bufnr) abort
         return 'nerdtree'
     elseif ftype ==? 'tagbar'
         return 'tagbar'
-    elseif ftype ==? 'gemini-chat'
-        return 'gemini-chat'
+    elseif ftype ==? 'codecompanion'
+        return 'codecompanion'
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
     elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
@@ -66,7 +66,7 @@ function! s:wmtype(bufnr) abort
 endfunction
 
 " find expect wmid for buffer type
-" wmid: 1-leftbar(nerdtree), 2-headbar(docs), 3-footbar(quickfix), 4-rightbar(tagbar/gemini-chat)
+" wmid: 1-leftbar(nerdtree), 2-headbar(docs), 3-footbar(quickfix), 4-rightbar(tagbar/codecompanion)
 function! s:type2wmid(type) abort
     if a:type ==? 'nerdtree'
         return 1
@@ -74,8 +74,8 @@ function! s:type2wmid(type) abort
         return 2
     elseif a:type ==? 'quickfix'
         return 3
-    elseif a:type ==? 'tagbar' || a:type ==? 'gemini-chat'
-        return 4  " rightbar: tagbar or gemini-chat (mutually exclusive)
+    elseif a:type ==? 'tagbar' || a:type ==? 'codecompanion'
+        return 4  " rightbar: tagbar or codecompanion (mutually exclusive)
     endif
     return -1
 endfunction
@@ -179,26 +179,26 @@ function! s:wm_update() abort
             endif
         endif
 
-        " rightbar: tagbar and gemini-chat are mutually exclusive
+        " rightbar: tagbar and codecompanion are mutually exclusive
         if type ==? 'tagbar' && s:wmwinid(4) > 0
-            " Check if gemini-chat window exists and close it
+            " Check if codecompanion window exists and close it
             for bufnr in range(1, bufnr('$'))
-                if getbufvar(bufnr, '&ft') ==? 'gemini-chat'
-                    let chat_winid = bufwinid(bufnr)
-                    if chat_winid > 0 && chat_winid != win_getid()
-                        echom "== rightbar: closing gemini-chat for tagbar"
-                        call win_execute(chat_winid, 'quit')
+                if getbufvar(bufnr, '&ft') ==? 'codecompanion'
+                    let winid = bufwinid(bufnr)
+                    if winid > 0 && winid != win_getid()
+                        echom "== rightbar: closing codecompanion for tagbar"
+                        call win_execute(winid, 'quit')
                         break
                     endif
                 endif
             endfor
-        elseif type ==? 'gemini-chat' && s:wmwinid(4) > 0
+        elseif type ==? 'codecompanion' && s:wmwinid(4) > 0
             " Check if tagbar window exists and close it
             for bufnr in range(1, bufnr('$'))
                 if getbufvar(bufnr, '&ft') ==? 'tagbar'
                     let tagbar_winid = bufwinid(bufnr)
                     if tagbar_winid > 0 && tagbar_winid != win_getid()
-                        echom "== rightbar: closing tagbar for gemini-chat"
+                        echom "== rightbar: closing tagbar for codecompanion"
                         call win_execute(tagbar_winid, 'quit')
                         break
                     endif
