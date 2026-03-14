@@ -221,12 +221,18 @@ augroup EditorConfig
     autocmd InsertLeave * set ic
 augroup END
 
-" source plugin settings
+" => Load $HOME/.env files using dotenv.nvim
+if filereadable($HOME . '/.env')
+    execute 'lua require("dotenv").command({fargs = {"' . $HOME . '/.env "}})'
+endif
+
+" => Load init scripts
 source <sfile>:h/init/ui.vim
 source <sfile>:h/init/explorer.vim
 source <sfile>:h/init/taglist.vim
 source <sfile>:h/init/completion.vim
 source <sfile>:h/init/vcs.vim
+source <sfile>:h/init/ai.vim
 source <sfile>:h/init/misc.vim
 
 source <sfile>:h/init/wm.vim
@@ -239,7 +245,7 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
 
-" Auto cd to git root when opening FIRST file {{{
+" lcd to git root when opening FIRST file {{{
 " Use finddir() to find .git directory (no external command needed)
 " Only run once per nvim session
 let g:auto_cd_done = v:false
