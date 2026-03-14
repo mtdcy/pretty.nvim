@@ -51,8 +51,12 @@ function! s:wmtype(bufnr) abort
     " for developer: edit any file in main window
     if winnr() == s:wmwinnr(0)
         return ''
-    elseif ftype ==? 'nerdtree' || ftype ==? 'tagbar'
-        return ftype
+    elseif ftype ==? 'nerdtree'
+        return 'nerdtree'
+    elseif ftype ==? 'tagbar'
+        return 'tagbar'
+    elseif ftype ==? 'gemini-chat'
+        return 'gemini-chat'
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
     elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
@@ -62,8 +66,18 @@ function! s:wmtype(bufnr) abort
 endfunction
 
 " find expect wmid for buffer type
+" wmid: 1-leftbar(nerdtree), 2-headbar(docs), 3-footbar(quickfix), 4-rightbar(tagbar/gemini-chat)
 function! s:type2wmid(type) abort
-    return index(['nerdtree', 'docs', 'quickfix', 'tagbar'], a:type) + 1
+    if a:type ==? 'nerdtree'
+        return 1
+    elseif a:type ==? 'docs'
+        return 2
+    elseif a:type ==? 'quickfix'
+        return 3
+    elseif a:type ==? 'tagbar' || a:type ==? 'gemini-chat'
+        return 4  " rightbar: tagbar or gemini-chat (mutually exclusive)
+    endif
+    return -1
 endfunction
 
 function! s:window(wmid) abort
@@ -89,9 +103,16 @@ function! s:wmcreate(wmid) abort
     if a:wmid > 0 && s:wmwinid(a:wmid) <= 0
         let saved = winnr()
         call s:window(0)
-        "let cmds = ['', ':NERDTree', 'help', 'lopen', ':TagbarOpen']
-        let cmds = ['', 'Explorer', 'help', 'lopen', 'Taglist']
-        exe index(cmds, a:wmid)
+        if a:wmid == 1
+            Explorer
+        elseif a:wmid == 2
+            help
+        elseif a:wmid == 3
+            lopen
+        elseif a:wmid == 4
+            " rightbar: tagbar or gemini-chat (created by respective plugins)
+            " This function just reserves the window slot
+        endif
         call s:wmwinidset(a:wmid, win_getid())
         exe saved 'wincmd w'
     endif
@@ -158,10 +179,32 @@ function! s:wm_update() abort
             endif
         endif
 
-        "if type == 'tagbar' && s:wmwinid(5) > 0
-        "    echom "== toc closed as tagbar shows. "
-        "    exe s:wmwinnr(5) 'wincmd c'
-        "endif
+        " rightbar: tagbar and gemini-chat are mutually exclusive
+        if type ==? 'tagbar' && s:wmwinid(4) > 0
+            " Check if gemini-chat window exists and close it
+            for bufnr in range(1, bufnr('$'))
+                if getbufvar(bufnr, '&ft') ==? 'gemini-chat'
+                    let chat_winid = bufwinid(bufnr)
+                    if chat_winid > 0 && chat_winid != win_getid()
+                        echom "== rightbar: closing gemini-chat for tagbar"
+                        call win_execute(chat_winid, 'quit')
+                        break
+                    endif
+                endif
+            endfor
+        elseif type ==? 'gemini-chat' && s:wmwinid(4) > 0
+            " Check if tagbar window exists and close it
+            for bufnr in range(1, bufnr('$'))
+                if getbufvar(bufnr, '&ft') ==? 'tagbar'
+                    let tagbar_winid = bufwinid(bufnr)
+                    if tagbar_winid > 0 && tagbar_winid != win_getid()
+                        echom "== rightbar: closing tagbar for gemini-chat"
+                        call win_execute(tagbar_winid, 'quit')
+                        break
+                    endif
+                endif
+            endfor
+        endif
     endif
 endfunction
 
