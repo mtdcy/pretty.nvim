@@ -21,7 +21,7 @@ REPO=(
     https://github.com/mtdcy/pretty.nvim.git
 )
 
-VERSION=0.10.4
+VERSION=0.11.6
 
 PREBUILTS=(
     https://git.mtdcy.top/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz
