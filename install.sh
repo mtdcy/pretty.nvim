@@ -139,12 +139,9 @@ done
 
 info "🚀 Install python wheels"
 
-# remove py3env => may cause problems
-rm -rf py3env || true
-
-# 'Text file busy' if nvim is openned
+# true: fix 'Text file busy' if nvim is openned
 #  no --upgrade-deps with python 3.8-
-python3 -m venv --copies py3env
+python3 -m venv --copies py3env || true
 
 # update wheels with:
 #  pip install pur
@@ -170,7 +167,7 @@ deactivate
 if which npm; then
     info "🚀 Install node modules with npm"
     # new version npm does not support url subdir
-    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs" || true
+    [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs/" || true
     npm install --quiet
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
