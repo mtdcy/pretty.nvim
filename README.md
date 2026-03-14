@@ -86,22 +86,10 @@ chmod a+x /usr/local/bin/nvim
 | 组件 | 版本 | 说明 |
 |------|------|------|
 | **Neovim** | 0.10.4 (内置) | 预编译版本，无需单独安装 |
-| **Python3** | 3.8 - 3.12 | ⚠️ **Python 3.13 暂不支持** |
+| **Python3** | 3.8+ | 用于 LSP 和补全插件 |
 | **Node.js** | 18+ | 用于 LSP 和补全插件 |
 | **Git** | 2.0+ | 版本控制和插件更新 |
 | **curl** | 任意 | 下载安装脚本 |
-
-### 为什么 Python 3.13 不支持？
-
-部分 Python 插件（如 `pynvim`）尚未完全兼容 Python 3.13，建议：
-
-```bash
-# Ubuntu/Debian
-sudo apt install python3.11 python3.11-venv
-
-# macOS
-brew install python@3.11
-```
 
 ---
 
