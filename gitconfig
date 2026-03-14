@@ -1,3 +1,7 @@
+[safe]
+    directory = *
+[init]
+	defaultBranch = main
 [core]
 	pager = delta
     editor = nvim
@@ -39,5 +43,3 @@
 [delta]
 	navigate = true
 	side-by-side = true
-[credential]
-	helper = osxkeychain
