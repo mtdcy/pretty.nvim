@@ -4,6 +4,7 @@
 
 [![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
 [![Neovim 0.10.4](https://img.shields.io/badge/Neovim-0.10.4-green.svg?logo=neovim)](https://github.com/neovim/neovim)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-purple.svg?logo=openai)](https://github.com/olimorris/codecompanion.nvim)
 [![PR Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
 **开箱即用的 Neovim 配置，预置精心调优的插件和工具链，5 分钟打造专业开发环境。**
@@ -12,6 +13,7 @@
 
 ## ✨ 核心特色
 
+- 🤖 **AI 驱动** — CodeCompanion 集成，支持阿里云百炼/OpenAI 兼容 API
 - 🚀 **即装即用** — 一键安装，无需复杂配置
 - 📦 **预编译 Neovim** — 内置 nvim 0.10.4，避免版本兼容问题
 - 🎨 **Solarized8 主题** — 经典配色，护眼高效
@@ -97,6 +99,16 @@ chmod a+x /usr/local/bin/nvim
 
 > 💡 **提示**: 鼠标在终端中也可用，不记得快捷键可以直接点击！
 
+### AI 功能
+
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `<leader>ai` | AI 行内模式（选中代码后使用） | n,v |
+| `F5` | AI 对话模式（打开/关闭悬浮窗） | n |
+| `?` | 查看帮助菜单 | n（对话窗口内） |
+| `Enter` | 发送消息/选择菜单项 | n,i（对话窗口内） |
+| `Shift+Enter` | 换行 | i（对话窗口内） |
+
 ### 窗口管理
 
 | 快捷键 | 功能 | 模式 |
@@ -140,6 +152,20 @@ chmod a+x /usr/local/bin/nvim
 
 **模式说明**: `n`=普通模式, `i`=插入模式, `v`=可视模式, `t`=终端模式
 
+---
+
+## 🤖 AI 功能
+
+> 💡 **AI Powered**: 集成 CodeCompanion.nvim，让你的编辑器拥有 AI 编程能力！
+
+### 设置环境变量
+
+```bash
+# ~/.zshrc 或 ~/.bashrc
+export OPENAI_BASE_URL="https://coding.dashscope.aliyuncs.com/v1"  # 阿里云百炼
+export OPENAI_API_KEY="sk-your-api-key-here"                       # 你的 API Key
+export OPENAI_MODEL="qwen3-coder-next"                             # 可选：指定模型
+```
 ---
 
 ## 🔌 内置插件
@@ -195,6 +221,67 @@ git push origin main
 # 删除插件
 git revert <commit-hash>
 ```
+
+---
+
+## 🤖 AI 配置详解
+
+### 环境变量说明
+
+| 变量名 | 必填 | 说明 |
+|--------|------|------|
+| `OPENAI_BASE_URL` | ✅ | API 端点地址 |
+| `OPENAI_API_KEY` | ✅ | API 密钥 |
+| `OPENAI_MODEL` | ❌ | 默认模型（不设置则使用默认值） |
+
+### 阿里云百炼配置
+
+1. **获取 API Key**
+   - 访问 [阿里云百炼控制台](https://bailian.console.aliyun.com/)
+   - 创建 API Key 并复制
+
+2. **配置环境变量**
+   ```bash
+   export OPENAI_BASE_URL="https://coding.dashscope.aliyuncs.com/v1"
+   export OPENAI_API_KEY="sk-your-api-key"
+   ```
+
+3. **推荐模型**
+   - `qwen3-coder-next` — 快速代码助手（默认）
+   - `qwen3-coder-plus` — 高级代码专家
+   - `qwen3.5-plus` — 通用模型
+
+### 本地 Ollama 配置
+
+1. **安装 Ollama**
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+   ```
+
+2. **拉取模型**
+   ```bash
+   ollama pull codellama
+   ```
+
+3. **配置环境变量**
+   ```bash
+   export OPENAI_BASE_URL="http://localhost:11434"
+   export OPENAI_MODEL="codellama"
+   ```
+
+### 快捷键说明
+
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `<leader>ai` | 行内模式（选中代码后使用） | n,v |
+| `F5` | 对话模式（打开/关闭悬浮窗） | n |
+| `?` | 查看帮助菜单 | n（对话窗口内） |
+| `Enter` | 发送消息/选择菜单项 | n,i（对话窗口内） |
+| `Shift+Enter` | 换行 | i（对话窗口内） |
+
+**模式说明**: `n`=普通模式，`i`=插入模式，`v`=可视模式
+
+---
 
 ---
 
