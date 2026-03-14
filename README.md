@@ -1,260 +1,427 @@
 # pretty.nvim
 
-Prebuilt nvim and well-tuned plugins, plug and play ready.
+> **Prebuilt Neovim + Well-tuned Plugins — Plug and Play Ready!**
 
-** We stick with nvim 0.10.4 as lightline is not compatible with newer versions **
+[![License: BSD-2-Clause](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
+[![Neovim 0.10.4](https://img.shields.io/badge/Neovim-0.10.4-green.svg?logo=neovim)](https://github.com/neovim/neovim)
+[![PR Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing)
 
-## UI / TermUI
+**开箱即用的 Neovim 配置，预置精心调优的插件和工具链，5 分钟打造专业开发环境。**
 
-![ui](picture/ui.png)
+---
 
-[More](picture)
+## ✨ 核心特色
 
-## Quick Start
+- 🚀 **即装即用** — 一键安装，无需复杂配置
+- 📦 **预编译 Neovim** — 内置 nvim 0.10.4，避免版本兼容问题
+- 🎨 **Solarized8 主题** — 经典配色，护眼高效
+- 🔍 **智能补全** — deoplete + neosnippet 代码片段
+- ⚡ **快速导航** — 标签列表、文件搜索、符号跳转
+- 📝 **代码检查** — ALE 实时 linting，支持 50+ 语言
+- 🔀 **版本控制** — LazyGit 集成，Git 操作可视化
+- 🪟 **智能窗口** — 快捷键管理窗口和缓冲区
+- 📋 **粘贴增强** — SSH 会话也能完美粘贴
+- 🎯 **鼠标友好** — 终端下也能点击操作
 
-```shell
-# Github
+---
+
+## 📸 界面预览
+
+![UI Preview](picture/ui.png)
+
+更多截图：[picture/](picture)
+
+---
+
+## 🚀 快速开始
+
+### 一键安装
+
+```bash
+# GitHub (国际)
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
-# CN
-bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
 
-# Upgrade
+# 国内镜像 (推荐)
+bash -c "$(curl -fsSL https://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+```
+
+### 升级配置
+
+```bash
 nvim --update
 ```
 
-## Docker
+### 验证安装
 
-```shell
-# Github
+```bash
+# 启动 nvim
+nvim
+
+# 检查版本
+nvim --version
+
+# 测试插件加载
+nvim -c 'echo "Plugins loaded!"' -c 'quit'
+```
+
+---
+
+## 🐳 Docker 部署
+
+```bash
+# GitHub (国际)
 curl -fsSL https://raw.githubusercontent.com/mtdcy/Dockerfiles/main/nvim/nvim.sh | sudo tee /usr/local/bin/nvim
-# CN
-curl -fsSL http://git.mtdcy.top/mtdcy/Dockerfiles/raw/branch/main/nvim/nvim.sh | sudo tee /usr/local/bin/nvim
 
+# 国内镜像
+curl -fsSL https://git.mtdcy.top/mtdcy/Dockerfiles/raw/branch/main/nvim/nvim.sh | sudo tee /usr/local/bin/nvim
+
+# 添加执行权限
 chmod a+x /usr/local/bin/nvim
 ```
 
-## Requirements
+---
 
-- [neovim](https://github.com/neovim/neovim): ~0.6+ ==> **Neovim v0.10.4 embedded**
-- [python3](): latest +pip +venv ==> **python3.13 won't work**
-- [npm](https://www.npmjs.com/): latest
+## 📋 系统要求
 
-## Features
+| 组件 | 版本 | 说明 |
+|------|------|------|
+| **Neovim** | 0.10.4 (内置) | 预编译版本，无需单独安装 |
+| **Python3** | 3.8 - 3.12 | ⚠️ **Python 3.13 暂不支持** |
+| **Node.js** | 18+ | 用于 LSP 和补全插件 |
+| **Git** | 2.0+ | 版本控制和插件更新 |
+| **curl** | 任意 | 下载安装脚本 |
 
-- Well-tuned plugins and installed binaries.
-- Linters & checkers & conf templates.
-- Sticky buffer for sidebars.
-- Seamless buffer switch with `C-n` & `C-p`, even in terminal mode.
-- Smart window & buffer close with `C-w`.
-- Full functional bufferline with mouse clickable.
-- Support copy text back from ssh session, [copyd](copyd.md)
-- Pretty menus powerd by denite, activate by `Enter`.
-- Prebuilt Universal Ctags which missing on most platform by default.
+### 为什么 Python 3.13 不支持？
 
-### Key Mappings
+部分 Python 插件（如 `pynvim`）尚未完全兼容 Python 3.13，建议：
 
-Since mouse works even in terminal, you don't have to remember these key mappings.
+```bash
+# Ubuntu/Debian
+sudo apt install python3.11 python3.11-venv
 
-> There are only a few that cannot be done with the mouse, which marked as '[*]'.
-
-#### Windows
-
-[x] Prefer using `C-w` instead of `:quit` or `:close`, as it is smarter.
-
-- [ni]  `F8`    - Run code formater. [*]
-- [ni]  `F9`    - Open file explorer on left side. [*]
-- [ni]  `F10`   - Open tag list or TOC on right side. [*]
-- [ni]  `F12`   - Open LazyGit window. [*]
-
-- [ni]  `C-h`   - Move focus to left window.
-- [ni]  `C-l`   - Move focus to right window.
-- [ni]  `C-j`   - Move focus to below window.
-- [ni]  `C-k`   - Move focus to up window.
-
-- [ni]  `C-w`   - Close windows and buffers, util the last one.
-
-#### Buffers
-
-- [ni]  `C-o`       - Open a finder
-- [ni]  `C-e`       - Open a buffer list
-- [ni]  `C-g`       - Search project for cursor word
-- [ni]  `C-n`       - Buffer Next
-- [ni]  `C-p`       - Buffer Prev
-
-- [n]   `<leader>1` - Select buffer 1
-- [n]   `<leader>2` - Select buffer 2
-- [n]   `<leader>3` - Select buffer 3
-- [n]   `<leader>4` - Select buffer 4
-- [n]   `<leader>5` - Select buffer 5
-- [n]   `<leader>6` - Select buffer 6
-- [n]   `<leader>7` - Select buffer 7
-- [n]   `<leader>8` - Select buffer 8
-- [n]   `<leader>9` - Select buffer 9
-- [n]   `<leader>0` - Select buffer 10
-
-#### Goto/Jump
-
-- [n]   `gg`    - Goto first line
-- [n]   `gG`    - Goto last line
-- [n]   `g[`    - Goto start of code block
-- [n]   `g]`    - Goto end of code block
-- [n]   `gd`    - Goto symbols' definition
-- [n]   `gb`    - Goto back to previous position
-- [n]   `gk`    - Goto keyword's man page
-- [n]   `ge`    - Goto next error
-- [v]   `gy`    - Goto yank
-- [n]   `gp`    - Goto paste
-- [n]   `gl`    - Goto loclist
-
-#### Misc
-
-- [v]   `/`     - Tabularize
-
-#### About terminal buffers
-
-```vim
-:tnoremap <Esc> <C-\><C-N>
+# macOS
+brew install python@3.11
 ```
 
-After this, everything works like insert and normal mode.
+---
 
-## Plugins Embedded
+## ⌨️ 核心快捷键
 
-- Colors
-  - [solarized8](https://github.com/lifepillar/vim-solarized8)@6178a07
-- Explorer
-  - [NERDTree](https://github.com/preservim/nerdtree)@f3a4d8e
-  - [Denite](https://github.com/Shougo/denite.nvim)@055dd68
-- Tags List
-  - [Tagbar](https://github.com/preservim/tagbar)@12edcb5
-- Status Line
-  - [lightline.vim](https://github.com/itchyny/lightline.vim)@58c97bc
-  - [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline)@8206632
-- Linter
-  - [ALE](https://github.com/dense-analysis/ale)@6db58b3
-  - [lightline-ale](https://github.com/maximbaz/lightline-ale)@a861f691a
-- Completor
-  - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)@43d7457
-  - [neosnippet](https://github.com/Shougo/neosnippet.vim)@efb2a61 + [snippets](https://github.com/Shougo/neosnippet-snippets)@725c989
-- VCS
-  - [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim)@0ada6c6
-  - [vim-signify](https://github.com/mhinz/vim-signify/tree/master)@8670143
-- Misc
-  - [Tabular](https://github.com/godlygeek/tabular)@339091a
-  - [rainbow](https://github.com/luochen1990/rainbow)@61f719a
-  - [vim-matchtag](https://github.com/leafOfTree/vim-matchtag)@54357c0
-  - [nerdcommenter](https://github.com/preservim/nerdcommenter)@e361a44
+> 💡 **提示**: 鼠标在终端中也可用，不记得快捷键可以直接点击！
 
-### Howto Add Plugins
+### 窗口管理
 
-I don't like plugin managers as I won't upgrade plugins frequently.
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `F8` | 代码格式化 | n,i |
+| `F9` | 打开文件浏览器 (左) | n,i |
+| `F10` | 打开标签列表 (右) | n,i |
+| `F12` | 打开 LazyGit | n,i |
+| `C-h/j/k/l` | 切换焦点窗口 | n,i |
+| `C-w` | 智能关闭窗口 | n,i |
 
-```shell
+### 缓冲区管理
+
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `C-o` | 打开文件查找器 | n,i |
+| `C-e` | 缓冲区列表 | n,i |
+| `C-g` | 搜索项目关键词 | n,i |
+| `C-n` | 下一个缓冲区 | n,i |
+| `C-p` | 上一个缓冲区 | n,i |
+| `<leader>1-0` | 选择缓冲区 1-10 | n |
+
+### 代码跳转
+
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `gg` | 跳转到首行 | n |
+| `gG` | 跳转到末行 | n |
+| `g[` / `g]` | 跳转到代码块开始/结束 | n |
+| `gd` | 跳转到定义 | n |
+| `gb` | 返回上一位置 | n |
+| `gk` | 查看关键词文档 | n |
+| `ge` | 跳转到下一个错误 | n |
+
+### 其他实用功能
+
+| 快捷键 | 功能 | 模式 |
+|--------|------|------|
+| `/` | 代码对齐 (Tabular) | v |
+| `C-\` + `C-n` | Terminal 退出插入模式 | t |
+
+**模式说明**: `n`=普通模式, `i`=插入模式, `v`=可视模式, `t`=终端模式
+
+---
+
+## 🔌 内置插件
+
+### 颜色主题
+- [solarized8](https://github.com/lifepillar/vim-solarized8) — 经典 Solarized 配色
+
+### 文件浏览
+- [NERDTree](https://github.com/preservim/nerdtree) — 文件树浏览
+- [Denite](https://github.com/Shougo/denite.nvim) — 模糊搜索
+
+### 代码导航
+- [Tagbar](https://github.com/preservim/tagbar) — 标签/符号列表
+
+### 状态栏
+- [lightline.vim](https://github.com/itchyny/lightline.vim) — 轻量状态栏
+- [lightline-bufferline](https://github.com/mengelbrecht/lightline-bufferline) — 缓冲区标签
+
+### 代码检查
+- [ALE](https://github.com/dense-analysis/ale) — 异步代码检查
+- [lightline-ale](https://github.com/maximbaz/lightline-ale) — ALE 状态显示
+
+### 代码补全
+- [deoplete.nvim](https://github.com/Shougo/deoplete.nvim) — 自动补全
+- [neosnippet](https://github.com/Shougo/neosnippet.vim) — 代码片段
+
+### 版本控制
+- [lazygit.nvim](https://github.com/kdheepak/lazygit.nvim) — Git GUI
+- [vim-signify](https://github.com/mhinz/vim-signify) — Git 变更标记
+
+### 实用工具
+- [Tabular](https://github.com/godlygeek/tabular) — 代码对齐
+- [rainbow](https://github.com/luochen1990/rainbow) — 彩虹括号
+- [vim-matchtag](https://github.com/leafOfTree/vim-matchtag) — HTML 标签匹配
+- [nerdcommenter](https://github.com/preservim/nerdcommenter) — 快速注释
+
+### 添加插件
+
+本项目不使用插件管理器，直接通过 Git 合并：
+
+```bash
+# 添加新插件
 git remote add bufexplorer https://github.com/jlanzarotta/bufexplorer.git
 git fetch bufexplorer
 git merge bufexplorer/master --allow-unrelated-histories --no-commit --squash
-git checkout HEAD -- README.md .gitignore   # keep ours files
-git mv LICENSE LICENSE.bufexplorer          # keep their license file
-git rm -rf <...>                            # delete unneeded
-vim README.md                               # update README
-git add README.md
-
+git checkout HEAD -- README.md .gitignore   # 保留当前文件
+git mv LICENSE LICENSE.bufexplorer          # 保留插件许可证
+git rm -rf <不需要的文件>                    # 删除不需要的文件
+vim README.md                               # 更新说明
 git commit -m "merged bufexplorer"
 git push origin main
+
+# 删除插件
+git revert <commit-hash>
 ```
 
-Delete plugin with `git revert`
+---
 
-## Plugins Configurations
+## 🛠️ 语言支持配置
 
-### ALE
+### Vim
+- **vim-language-server** — `npm install vim-language-server`
+- **vint** — `pip3 install vim-vint`
+- 配置文件：[.vintrc.yaml](.vintrc.yaml)
 
-> Prefer to install packages with python as nvim has a stronger dependency on python.
+### Shell
+- **shellcheck** — `pip3 install shellcheck-py`
+- 配置文件：[lintrc/shellcheckrc](lintrc/shellcheckrc)
 
-> Try to find configurations on [codeac](https://www.codeac.io/documentation/index.html)
+### Go
+- **gopls** — `go install golang.org/x/tools/gopls@latest`
+- **gofmt** — 内置
+- **goimports** — `go install golang.org/x/tools/cmd/goimports@latest`
 
-- Vim
-  - [vimls](https://github.com/iamcco/vim-language-server) - `npm install vim-language-server`
-  - [vint](https://github.com/Vimjas/vint) - `pip3 install vim-vint`
-    - [.vintrc](.vintrc.yaml) - [Rules](https://github.com/Vimjas/vint/wiki/Vint-linting-policy-summary)
-- Sh
-  - [shellcheck](https://github.com/koalaman/shellcheck) - `pip3 install shellcheck-py`
-    - [.shellcheckrc](lintrc/shellcheckrc)
-- Go
-  - [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - `go install golang.org/x/tools/gopls@latest`
-  - [gofmt](https://pkg.go.dev/cmd/gofmt)
-  - [goimports](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) - `go install golang.org/x/tools/cmd/goimports@latest`
-- Rust
-  - [rust-analyzer](https://github.com/rust-lang/rust-analyzer) - `rustup component add rust-analyzer`
-  - [rustfmt](https://github.com/rust-lang/rustfmt) - `rustup component add rustfmt`
-    - .rustfmt.toml - `rustfmt --print-config default .rustfmt.toml`
-- C/C++
-  - [ccls](https://github.com/MaskRay/ccls)
-    - [.ccls](https://github.com/MaskRay/ccls/wiki/Project-Setup#ccls-file)
-  - [clang-format]() - `pip3 install clang-format` - [参数](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
-- Make
-  - [checkmake](https://github.com/mrtazz/checkmake) - `go install github.com/mrtazz/checkmake/cmd/checkmake@latest`
-- CMake
-  - [cmakelint](https://github.com/cmake-lint/cmake-lint) - `pip3 install cmakelint`
-    - [.cmakelintrc](lintrc/cmakelintrc)
-- Dockerfile
-  - [haoolint](https://github.com/hadolint/hadolint) - `pip3 install hadolint-bin`
-    - [.hadolint.yaml](lintrc/hadolint.yaml)
-- Html,css
-  - [htmlhint](https://github.com/htmlhint/HTMLHint)
-    - [.htmlhintrc](lintrc/htmlhintrc)
-  - [stylelint](https://github.com/stylelint/stylelint)
-    - [.stylelintrc](linter/stylelintrc) - [rules](https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md)
-- JavaScript|TypeScript
-  - [tsserver](https://github.com/microsoft/TypeScript/wiki/Standalone-Server-%28tsserver%29) - `npm install typescript`
-    - [tsserver.json](lintrc/tsserver.json) -- **We can not find an example**
-    - [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) - [Examples](https://github.com/tsconfig/bases/)
-  - [eslint](https://eslint.org) - `npm install eslint` - **load if .eslintrc.js exists**
-    - [.eslintrc.js](lintrc/eslintrc) - [deprecated](https://eslint.org/docs/latest/use/configure/configuration-files-deprecated)
-- *
-  - [prettier](https://github.com/prettier/prettier) - `npm install prettier`
-    - [.prettierrc](https://prettier.io/docs/configuration)
+### Rust
+- **rust-analyzer** — `rustup component add rust-analyzer`
+- **rustfmt** — `rustup component add rustfmt`
+- 配置文件：`.rustfmt.toml`
 
-```shell
-# quick start
+### C/C++
+- **ccls** — 需要编译安装
+- **clang-format** — `pip3 install clang-format`
+- 配置文件：`.ccls`
+
+### Python
+- **jedi-language-server** — `pip3 install jedi-language-server`
+- **pylint** — `pip3 install pylint`
+- **flake8** — `pip3 install flake8`
+- **black** — `pip3 install black`
+- 配置文件：
+  - [lintrc/pylintrc](lintrc/pylintrc)
+  - [lintrc/flake8](lintrc/flake8)
+  - [lintrc/black.toml](lintrc/black.toml)
+
+### JavaScript/TypeScript
+- **tsserver** — `npm install typescript`
+- **eslint** — `npm install eslint`
+- **prettier** — `npm install prettier`
+- 配置文件：
+  - [lintrc/eslintrc](lintrc/eslintrc)
+  - [lintrc/prettierrc](https://prettier.io/docs/configuration)
+
+### Markdown
+- **markdownlint** — `npm install markdownlint-cli`
+- 配置文件：[lintrc/markdownlint.yaml](lintrc/markdownlint.yaml)
+
+### YAML
+- **yamllint** — `pip3 install yamllint`
+- **yamlfix** — `pip3 install yamlfix`
+- 配置文件：
+  - [lintrc/yamllint.yaml](lintrc/yamllint.yaml)
+  - [lintrc/yamlfix.toml](lintrc/yamlfix.toml)
+
+### Lua
+- **lua-language-server** — 建议从源码编译
+- **luacheck** — `luarocks install luacheck lanes`
+- 配置文件：
+  - [lintrc/luarc.json](lintrc/luarc.json)
+  - [lintrc/luacheckrc](lintrc/luacheckrc)
+
+### 快速安装所有依赖
+
+```bash
+# 设置国内镜像 (可选)
 npm config set registry https://mirrors.mtdcy.top/npmjs
-npm install # tsserver can't find modules
-nvim path/to/some.ts
+
+# 安装 Node.js 依赖
+npm install
+
+# 安装 Python 依赖 (在 nvim 中自动完成)
+nvim --update
 ```
 
-- Java
-  - [javac]()
-- Json
-  - [jsonlint](https://github.com/zaach/jsonlint) - `npm install jsonlint`
-- Markdown - [Rules](https://github.com/DavidAnson/markdownlint#rules--aliases)
-  - [markdownlint](https://github.com/igorshubovych/markdownlint-cli) - `npm install markdownlint-cli`
-    - [.markdownlint.yaml](lintrc/markdownlint.yaml)
-- Yaml
-  - [yamllint](https://github.com/adrienverge/yamllint) - `pip3 install yamllint`
-    - [.yamllint.yaml](lintrc/yamllint.yaml) - [Rules](https://yamllint.readthedocs.io/en/stable/rules.html)
-  - [yamlfix](https://github.com/lyz-code/yamlfix)
-    - [.yamlfix.toml](lintrc/yamlfix.toml) - [options](https://lyz-code.github.io/yamlfix/#configuration-options)
-- Python
-  - [jedils](https://github.com/pappasam/jedi-language-server) - `pip3 install jedi-language-server`
-  - [pylint](https://github.com/pylint-dev/pylint) - `pip3 install pylint`
-    - [.pylintrc](lintrc/pylintrc) - `pylint --disable=bare-except,invalid-name --class-rgx='[A-Z][a-z]+' --generate-rcfile`
-  - [flake8](https://github.com/PyCQA/flake8) - `pip3 install flake8`
-    - [.flake8](lintrc/flake8) - 'flake8 suggests using tox.ini to keep configure'
-  - [black](https://github.com/psf/black) - `pip3 install black`
-    - [pyproject.toml](lintrc/black.toml) - 'put a [tool.black] section into pyproject.toml'
-- Lua
-  - [lua-language-server](https://github.com/LuaLS/lua-language-server) - **try build from source**
-    - [.luarc.json](lintrc/luarc.json)
-  - [luacheck](https://github.com/mpeterv/luacheck) - `luarocks install luacheck lanes`
-    - [.luacheckrc](lintrc/luacheckrc) - [Rules](https://luacheck.readthedocs.io/en/stable/warnings.html)
+---
 
-## Mirror
+## 📖 文档
 
-- [CN](https://git.mtdcy.top:8443/mtdcy/pretty.nvim.git)
-- [PR](https://github.com/mtdcy/pretty.nvim.git)
+- [配色方案](colorscheme.md) — Solarized8 变体说明
+- [复制粘贴](copyd.md) — SSH 会话复制功能
+- [缓冲区](sticky_buffer.md) — 固定缓冲区功能
 
-## Copyrights and Licenses
+---
 
-- Files merged from other projects follow their own licenses.
-- Files belonging to this project(mainly top-level files) are licensesd
-  under the [BSD-2-Clause](LICENSE).
+## ❓ 常见问题
+
+### 安装失败怎么办？
+
+1. **检查网络连接**
+   ```bash
+   curl -I https://github.com
+   ```
+
+2. **检查 Python 版本**
+   ```bash
+   python3 --version  # 应该是 3.8 - 3.12
+   ```
+
+3. **清理后重试**
+   ```bash
+   rm -rf ~/.nvim
+   bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
+   ```
+
+### 插件加载失败？
+
+```bash
+# 更新插件
+nvim --update
+
+# 重新构建 Python 依赖
+cd ~/.nvim
+rm -rf py3env
+./install.sh
+```
+
+### 如何自定义配置？
+
+在 `~/.nvim/init.vim` 基础上创建个人配置：
+
+```vim
+" 在文件末尾添加个人配置
+" 你的自定义映射
+nnoremap <leader>q :quit<CR>
+
+" 你的自定义插件设置
+" ...
+```
+
+### 如何贡献代码？
+
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 提交 Pull Request
+
+详见 [贡献指南](#contributing)
+
+---
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+### 提交 Issue
+
+请提供以下信息：
+- Neovim 版本 (`nvim --version`)
+- 操作系统和版本
+- 问题描述和复现步骤
+- 错误截图或日志
+
+### 提交 PR
+
+1. Fork 本仓库
+2. 创建特性分支
+3. 确保代码通过基本测试
+4. 提交 PR 并描述更改内容
+
+### 开发环境搭建
+
+```bash
+# 克隆仓库
+git clone https://github.com/mtdcy/pretty.nvim.git
+cd pretty.nvim
+
+# 安装依赖
+./install.sh
+
+# 启动开发
+nvim
+```
+
+---
+
+## 🌐 镜像站点
+
+| 地区 | 地址 |
+|------|------|
+| 中国大陆 | https://git.mtdcy.top:8443/mtdcy/pretty.nvim.git |
+| 全球 | https://github.com/mtdcy/pretty.nvim.git |
+
+---
+
+## 📄 许可证
+
+- 本项目顶级文件使用 [BSD-2-Clause](LICENSE) 许可证
+- 合并自其他项目的文件遵循其原有许可证
+- 详见各 `LICENSE.*` 文件
+
+---
+
+## 👤 作者
+
+**Chen Fang**
+- GitHub: [@mtdcy](https://github.com/mtdcy)
+- Email: mtdcy.chen@gmail.com
+
+---
+
+## 🙏 致谢
+
+感谢所有开源插件的作者和维护者！pretty.nvim 站在巨人的肩膀上。
+
+---
+
+<div align="center">
+
+**如果这个项目对你有帮助，请给一个 ⭐ Star！**
+
+Made with ❤️ by Chen Fang
+
+</div>
