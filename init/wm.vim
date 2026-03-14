@@ -257,7 +257,7 @@ augroup WM
     autocmd!
     autocmd BufEnter    * call s:wm_update()
     " workarounds for NERDTree and Tagbar which set eventignore on creation
-    autocmd FileType    nerdtree,tagbar call s:wm_update()
+    autocmd FileType    nerdtree,tagbar,codecompanion call s:wm_update()
     " WinClosed may be called out of box
     autocmd WinClosed   * silent call s:wm_on_winclosed(str2nr(expand('<amatch>')))
     " quit window parts if main window went away
