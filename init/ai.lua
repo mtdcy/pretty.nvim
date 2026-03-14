@@ -41,7 +41,7 @@ codecompanion.setup({
             end,
         },
     },
-    
+
     -- Use display.chat.window for window configuration
     display = {
         chat = {
@@ -54,11 +54,61 @@ codecompanion.setup({
             },
         },
     },
-    
-    -- Configure interactions for keymaps
+
+    -- Configure interactions
     interactions = {
         chat = {
             adapter = "default",
+            opts = {
+                -- Prompt decorator: automatically add context to user messages
+                ---@param message string
+                ---@param adapter table
+                ---@param context table
+                ---@return string
+                prompt_decorator = function(message, adapter, context)
+                    -- Skip empty messages
+                    if not message or message:match("^%s*$") then
+                        return message
+                    end
+
+                    local parts = {}
+                    local bufnr = vim.api.nvim_get_current_buf()
+                    local bufname = vim.api.nvim_buf_get_name(bufnr)
+                    local mode = vim.fn.mode()
+                    local is_visual = (mode == "v" or mode == "V" or mode == "\22")
+
+                    -- Add current file reference
+                    if bufname and bufname ~= "" then
+                        local relative_path = vim.fn.fnamemodify(bufname, ":.")
+                        table.insert(parts, "📄 File: #{buffer}(" .. relative_path .. ")")
+                    end
+
+                    -- Add cursor line (non-Visual mode only)
+                    if not is_visual then
+                        local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+                        table.insert(parts, "📍 Cursor: line " .. cursor_line)
+                    end
+
+                    -- Add visual selection if in visual mode
+                    if is_visual then
+                        local start_pos = vim.fn.getpos("v")
+                        local end_pos = vim.fn.getpos(".")
+                        local start_line = start_pos[2]
+                        local end_line = end_pos[2]
+                        local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
+                        if #lines > 0 then
+                            table.insert(parts, "📋 Selection:\n```\n" .. table.concat(lines, "\n") .. "\n```")
+                        end
+                    end
+
+                    -- Build final message: context first, user message last
+                    if #parts > 0 then
+                        return table.concat(parts, "\n\n") .. "\n\n" .. message
+                    end
+
+                    return message
+                end,
+            },
             keymaps = {
                 options = {
                     modes = { n = "?" },
@@ -103,7 +153,7 @@ codecompanion.setup({
             },
         },
     },
-    
+
     opts = {
         language = "Chinese",
         log_level = "INFO",
