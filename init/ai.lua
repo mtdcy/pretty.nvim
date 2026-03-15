@@ -44,15 +44,29 @@ codecompanion.setup({
 
     -- Use display.chat.window for window configuration
     display = {
+        action_palette = {
+            prompt = vim.g.pretty_ai_prompt,
+        },
         chat = {
+            icons = {
+                tool_in_progress = "🤖 ",
+                tool_failure = "❌ ",
+                tool_success = "✅ ",
+                chat_context = "📎 ",
+            },
             window = {
                 layout = "vertical",
                 full_height = true,
                 position = "right",
                 width = 0.3,
-                border = "single",
             },
-            intro_message = "欢迎使用 pretty.nvim ✨! Enter 发送消息",
+
+            show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
+
+            intro_message = vim.g.pretty_ai_message,
+        },
+        icons = {
+            warning = "⚠️ ",
         },
     },
 
@@ -60,6 +74,16 @@ codecompanion.setup({
     interactions = {
         chat = {
             adapter = "default",
+            roles = {
+                user = "Coding with AI", -- no show Me
+            },
+            tools = {
+                groups = {
+                    opts = {
+                        collapse_tools = false,
+                    },
+                },
+            },
             opts = {
                 -- Prompt decorator: automatically add context to user messages
                 ---@param message string
@@ -110,7 +134,8 @@ codecompanion.setup({
                     description = "Show options",
                 },
                 send = {
-                    modes = { i = "<CR>" },  -- Only send in insert mode
+                    -- only send in normal mode
+                    modes = { n = "<CR>" },
                     callback = "keymaps.send",
                     description = "Send message",
                 },
