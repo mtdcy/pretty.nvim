@@ -45,7 +45,7 @@ codecompanion.setup({
     -- Use display.chat.window for window configuration
     display = {
         action_palette = {
-            prompt = vim.g.pretty_ai_prompt,
+            prompt = "✨ AI Coding: ", -- Title used for interactive LLM calls
         },
         chat = {
             icons = {
@@ -63,7 +63,7 @@ codecompanion.setup({
 
             show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin
 
-            intro_message = vim.g.pretty_ai_message,
+            intro_message = "", -- show only once, use our AIChatShow
         },
         icons = {
             warning = "⚠️ ",
@@ -83,49 +83,6 @@ codecompanion.setup({
                         collapse_tools = false,
                     },
                 },
-            },
-            opts = {
-                -- Prompt decorator: automatically add context to user messages
-                ---@param message string
-                ---@param adapter table
-                ---@param context table
-                ---@return string
-                prompt_decorator = function(message, adapter, context)
-                    -- Skip empty messages
-                    if not message or message:match("^%s*$") then
-                        return message
-                    end
-
-                    local parts = {}
-                    local mode = vim.fn.mode()
-
-                    -- Add current file reference
-                    table.insert(parts, "📄 File: #{buffer}(" .. vim.g.pretty_ai_bufname .. ")")
-
-                    -- Add visual selection ( visual mode )
-                    -- Add cursor line (non-Visual mode)
-                    if mode == "v" or mode == "V" or mode == "\22" then
-                        local start_pos = vim.fn.getpos("v")
-                        local end_pos = vim.fn.getpos(".")
-                        local start_line = start_pos[2]
-                        local end_line = end_pos[2]
-                        local lines = vim.api.nvim_buf_get_lines(vim.g.pretty_ai_bufnr, start_line - 1, end_line, false)
-                        if #lines > 0 then
-                            table.insert(parts, "📋 Selection:\n```\n" .. table.concat(lines, "\n") .. "\n```")
-                        else
-                            table.insert(parts, "📍 Cursor: line #" .. vim.g.pretty_ai_line)
-                        end
-                    else
-                        table.insert(parts, "📍 Cursor: line #" .. vim.g.pretty_ai_line)
-                    end
-
-                    -- Build final message: context first, user message last
-                    if #parts > 0 then
-                        return table.concat(parts, "\n\n") .. "\n\n" .. message
-                    end
-
-                    return message
-                end,
             },
             keymaps = {
                 options = {
