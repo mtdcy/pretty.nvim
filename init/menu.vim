@@ -276,10 +276,10 @@ nnoremap <F7>       :ALEInfo<cr>
 nnoremap <F8>       :ALEFix<cr>
 
 " Move focus
-nnoremap <C-j>      <C-W>j
-nnoremap <C-k>      <C-W>k
-nnoremap <C-h>      <C-W>h
-nnoremap <C-l>      <C-W>l
+noremap <C-j>       <C-W>j
+noremap <C-k>       <C-W>k
+noremap <C-h>       <C-W>h
+noremap <C-l>       <C-W>l
 tnoremap <C-j>      <C-\><C-N><C-W>j
 tnoremap <C-k>      <C-\><C-N><C-W>k
 tnoremap <C-h>      <C-\><C-N><C-W>h
