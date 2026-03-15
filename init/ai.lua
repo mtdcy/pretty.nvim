@@ -76,7 +76,6 @@ codecompanion.setup({
                     local bufnr = vim.api.nvim_get_current_buf()
                     local bufname = vim.api.nvim_buf_get_name(bufnr)
                     local mode = vim.fn.mode()
-                    local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
 
                     -- Add current file reference
                     if bufname and bufname ~= "" then
@@ -84,7 +83,6 @@ codecompanion.setup({
                     end
 
                     -- Add visual selection ( visual mode )
-                    -- Add cursor line ( non-Visual mode )
                     if mode == "v" or mode == "V" or mode == "\22" then
                         local start_pos = vim.fn.getpos("v")
                         local end_pos = vim.fn.getpos(".")
@@ -93,11 +91,15 @@ codecompanion.setup({
                         local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
                         if #lines > 0 then
                             table.insert(parts, "📋 Selection:\n```\n" .. table.concat(lines, "\n") .. "\n```")
-                        else
+                        end
+                    end
+
+                    -- Add cursor line from tracked value (non-Visual mode)
+                    if not (mode == "v" or mode == "V" or mode == "\22") then
+                        local cursor_line = vim.g.pretty_ai_line
+                        if cursor_line then
                             table.insert(parts, "📍 Cursor: line #" .. cursor_line)
                         end
-                    else
-                        table.insert(parts, "📍 Cursor: line #" .. cursor_line)
                     end
 
                     -- Build final message: context first, user message last
@@ -115,7 +117,7 @@ codecompanion.setup({
                     description = "Show options",
                 },
                 send = {
-                    modes = { n = "<CR>", i = "<CR>" },
+                    modes = { i = "<CR>" },  -- Only send in insert mode
                     callback = "keymaps.send",
                     description = "Send message",
                 },
