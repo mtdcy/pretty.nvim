@@ -87,7 +87,7 @@ chmod a+x /usr/local/bin/nvim
 
 | 组件 | 版本 | 说明 |
 |------|------|------|
-| **Neovim** | 0.10.4 (内置) | 预编译版本，无需单独安装 |
+| **Neovim** | 0.11.6 (内置) | 预编译版本，无需单独安装 |
 | **Python3** | 3.8+ | 用于 LSP 和补全插件 |
 | **Node.js** | 18+ | 用于 LSP 和补全插件 |
 | **Git** | 2.0+ | 版本控制和插件更新 |
@@ -158,14 +158,41 @@ chmod a+x /usr/local/bin/nvim
 
 > 💡 **AI Powered**: 集成 CodeCompanion.nvim，让你的编辑器拥有 AI 编程能力！
 
-### 设置环境变量
+### 快速开始
+
+**1. 配置环境变量**（`~/.zshrc` 或 `~/.bashrc`）
 
 ```bash
-# ~/.zshrc 或 ~/.bashrc
 export OPENAI_BASE_URL="https://coding.dashscope.aliyuncs.com/v1"  # 阿里云百炼
 export OPENAI_API_KEY="sk-your-api-key-here"                       # 你的 API Key
 export OPENAI_MODEL="qwen3-coder-next"                             # 可选：指定模型
 ```
+
+**2. 重启终端** 或执行 `source ~/.zshrc`
+
+**3. 在 Neovim 中使用**
+
+| 场景 | 操作 |
+|------|------|
+| **对话模式** | 按 `F5` 打开聊天窗口，直接提问 |
+| **行内模式** | 选中代码 → 按 `<leader>ai` → 输入指令 |
+| **自动上下文** | 自动包含当前文件内容，无需手动添加 |
+
+**示例**：
+```
+# 对话模式
+F5 → "这个函数有什么优化空间？"
+
+# 行内模式
+选中代码 → ;ai → "添加错误处理"
+```
+
+**按键说明**：
+| 按键 | 功能 | 说明 |
+|------|------|------|
+| `Enter` | 发送消息 | 在聊天窗口输入后按 Enter 发送 |
+| `Shift+Enter` | 换行 | 输入多行内容时使用 |
+
 ---
 
 ## 🔌 内置插件
@@ -221,65 +248,6 @@ git push origin main
 # 删除插件
 git revert <commit-hash>
 ```
-
----
-
-## 🤖 AI 配置详解
-
-### 环境变量说明
-
-| 变量名 | 必填 | 说明 |
-|--------|------|------|
-| `OPENAI_BASE_URL` | ✅ | API 端点地址 |
-| `OPENAI_API_KEY` | ✅ | API 密钥 |
-| `OPENAI_MODEL` | ❌ | 默认模型（不设置则使用默认值） |
-
-### 阿里云百炼配置
-
-1. **获取 API Key**
-   - 访问 [阿里云百炼控制台](https://bailian.console.aliyun.com/)
-   - 创建 API Key 并复制
-
-2. **配置环境变量**
-   ```bash
-   export OPENAI_BASE_URL="https://coding.dashscope.aliyuncs.com/v1"
-   export OPENAI_API_KEY="sk-your-api-key"
-   ```
-
-3. **推荐模型**
-   - `qwen3-coder-next` — 快速代码助手（默认）
-   - `qwen3-coder-plus` — 高级代码专家
-   - `qwen3.5-plus` — 通用模型
-
-### 本地 Ollama 配置
-
-1. **安装 Ollama**
-   ```bash
-   curl -fsSL https://ollama.com/install.sh | sh
-   ```
-
-2. **拉取模型**
-   ```bash
-   ollama pull codellama
-   ```
-
-3. **配置环境变量**
-   ```bash
-   export OPENAI_BASE_URL="http://localhost:11434"
-   export OPENAI_MODEL="codellama"
-   ```
-
-### 快捷键说明
-
-| 快捷键 | 功能 | 模式 |
-|--------|------|------|
-| `<leader>ai` | 行内模式（选中代码后使用） | n,v |
-| `F5` | 对话模式（打开/关闭悬浮窗） | n |
-| `?` | 查看帮助菜单 | n（对话窗口内） |
-| `Enter` | 发送消息/选择菜单项 | n,i（对话窗口内） |
-| `Shift+Enter` | 换行 | i（对话窗口内） |
-
-**模式说明**: `n`=普通模式，`i`=插入模式，`v`=可视模式
 
 ---
 
