@@ -52,6 +52,7 @@ codecompanion.setup({
                 width = 0.3,
                 border = "single",
             },
+            intro_message = "欢迎使用 pretty.nvim ✨! Enter 发送消息",
         },
     },
 
@@ -75,22 +76,16 @@ codecompanion.setup({
                     local bufnr = vim.api.nvim_get_current_buf()
                     local bufname = vim.api.nvim_buf_get_name(bufnr)
                     local mode = vim.fn.mode()
-                    local is_visual = (mode == "v" or mode == "V" or mode == "\22")
+                    local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
 
                     -- Add current file reference
                     if bufname and bufname ~= "" then
-                        local relative_path = vim.fn.fnamemodify(bufname, ":.")
-                        table.insert(parts, "📄 File: #{buffer}(" .. relative_path .. ")")
+                        table.insert(parts, "📄 File: #{buffer}(" .. vim.fn.fnamemodify(bufname, ":.") .. ")")
                     end
 
-                    -- Add cursor line (non-Visual mode only)
-                    if not is_visual then
-                        local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-                        table.insert(parts, "📍 Cursor: line " .. cursor_line)
-                    end
-
-                    -- Add visual selection if in visual mode
-                    if is_visual then
+                    -- Add visual selection ( visual mode )
+                    -- Add cursor line ( non-Visual mode )
+                    if mode == "v" or mode == "V" or mode == "\22" then
                         local start_pos = vim.fn.getpos("v")
                         local end_pos = vim.fn.getpos(".")
                         local start_line = start_pos[2]
@@ -98,7 +93,11 @@ codecompanion.setup({
                         local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
                         if #lines > 0 then
                             table.insert(parts, "📋 Selection:\n```\n" .. table.concat(lines, "\n") .. "\n```")
+                        else
+                            table.insert(parts, "📍 Cursor: line #" .. cursor_line)
                         end
+                    else
+                        table.insert(parts, "📍 Cursor: line #" .. cursor_line)
                     end
 
                     -- Build final message: context first, user message last
@@ -157,6 +156,5 @@ codecompanion.setup({
     opts = {
         language = "Chinese",
         log_level = "INFO",
-        intro_message = "欢迎使用 CodeCompanion ✨! 按 ? 查看选项，Enter 选择",
     },
 })
