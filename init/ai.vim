@@ -35,10 +35,12 @@ endfunction
 
 " Track current buffer info before entering chat
 function! s:TrackCodeBuffer() abort
-    let l:bufname = expand('%:p')
+    let l:bufname = bufname('%')
     if l:bufname != '' && l:bufname != '[No Name]'
-        " Store file path
-        let g:pretty_ai_file = l:bufname
+        " Store bufnr
+        let g:pretty_ai_bufnr = bufnr('%')
+        " Store bufname
+        let g:pretty_ai_bufname = l:bufname
         " Store cursor line
         let g:pretty_ai_line = line('.')
     endif
