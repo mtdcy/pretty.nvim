@@ -15,7 +15,8 @@ else
     git remote set-url "$repo" "$url"
 fi
 
-git fetch "$repo"
+# override existing tags
+git fetch "$repo" --prune --prune-tags --tags --force
 
 # Auto-detect if ref is a tag or branch
 if git rev-parse "refs/tags/$ref" &>/dev/null; then
@@ -34,6 +35,6 @@ mv LICENSE "LICENSE.$repo" -f || true               # rename LICENSE
 rm test tests -rf || true                           # ...
 
 # common vim directories
-git add after autoload colors doc ftdetect ftplugin indent lua plugin rplugin syntax "LICENSE.$repo" || true
+git add after autoload colors doc/*.txt ftdetect ftplugin indent lua plugin rplugin syntax "LICENSE.$repo" || true
 
 echo -e "\n🚀 It's time to remove unneeded files and commit ..."
