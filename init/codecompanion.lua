@@ -105,7 +105,9 @@ Do NOT output the complete function/code block unless explicitly asked. Only sho
                 end,
             },
             roles = {
-                user = "Coding with AI", -- no show Me
+                user = "✨ AI Coding",
+                -- Custom LLM header name (default: "CodeCompanion (OpenAI Compatible)")
+                llm = "🌹 AI Agnet",
             },
             tools = {
                 groups = {
