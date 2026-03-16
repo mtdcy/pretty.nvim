@@ -233,7 +233,7 @@ luafile <sfile>:h/init/markdown.lua
 source <sfile>:h/init/ui.vim
 source <sfile>:h/init/explorer.vim
 source <sfile>:h/init/taglist.vim
-source <sfile>:h/init/completion.vim
+source <sfile>:h/init/cmp.vim
 source <sfile>:h/init/vcs.vim
 source <sfile>:h/init/ai.vim
 source <sfile>:h/init/misc.vim
