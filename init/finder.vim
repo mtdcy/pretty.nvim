@@ -1,0 +1,244 @@
+" Telescope Finder 配置
+" 保持与 Denite 一致的功能和按键绑定
+
+" =============================================================================
+" 全局设置
+" =============================================================================
+
+luafile <sfile>:h/telescope.lua
+
+" =============================================================================
+" Finder 菜单配置（扁平化设计，所有菜单项在同一层级）
+" =============================================================================
+
+let g:finder = {
+            \ 'items': [
+            \   ['Finder          (CTRL-o)  ', 'Finder'                               ] ,
+            \   ['Buffer          (CTRL-e)  ', 'Buffer'                               ] ,
+            \   ['Search          (CTRL-g)  ', 'SearchResume'                         ] ,
+            \   ['Undo            (u)       ', 'undo'                                 ] ,
+            \   ['Redo            (U)       ', 'redo'                                 ] ,
+            \   ['Format          (F8)      ', 'ALEFix'                               ] ,
+            \   ['Edit init.vim             ', 'edit ' . $MYVIMRC                     ] ,
+            \   ['Move Up         (CTRL-k)  ', 'wincmd k'                             ] ,
+            \   ['Move Down       (CTRL-j)  ', 'wincmd j'                             ] ,
+            \   ['Move Left       (CTRL-h)  ', 'wincmd h'                             ] ,
+            \   ['Move Right      (CTRL-l)  ', 'wincmd l'                             ] ,
+            \   ['Explorer        (F9)      ', 'ExplorerFocus'                        ] ,
+            \   ['Taglist         (F10)     ', 'TaglistFocus'                         ] ,
+            \   ['LazyGit         (F12)     ', 'VCS'                                  ] ,
+            \   ['Close           (CTRL-w)  ', 'BufferClose'                          ] ,
+            \   ['Quit            (:qa)     ', 'confirm quit'                         ] ,
+            \   ['Help                      ', 'edit ' . g:pretty_home . '/README.md' ] ,
+            \ ],
+            \ }
+
+" =============================================================================
+" 命令定义（对应 Denite 命令）
+" =============================================================================
+
+" Finder - 文件搜索（对应 Denite file/rec）
+command! -nargs=0 Finder lua require('telescope.builtin').find_files()
+
+" Buffer - 缓冲区列表（对应 Denite buffer）
+command! -nargs=0 Buffer lua require('telescope.builtin').buffers({initial_mode = "normal"})
+
+" Search - 项目搜索（对应 Denite grep）
+command! -nargs=0 Search call s:telescope_search()
+
+" SearchResume - 恢复上次搜索
+command! -nargs=0 SearchResume lua require('telescope.builtin').live_grep()
+
+" Menu - 主菜单
+command! -nargs=0 Menu lua require('init.telescope').finder.menu()
+
+" =============================================================================
+" 搜索功能（支持从当前单词开始搜索）
+" =============================================================================
+
+function! s:telescope_search() abort
+    let l:word = expand("<cword>")
+    if l:word !=# ''
+        " 如果有当前单词，直接搜索
+        lua require('telescope.builtin').live_grep({ default_text = vim.fn.expand("<cword>") })
+    else
+        " 否则打开搜索框
+        lua require('telescope.builtin').live_grep()
+    endif
+endfunction
+
+
+" =============================================================================
+" Telescope 窗口设置
+" =============================================================================
+augroup FinderKeymaps
+    autocmd!
+    autocmd FileType TelescopePrompt call s:TelescopeSettings()
+augroup END
+
+function! s:TelescopeSettings() abort
+    setlocal nonumber
+    setlocal nohlsearch
+    setlocal signcolumn=no
+
+    setlocal cursorline
+    setlocal termguicolors
+    highlight Cursor blend=100
+
+    " 基本导航
+    nnoremap <silent><buffer> <CR>    <Cmd>lua require('telescope.actions').select_default()<CR>
+    inoremap <silent><buffer> <CR>    <Cmd>lua require('telescope.actions').select_default()<CR>
+
+    " 预览
+    nnoremap <silent><buffer> p       <Cmd>lua require('telescope.actions').preview_scrolling_up()<CR>
+
+    " 选择
+    nnoremap <silent><buffer> <Space> <Cmd>lua require('telescope.actions').toggle_selection()<CR>j
+
+    " 删除缓冲区
+    nnoremap <silent><buffer> w       <Cmd>lua require('telescope.actions').delete_buffer()<CR>
+
+    " 数字选择（1-9）
+    nnoremap <silent><buffer> 1       <Cmd>lua require('telescope.actions').select_default({ index = 1 })<CR>
+    nnoremap <silent><buffer> 2       <Cmd>lua require('telescope.actions').select_default({ index = 2 })<CR>
+    nnoremap <silent><buffer> 3       <Cmd>lua require('telescope.actions').select_default({ index = 3 })<CR>
+    nnoremap <silent><buffer> 4       <Cmd>lua require('telescope.actions').select_default({ index = 4 })<CR>
+    nnoremap <silent><buffer> 5       <Cmd>lua require('telescope.actions').select_default({ index = 5 })<CR>
+    nnoremap <silent><buffer> 6       <Cmd>lua require('telescope.actions').select_default({ index = 6 })<CR>
+    nnoremap <silent><buffer> 7       <Cmd>lua require('telescope.actions').select_default({ index = 7 })<CR>
+    nnoremap <silent><buffer> 8       <Cmd>lua require('telescope.actions').select_default({ index = 8 })<CR>
+    nnoremap <silent><buffer> 9       <Cmd>lua require('telescope.actions').select_default({ index = 9 })<CR>
+endfunction
+
+" =============================================================================
+" Telescope 窗口按键绑定
+" =============================================================================
+
+" Finder - 文件查找（对应 <C-o>）
+nnoremap <C-o>      :Finder<cr>
+inoremap <C-o>      <C-o>:Finder<cr>
+
+" Buffer - 缓冲区列表（对应 <C-e>）
+nnoremap <C-e>      :Buffer<cr>
+inoremap <C-e>      <C-o>:Buffer<cr>
+
+" Search - 项目搜索（对应 <C-g>）
+nnoremap <C-g>      :Search<cr>
+inoremap <C-g>      <C-o>:Search<cr>
+
+" Menu - 主菜单（对应 <Enter>）
+nnoremap <Enter>    :Menu<cr>
+
+" Window
+nnoremap <F9>       :ExplorerFocus<cr>
+inoremap <F9>       <C-o>:ExplorerFocus<cr>
+nnoremap <F10>      :TaglistFocus<cr>
+inoremap <F10>      <C-o>:TaglistFocus<cr>
+" no F11 here, as macOS has global define
+nnoremap <F12>      :VCS<cr>
+inoremap <F12>      <C-o>:VCS<cr>
+
+" =============================================================================
+" 缓冲区导航（保持与 Denite 一致）
+" =============================================================================
+
+" 下一个缓冲区
+nnoremap <C-n>      :BufferNext<cr>
+inoremap <C-n>      <C-o>:BufferNext<cr>
+tnoremap <C-n>      <C-\><C-N>:bnext<cr>
+nnoremap <Tab>      :BufferNext<cr>
+
+" 上一个缓冲区
+nnoremap <C-p>      :BufferPrev<cr>
+inoremap <C-p>      <C-o>:BufferPrev<cr>
+tnoremap <C-p>      <C-\><C-N>:bprev<cr>
+nnoremap <S-Tab>    :BufferPrev<cr>
+
+" 关闭缓冲区
+nnoremap <C-w>      :BufferClose<cr>
+inoremap <C-w>      <C-o>:BufferClose<cr>
+tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>
+
+" =============================================================================
+" 快速访问缓冲区（对应 lightline-bufferline）
+" =============================================================================
+
+nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
+nnoremap <leader>2  <Plug>lightline#bufferline#go(2)
+nnoremap <leader>3  <Plug>lightline#bufferline#go(3)
+nnoremap <leader>4  <Plug>lightline#bufferline#go(4)
+nnoremap <leader>5  <Plug>lightline#bufferline#go(5)
+nnoremap <leader>6  <Plug>lightline#bufferline#go(6)
+nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
+nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
+nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
+nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
+
+" Move focus
+noremap <C-j>       <C-W>j
+noremap <C-k>       <C-W>k
+noremap <C-h>       <C-W>h
+noremap <C-l>       <C-W>l
+tnoremap <C-j>      <C-\><C-N><C-W>j
+tnoremap <C-k>      <C-\><C-N><C-W>k
+tnoremap <C-h>      <C-\><C-N><C-W>h
+tnoremap <C-l>      <C-\><C-N><C-W>l
+
+" 跳转 - Goto
+" Go to first line - `gg`
+" Go to last line
+noremap  gG         G
+" Go to begin or end of code block
+noremap  g[         [{
+noremap  g]         ]}
+" Go to Define and Back(Top of stack)
+" TODO: map K,<C-]>,gD,... to one key
+"nnoremap gd         <C-]>
+nnoremap gd         :ALEGoToDefinition<cr>
+nnoremap gD         :ALEGoToImplementation<cr>
+nnoremap gb         <C-T>
+" Go to man or doc
+nnoremap gk         K
+" Go to Type
+" nmap gt
+" Go to next error of ale
+nnoremap ge         <Plug>(ale_next_wrap)
+" Go to yank and paste
+vnoremap gy         "+y
+nnoremap gy         y<Space>
+nnoremap gp         "+p
+vnoremap <C-c>      "+y
+" Go to list, FIXME: what about quickfix
+nnoremap gl         :lopen<CR>
+" Tabularize
+vnoremap /          :Tabularize /
+
+" =============================================================================
+" 帮助信息
+" =============================================================================
+
+" Telescope 模式下可用按键：
+" Normal 模式:
+"   <CR>    - 选择
+"   q/<Esc> - 关闭
+"   j/k     - 上下移动
+"   <Tab>   - 下一个
+"   <S-Tab> - 上一个
+"   gg/G    - 顶部/底部
+"   <Space> - 选择并移动
+"   w       - 删除缓冲区
+"   1-9     - 选择第 N 项
+"   <F9>    - 打开 Explorer
+"   <F10>   - 打开 Taglist
+"   <F12>   - 打开 LazyGit
+"
+" Insert 模式:
+"   <CR>    - 选择
+"   <Esc>   - 关闭
+"   <C-n>/<C-p> - 下一个/上一个
+"   <Tab>   - 下一个
+"   <S-Tab> - 上一个
+"   <Space> - 选择并移动
+"   <F9>    - 打开 Explorer
+"   <F10>   - 打开 Taglist
+"   <F12>   - 打开 LazyGit

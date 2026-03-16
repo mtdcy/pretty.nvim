@@ -367,18 +367,20 @@ if g:deoplete_enabled
         "  => buffer will override ale's suggestions.
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['ale', 'around', 'buffer', 'file', 'neosnippet'],
+                    \   '_'               : ['ale', 'around', 'buffer', 'file', 'neosnippet'],
+                    \   'TelescopePrompt' : [''],
                     \ })
     else
         " 为每个语言定义completion source
         call deoplete#custom#option(
                     \ 'sources', {
-                    \   '_'     : ['around', 'buffer', 'file', 'neosnippet'],
-                    \   'cpp'   : ['LanguageClient'],
-                    \   'c'     : ['LanguageClient'],
-                    \   'vim'   : ['vim'],
-                    \   'zsh'   : ['zsh'],
-                    \   'python': ['jedi'],
+                    \   '_'               : ['around', 'buffer', 'file', 'neosnippet'],
+                    \   'cpp'             : ['LanguageClient'],
+                    \   'c'               : ['LanguageClient'],
+                    \   'vim'             : ['vim'],
+                    \   'zsh'             : ['zsh'],
+                    \   'python'          : ['jedi'],
+                    \   'TelescopePrompt' : [''],
                     \ })
     endif
 

@@ -239,7 +239,12 @@ source <sfile>:h/init/ai.vim
 source <sfile>:h/init/misc.vim
 
 source <sfile>:h/init/wm.vim
-source <sfile>:h/init/menu.vim
+
+" => Load Telescope Finder (替代 Denite)
+source <sfile>:h/init/finder.vim
+
+" => Load Denite Menu (保留作为备份，可注释掉)
+" source <sfile>:h/init/menu.vim
 
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
