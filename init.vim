@@ -226,6 +226,9 @@ if filereadable($HOME . '/.env')
     execute 'lua require("dotenv").command({fargs = {"' . $HOME . '/.env "}})'
 endif
 
+" => Load basic lua plugins
+luafile <sfile>:h/init/markdown.lua
+
 " => Load init scripts
 source <sfile>:h/init/ui.vim
 source <sfile>:h/init/explorer.vim
