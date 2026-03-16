@@ -89,6 +89,21 @@ codecompanion.setup({
     interactions = {
         chat = {
             adapter = "default",
+            opts = {
+                system_prompt = function(ctx)
+                    return ctx.default_system_prompt .. [[
+
+## Output Format for Code Changes
+When suggesting code modifications, ALWAYS output in unified diff/patch format only:
+```diff
+- original line
++ modified line
+```
+
+Do NOT output the complete function/code block unless explicitly asked. Only show the changed lines with context.
+]]
+                end,
+            },
             roles = {
                 user = "Coding with AI", -- no show Me
             },
