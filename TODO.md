@@ -1,6 +1,44 @@
-# 补全插件迁移计划
+# pretty.nvim - TODO List
 
-> 创建时间：2026-03-16  
+> 最后更新：2026-03-16
+
+---
+
+## 🧪 功能测试
+
+### **run_shell_command** ⏳ 待实现
+
+**描述**：添加 shell 命令执行功能，用于测试和调试
+
+**用途**：
+- 测试 AI 生成的代码
+- 执行项目构建命令
+- 运行测试脚本
+
+**实现方案**：
+```vim
+function! RunShellCommand(cmd) abort
+    " 执行 shell 命令并显示结果
+    let l:output = system(a:cmd)
+    echo l:output
+endfunction
+
+" 或使用 Lua
+lua << EOF
+vim.fn.system("command")
+vim.fn.systemlist("command")
+EOF
+```
+
+**快捷键**（待定）：
+```vim
+nnoremap <leader>rs :lua vim.fn.input('Command: ')<CR>
+```
+
+---
+
+## 🚨 补全插件迁移
+
 > 优先级：🔴 高  
 > 状态：待处理
 
