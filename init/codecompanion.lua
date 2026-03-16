@@ -65,6 +65,21 @@ codecompanion.setup({
 
             intro_message = "", -- show only once, use our AIChatShow
         },
+        diff = {
+          enabled = true,
+          -- Options for any diff windows (extends from floating_window)
+          window = {
+            width = 0.9, ---@return number|fun(): number
+            height = 0.8, ---@return number|fun(): number
+            border = "single",
+            relative = "editor",
+            opts = {},
+          },
+          word_highlights = {
+            additions = true,
+            deletions = true,
+          },
+        },
         icons = {
             warning = "⚠️ ",
         },
@@ -90,12 +105,7 @@ codecompanion.setup({
                     callback = "keymaps.options",
                     description = "Show options",
                 },
-                send = {
-                    -- only send in normal mode
-                    modes = { n = "<CR>" },
-                    callback = "keymaps.send",
-                    description = "Send message",
-                },
+                send = false,
                 completion = false,
                 regenerate = false,
                 close = false,
@@ -124,9 +134,65 @@ codecompanion.setup({
             keymaps = {
                 accept = false,
                 reject = false,
-                diff = false,
-                toggle = false,
+                diff = {
+                },
+                toggle = {
+                    callback = "keymaps.toggle",
+                    description = "Toggle diff view",
+                    index = 1,
+                    modes = { n = "t" },
+                },
+                diff = {
+                    callback = "keymaps.diff",
+                    description = "Diff view",
+                    index = 2,
+                    modes = { n = "di" },
+                },
+                stop = {
+                    callback = "keymaps.stop",
+                    description = "Stop request",
+                    index = 4,
+                    modes = { n = "q" },
+                },
             },
+            opts = {
+                placement = "replace",  -- 默认替换选区
+            },
+        },
+        shared = {
+          keymaps = {
+            always_accept = {
+              callback = "keymaps.always_accept",
+              description = "Always accept changes in this buffer",
+              index = 1,
+              modes = { n = "g1" },
+              opts = { nowait = true },
+            },
+            accept_change = {
+              callback = "keymaps.accept_change",
+              description = "Accept change",
+              index = 2,
+              modes = { n = "g2" },
+              opts = { nowait = true, noremap = true },
+            },
+            reject_change = {
+              callback = "keymaps.reject_change",
+              description = "Reject change",
+              index = 3,
+              modes = { n = "g3" },
+              opts = { nowait = true, noremap = true },
+            },
+            next_hunk = {
+              callback = "keymaps.next_hunk",
+              description = "Go to next hunk",
+              modes = { n = "}" },
+            },
+            previous_hunk = {
+              callback = "keymaps.previous_hunk",
+              description = "Go to previous hunk",
+              modes = { n = "{" },
+            },
+          },
         },
     },
 

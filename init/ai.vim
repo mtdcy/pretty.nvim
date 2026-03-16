@@ -1,113 +1,110 @@
-" AI: codecompanion.nvim - Vimscript configuration
+" AI: CodeCompanion.nvim configuration
 " Environment variables already loaded by init.vim
 
-" => Check API Key
+" Global options, must set properly
+let g:pretty_ai_namespace = nvim_create_namespace('pretty.nvim.ai')
+let g:pretty_ai_ftype="codecompanion"
+
+" => Check API Key first
+" => Load corresponding configuration
 if empty($OPENAI_API_KEY)
-    let g:codecompanion_enabled = 0
     finish
-else
-    let g:codecompanion_enabled = 1
 endif
 
-let g:pretty_ai_namespace = nvim_create_namespace('pretty.nvim.ai')
-
-" => Load Lua configuration (adapters setup only)
 luafile <sfile>:h/codecompanion.lua
 
-" => Key Mappings
+" => Basic commands
+command! -nargs=* AICodingInline CodeCompanion <args>
+command! -nargs=* AIChatToggle CodeCompanionChat Toggle <args>
+command! AIChatSubmit lua require('codecompanion').last_chat():submit()
+
+augroup AICodingChat
+    autocmd!
+    autocmd User CodeCompanionChatCreated silent! call s:AIChatReady()
+    autocmd User CodeCompanionChatDone silent! call s:AIChatReady()
+augroup END
+
 " Inline mode - <leader>ai
-"  e.g: check this function - works
 nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
-" Select mode - AICodingInline not work in select mode (FIXME)
-"  e.g: write a function - works
-xnoremap <silent> <leader>ai :CodeCompanion<CR>
+" Visual mode - suppress the automatic range with <C-U>
+"  - without <C-U> function will be called twice.
+"vnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
+" Visual mode - use CodeCompanion directly
+"  - our AICodingInline() still has problem with visual mode.
+vnoremap <silent> <leader>ai :CodeCompanion<CR>
 
 " Chat mode - F5
-noremap <silent> <F5>       :CodeCompanionChat Toggle<CR>
+noremap  <silent> <F5> :AIChatToggle<CR>
 
-" AI Coding context make prompt simple, e.g:
-"  check this function
-" => with context, LLM knowns where to start the work
+" ============================================================================
+" AI Functions (unified for both engines)
+" ============================================================================
 function! s:AICodingContext() abort
     " find out the right winnr & bufnr
     let l:winnr = winnr()
-    " use last window's winnr
-    if &filetype == "codecompanion" | let l:winnr = winnr('#') | endif
+    " use last window's winnr if this is AI chat window
+    if &filetype == g:pretty_ai_ftype | let l:winnr = winnr('#') | endif
 
     let l:bufnr = winbufnr(l:winnr)
 
-    let l:start = line("'<", bufwinid(l:bufnr))
-    let l:end = line("'>", bufwinid(l:bufnr))
+    " win_getid: line() do not accept winnr
+    let l:start = line("'<", win_getid(l:winnr))
+    let l:end = line("'>", win_getid(l:winnr))
 
-    if l:start != l:end
-        let l:lines = "{" .. l:start .. ", " ..  l:end .. "}"
+    if l:start != l:end && visualmode() ==? 'v'
+        let l:lines = "#<" .. l:start .. ", " ..  l:end .. ">"
     else
-        let l:lines = "#" .. line(".", bufwinid(l:bufnr))
+        let l:lines = "#" .. line(".", win_getid(l:winnr))
     endif
 
-    " AI coding context: file:line
-    "  - I have tested a lot format, LLM can understand this format
+    " AI coding context: file:#line
+    " - #line 和 #{buffer} 是关键
     return "📄 File: " .. bufname(l:bufnr) .. ":" .. l:lines .. " #{buffer}"
 endfunction
 
 function! s:AICodingInline() abort
     " read user prompt
-    call inputsave()
-    let l:prompt = input('🌹 AI Coding: '.. mode(), "")
-    call inputrestore()
+    let l:prompt = input('🌹 AI Coding: ', "")
 
     if l:prompt == ''
         echom '⚠️ empty input'
         return
     endif
 
-    exe ":CodeCompanion " .. l:prompt .. " " .. s:AICodingContext()
+    let l:context = s:AICodingContext()
+
+    " debug
+    "echom l:context
+
+    " inline: context - prompt
+    exe ":AICodingInline " .. l:context .. "\n🙋 User:" .. l:prompt
 endfunction
 
-" => Chat Buffer Keymaps
-" In normal mode, Enter enters insert mode instead of sending
-augroup AICodingChat
-    autocmd!
-    autocmd User CodeCompanionChatCreated silent! call s:AIChatSettings()
-    " when CodeCompanion chat created, no BufEnter event
-    autocmd User CodeCompanionChatCreated silent! call s:AIChatReady()
-    autocmd User CodeCompanionChatDone silent! call s:AIChatReady()
-    " prepare for AI every time enter chat window
-    autocmd BufEnter * call s:AIChatReady()
-augroup END
+function! s:AIChatReady() abort
+    if &filetype != g:pretty_ai_ftype | return | endif
 
-function! s:AIChatSettings() abort
-    " Normal mode: Send to LLM (keymaps.send in CodeCompanion)
-    " Insert mode: Send (use <C-o> run command in insert mode)
+    " 1. exit insert mode
+    stopinsert
+
+    " 2. show tips
+    call s:AIChatTips('🌹 AI Chat Ready✨! Enter 发送消息，Shift-Enter 换行')
+
+    " 3. do keymaps
+    inoremap <silent><buffer> <Esc> <C-o>:call <SID>AIChatReady()<CR>
+    " => Insert at end
+    nnoremap <silent><buffer> i    : call <SID>AIChatEdit()<CR>
+    nnoremap <silent><buffer> a    : call <SID>AIChatEdit()<CR>
+    nnoremap <silent><buffer> <CR> : call <SID>AIChatEdit()<CR>
+    " => Enter: submit user message (insert mode only)
     inoremap <silent><buffer> <CR> <C-o>:call <SID>AIChatSend()<CR>
 endfunction
 
-" called when enter AI chat window
-function! s:AIChatReady() abort
-    " only codecompanion
-    if &filetype != "codecompanion" | return | endif
-
-    " Show welcome message
-    call s:AIChatMessage('🌹 AI Coding Ready✨! Enter 发送消息, Shift-Enter 换行')
-
-    noremap <silent><buffer> i :call <SID>AIChatEdit()<CR>
-endfunction
-
-function! s:AIChatMessage(message) abort
+function! s:AIChatTips(message) abort
     let l:bufnr = bufnr('%')
-
-    " clear virtual text
     call nvim_buf_clear_namespace(l:bufnr, g:pretty_ai_namespace, 0, -1)
-
     if a:message == '' | return | endif
 
-    " append a new line if last line is not empty
-    if getline('$') =~ '^\\s*$'
-        call append(line('$'), "")
-    endif
-
-    " show virtual text at last line
-    "  XXX: getline('$') is last line, but line('$') is line count
+    " line - 1: line() start with 1, but nvim use 0-based index.
     call nvim_buf_set_extmark(l:bufnr, g:pretty_ai_namespace, line('$') - 1, 0, {
         \ 'virt_text': [[a:message, 'Keyword']],
         \ 'virt_text_pos': 'eol',
@@ -116,28 +113,28 @@ function! s:AIChatMessage(message) abort
 endfunction
 
 function! s:AIChatEdit() abort
-    " clear virtual text
-    call s:AIChatMessage('')
+    " 1. clear tips
+    call s:AIChatTips('')
 
-    " go to last line
-    normal! G
+    " 2. to the end
+    call cursor(line('$'), 0)
 
-    " start insert
+    " 3. start insert
     startinsert
 endfunction
 
 function! s:AIChatSend() abort
-    " 1. Exit insert mode, user needs to scroll text after AI is done
+    " 1. exit insert mode
     stopinsert
 
-    " 2. auto insert messages
-    call append(line('.') - 1, s:AICodingContext())
+    " 2. append context to last
+    call append(line('$'), s:AICodingContext())
+    call append(line('$'), "") " always append a empty line
+    call cursor(line('$'), 0)
 
-    " 3. Show "AI is working..." message
-    call s:AIChatMessage('🤖 AI is working...')
+    " 3. show tips
+    call s:AIChatTips('🤖 AI is working...')
 
-    " 4. Send user prompt to LLM
-    "  requires CodeCompanion send bind to Enter in normal mode
-    call feedkeys("\<CR>")
-    " XXX: find out CodeCompanion command to send
+    " 4. submit using AIChatSubmit command
+    exe ":AIChatSubmit"
 endfunction
