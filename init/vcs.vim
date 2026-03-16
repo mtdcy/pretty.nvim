@@ -1,7 +1,7 @@
 " VCS: lazygit + signify
 
 let g:lazygit_enabled = 1
-let g:signify_enabled = 1
+let g:gitsigns_enabled = 1
 
 " Lazygit {{{
 if g:lazygit_enabled
@@ -13,15 +13,15 @@ if g:lazygit_enabled
 endif
 " }}}
 
-" signify {{{
-if g:signify_enabled
-    let g:signify_disable_by_default = 0
-    let g:signify_number_highlight = 1
+" gitsigns{{{
+if g:gitsigns_enabled
+    luafile <sfile>:h/gitsigns.lua
 endif
-" }}} 
+" }}}
+
 
 if g:lazygit_enabled
-    command! -nargs=0 VCS 
+    command! -nargs=0 VCS
                 \ if finddir(".git", ".;") != ''
                 \ |  exe 'LazyGit'
                 \ | endif
