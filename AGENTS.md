@@ -1,218 +1,313 @@
-# PROJECT.md - pretty.nvim 项目说明
+# pretty.nvim - AI Assistant Guide
 
-> **重要**: 本文件描述 pretty.nvim 项目的结构和组成，帮助 AI 助手理解项目范围。
+> 开箱即用的 Neovim 预配置，包含 AI 编程助手功能
 
 ---
 
-## 📁 项目结构
+## 📋 项目概述
 
-### 自有文件（我们维护的代码）
+**pretty.nvim** 是一个精心调优的 Neovim 预配置项目，提供：
+- 🤖 AI 编程助手（CodeCompanion）
+- 🎨 Solarized8 主题
+- 🔍 智能补全（nvim-cmp）
+- ⚡ 快速导航（telescope）
+- 📝 代码检查（ALE）
+- 🔀 Git 集成（gitsigns + lazygit）
+
+**目标**：5 分钟搭建专业开发环境
+
+---
+
+## 🏗️ 项目结构
 
 ```
 pretty.nvim/
 ├── init.vim              # 主配置文件（入口）
-├── README.md             # 项目文档
-├── install.sh            # 安装脚本
-├── run                   # 运行脚本
-├── cmdlets.sh            # 命令行工具
-├── .editorconfig         # 编辑器配置
-├── .gitignore            # Git 忽略规则
-├── .vintrc.yaml          # Vim lint 配置
-├── .flake8               # Python lint 配置
-├── package.json          # Node.js 依赖
-├── package-lock.json     # Node.js 依赖锁定
-├── requirements.txt      # Python 依赖
-├── lazygit.yml           # LazyGit 配置
-├── gitconfig             # Git 配置
-│
-├── init/                 # 初始化配置（我们的核心配置）
-│   ├── ai.vim            # AI 功能配置
+├── init/                 # 初始化配置模块
+│   ├── ai.vim            # AI 功能配置（VimScript）
 │   ├── codecompanion.lua # CodeCompanion 配置
-│   ├── neoai.lua         # NeoAI 配置
-│   ├── completion.vim    # 补全配置
-│   ├── explorer.vim      # 文件浏览器配置
-│   ├── menu.vim          # 菜单配置
-│   ├── misc.vim          # 杂项配置
-│   ├── tab.vim           # 标签页配置
-│   ├── taglist.vim       # 标签列表配置
-│   ├── ui.vim            # UI 配置
-│   ├── vcs.vim           # 版本控制配置
-│   └── wm.vim            # 窗口管理配置
-│
-├── init/                 # 初始化脚本目录
-├── scripts/              # 自有脚本
-├── lazygit/              # LazyGit 配置
-├── lintrc/               # Lint 配置
-├── .github/              # GitHub 配置
-├── patches/              # 第三方插件修改补丁（重要！）
-│   └── neoai-openai-base-url.patch  # neoai 支持自定义 base_url
-│
-└── LICENSE.*             # 第三方插件许可证（保留但不由我们维护）
-```
-
----
-
-### 第三方插件目录（原则上不修改）
-
-**例外情况**：如果第三方插件有 bug 或需要增强，按以下流程处理：
-
-1. **修改插件代码** - 临时修改 `lua/`、`plugin/` 等目录的源码
-2. **生成 patch** - `git diff lua/path/to/file.lua > patches/plugin-name-fix.patch`
-3. **记录说明** - 在 PROJECT.md 中记录修改原因和 patch 文件名
-4. **更新应用** - 更新插件后，应用 patch：`git apply patches/plugin-name-fix.patch`
-
-**当前 patch 列表**：
-- `patches/neoai-openai-base-url.patch` - neoai 支持自定义 base_url（阿里云百炼等 OpenAI 兼容 API）
-
----
-
-### 第三方插件目录（默认不修改）
-
-```
-pretty.nvim/
-├── lua/                  # Lua 插件代码（第三方）
-│   ├── ale/              # ALE 插件
+│   ├── gitsigns.lua      # gitsigns 配置
+│   ├── markdown.lua      # render-markdown 配置
+│   └── ...               # 其他功能模块
+├── lua/                  # Lua 插件（第三方）
 │   ├── codecompanion/    # CodeCompanion 插件
-│   ├── neoai/            # NeoAI 插件（第三方）
-│   ├── dotenv.lua        # dotenv 插件
-│   ├── lazygit.lua       # LazyGit 插件
-│   ├── plenary/          # Plenary 插件
+│   ├── gitsigns/         # gitsigns 插件
 │   └── ...
-│
-├── ale_linters/          # ALE Linters（149 个语言支持）
-├── autoload/             # 自动加载函数（第三方）
-├── colors/               # 配色方案（第三方）
-├── data/                 # 数据文件（第三方）
-├── doc/                  # 文档（第三方）
-├── ftdetect/             # 文件类型检测（第三方）
-├── ftplugin/             # 文件类型插件（第三方）
-├── indent/               # 缩进配置（第三方）
-├── neosnippets/          # Neosnippet 片段（第三方）
-├── nerdtree_plugin/      # NERDTree 插件（第三方）
-├── node_modules/         # Node.js 依赖（第三方）
-├── plugin/               # 插件主目录（第三方）
-├── prebuilts/            # 预编译 Neovim（第三方）
-├── py3env/               # Python 环境（第三方）
-├── python3/              # Python3 插件（第三方）
-├── pythonx/              # PythonX 插件（第三方）
-├── queries/              # Treesitter 查询（第三方）
-├── rplugin/              # 远程插件（第三方）
-├── syntax/               # 语法高亮（第三方）
-│
-└── picture/              # 界面截图（资源文件）
+├── plugin/               # Vim 插件（第三方）
+├── autoload/             # 自动加载函数
+├── scripts/              # 自有脚本
+├── patches/              # 第三方插件补丁
+└── README.md             # 项目文档
 ```
 
 ---
 
-## 🎯 AI 助手工作指南
+## 🎯 开发规范
 
-### 项目范围
+### **核心原则**
 
-**可以修改**:
-- ✅ `init.vim` - 主配置文件
-- ✅ `init/*.vim` 和 `init/*.lua` - 初始化配置
-- ✅ `scripts/*` - 自有脚本
-- ✅ `README.md` - 项目文档
-- ✅ `install.sh` - 安装脚本
-- ✅ `.github/*` - GitHub 配置
-
-**不要修改**:
-- ❌ `lua/` - 第三方 Lua 插件代码
-- ❌ `ale_linters/` - ALE 语言支持
-- ❌ `autoload/` - 第三方自动加载函数
-- ❌ `plugin/` - 第三方插件
-- ❌ `prebuilts/` - 预编译 Neovim
-- ❌ `py3env/` - Python 环境
-- ❌ `node_modules/` - Node.js 依赖
-- ❌ 所有 `LICENSE.*` 文件（只读）
-
----
-
-### 开发原则
-
-1. **VimScript 优先** - 能用 VimScript 就不用 Lua
-2. **配置和功能分离** - 配置是配置，功能实现是功能实现
-3. **不修改第三方插件** - lua/、plugin/ 等目录由插件自己维护
+1. **VimScript 优先** - 功能实现用 VimScript，Lua 仅用于插件配置
+2. **配置和功能分离** - 配置在 `init/*.lua`，功能在 `init/*.vim`
+3. **不修改第三方插件代码** - 使用 patch 方式修改（保存在 `patches/`）
 4. **简洁至上** - 不必要的功能就删除
-5. **专业工具做专业事** - Inline 模式完全交给 AI 插件处理
+
+### **代码风格**
+
+#### VimScript
+```vim
+" 函数命名：大驼峰 + 脚本前缀
+function! s:AICodingInline() abort
+    " 局部变量：l:前缀
+    let l:prompt = input('Prompt: ', "")
+    
+    " 注释：使用双引号
+    " 获取上下文
+    let l:context = s:AICodingContext()
+endfunction
+
+" 快捷键映射
+nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
+xnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
+```
+
+#### Lua
+```lua
+-- 模块命名：小写 + 下划线
+local ok, codecompanion = pcall(require, "codecompanion")
+if not ok then
+    vim.notify("plugin not found", vim.log.levels.WARN)
+    return
+end
+
+-- 配置结构清晰
+codecompanion.setup({
+    adapters = {...},
+    display = {...},
+    interactions = {...},
+})
+```
+
+### **提交规范**
+
+使用 emoji + 描述：
+```
+✨ 新功能
+🐛 Bug 修复
+♻️ 代码重构
+📝 文档更新
+🧹 代码清理
+```
+
+**示例**：
+```
+✨ AIChatSubmit 支持双引擎
+🐛 修正 Visual 模式重复调用
+♻️ 清理 NeoAI 相关代码
+```
 
 ---
 
-## 📦 依赖管理
+## 📚 常用命令
 
-### Node.js 依赖
-
+### **启动和更新**
 ```bash
-# 安装
-npm install
+# 启动 Neovim
+./run
 
-# 位置
-pretty.nvim/node_modules/
+# 更新配置
+nvim --update
+
+# 测试插件加载
+nvim -c 'echo "Plugins loaded!"' -c 'quit'
 ```
 
-### Python 依赖
-
+### **Git 操作**
 ```bash
-# 安装
-pip install -r requirements.txt
+# 查看状态
+git status
 
-# 位置
-pretty.nvim/py3env/
-```
+# 提交更改
+git add <file>
+git commit -m "✨ <description>"
 
-### 预编译 Neovim
-
-```
-位置：pretty.nvim/prebuilts/
-版本：Neovim 0.10.4
+# 推送（由用户决定）
+git push
 ```
 
 ---
 
-## 🔧 开发流程
+## 🤖 AI 助手指南
 
-### 添加新功能
+### **当前 AI 引擎**
 
-1. 在 `init/` 目录创建配置文件
-2. 在 `init.vim` 中加载配置
-3. 测试功能
-4. 更新 `README.md`
-5. Git 提交（不推送）
+**CodeCompanion**（唯一 AI 引擎）
+- 位置：`lua/codecompanion/`
+- 配置：`init/codecompanion.lua`
+- 快捷键：
+  - `<leader>ai` - Inline 模式（代码生成/修改）
+  - `<F5>` - Chat 模式（对话窗口）
 
-### 修改现有功能
+### **AI 功能实现**
 
-1. 定位到 `init/` 目录的对应文件
-2. 修改配置或功能实现
-3. 测试功能
-4. Git 提交（不推送）
+**位置**：`init/ai.vim`
 
-### 安装新插件
+**关键函数**：
+```vim
+" 获取上下文（文件 + 行号）
+function! s:AICodingContext() abort
+    " 返回：📄 File: filename.lua:#line #{buffer}
+endfunction
 
-1. 将插件代码放到对应目录（`lua/`、`plugin/` 等）
-2. 在 `init.vim` 或 `init/*.vim` 中加载插件
-3. 添加依赖到 `package.json` 或 `requirements.txt`
-4. 运行 `npm install` 或 `pip install`
-5. 测试插件
-6. Git 提交（不推送）
+" Inline 模式
+function! s:AICodingInline() abort
+    " 1. 读取用户 prompt
+    " 2. 获取上下文
+    " 3. 执行 :AICodingInline
+endfunction
+```
 
-### 修改第三方插件（例外流程）
+**格式说明**：
+- `filename:#10` - 第 10 行附近（插入）
+- `filename:<10,20>` - 第 10-20 行（替换）
 
-1. **评估必要性** - 确认修改是必要的，且无法通过配置解决
-2. **修改代码** - 临时修改插件源码
-3. **生成 patch** - `git diff lua/path/to/file.lua > patches/plugin-name-fix.patch`
-4. **测试功能** - 确保修改有效
-5. **记录说明** - 更新 PROJECT.md 记录 patch 用途
-6. **Git 提交** - 提交 patch 文件（不提交 lua/ 目录的修改）
-7. **更新插件时** - 应用 patch：`git apply patches/plugin-name-fix.patch`
+### **当 AI 需要修改代码时**
+
+1. **理解现有代码结构**
+   - 读取 `init/ai.vim` 了解 AI 功能实现
+   - 读取 `init/codecompanion.lua` 了解配置
+
+2. **遵循代码风格**
+   - VimScript 用于功能实现
+   - Lua 仅用于插件配置
+   - 不使用 `inputsave()/inputrestore()`
+
+3. **添加必要的注释**
+   - 函数上方说明功能
+   - 关键步骤添加行内注释
+
+4. **测试功能**
+   - Inline 模式：选中代码 → `<leader>ai`
+   - Chat 模式：`<F5>` 打开对话
+
+### **当 AI 需要创建新文件时**
+
+1. **放在正确的目录下**
+   - 功能模块：`init/<name>.vim` 或 `init/<name>.lua`
+   - 脚本文件：`scripts/<name>.sh`
+   - 补丁文件：`patches/<plugin>-<fix>.patch`
+
+2. **在 `init.vim` 中加载**
+   ```vim
+   " 加载新模块
+   luafile <sfile>:h/<name>.lua
+   " 或
+   source <sfile>:h/<name>.vim
+   ```
+
+3. **遵循命名规范**
+   - 文件名：小写 + 下划线
+   - 函数名：大驼峰 + 脚本前缀 `s:`
 
 ---
 
-## 📝 注意事项
+## ⚠️ 重要注意事项
 
-1. **lua/neoai/ 是第三方插件** - 不要修改其源码，只通过 `init/neoai.lua` 配置
-2. **LICENSE.* 文件保留** - 即使不维护对应插件，也保留许可证文件
-3. **prebuilts/ 是二进制** - 不要修改预编译的 Neovim
-4. **node_modules/ 和 py3env/ 是依赖** - 通过 package.json 和 requirements.txt 管理
+### **不要做的事情**
+
+1. ❌ **不要修改第三方插件代码**
+   - 位置：`lua/`, `plugin/`, `autoload/`
+   - 如需修改：创建 patch 保存到 `patches/`
+
+2. ❌ **不要使用 `inputsave()/inputrestore()`**
+   - 会导致 Visual 模式下循环调用
+   - 使用 `vim.ui.input()` 异步回调
+
+3. ❌ **不要混合 VimScript 和 Lua**
+   - 功能实现：VimScript
+   - 插件配置：Lua
+
+4. ❌ **不要自主推送 git push**
+   - 由用户决定何时推送
+
+### **推荐的做法**
+
+1. ✅ **先读后改** - 修改前先读取文件，学习用户的编码习惯
+2. ✅ **最小改动** - 只改必要内容，保持原有风格
+3. ✅ **自动提交** - 每次修改后自动 commit（不推送）
+4. ✅ **使用 patch** - 第三方插件修改用 patch 方式
+
+---
+
+## 🧪 测试方法
+
+### **AI 功能测试**
+
+```vim
+" 1. Inline 模式（Normal）
+" 光标放在某行，按 <leader>ai
+" 输入：写一个函数 xxx()
+
+" 2. Inline 模式（Visual）
+" 选中代码，按 <leader>ai
+" 输入：重构这个函数
+
+" 3. Chat 模式
+" 按 <F5> 打开聊天窗口
+" 输入：解释这段代码
+```
+
+### **配置测试**
+
+```vim
+" 重新加载配置
+:luafile ~/.openclaw/coding/init/ai.vim
+
+" 检查插件状态
+:CodeCompanionCheckHealth
+```
+
+---
+
+## 📞 遇到问题时
+
+### **排查步骤**
+
+1. **检查错误信息**
+   ```vim
+   :messages
+   ```
+
+2. **查看日志**
+   ```vim
+   :lua print(vim.inspect(require('codecompanion').config))
+   ```
+
+3. **重新加载配置**
+   ```vim
+   :source ~/.openclaw/coding/init.vim
+   ```
+
+4. **重启 Neovim**
+   ```bash
+   :qa!
+   ./run
+   ```
+
+### **常见问题**
+
+| 问题 | 原因 | 解决 |
+|------|------|------|
+| Visual 模式循环调用 | `inputsave()/inputrestore()` | 使用 `:<C-u>` 清除范围 |
+| AI 不回复 | API Key 未设置 | 检查环境变量 |
+| 插件加载失败 | 缺少依赖 | 运行 `nvim --update` |
+
+---
+
+## 📝 待处理事项
+
+详见 `TODO-completion.md`：
+- 🔴 补全插件迁移（deoplete → nvim-cmp）
+- 🟡 检查 denite 使用情况
 
 ---
 
