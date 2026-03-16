@@ -28,10 +28,7 @@ augroup END
 nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
 " Visual mode - suppress the automatic range with <C-U>
 "  - without <C-U> function will be called twice.
-"vnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
-" Visual mode - use CodeCompanion directly
-"  - our AICodingInline() still has problem with visual mode.
-vnoremap <silent> <leader>ai :CodeCompanion<CR>
+vnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
 
 " Chat mode - F5
 noremap  <silent> <F5> :AIChatToggle<CR>
@@ -51,11 +48,13 @@ function! s:AICodingContext() abort
     let l:start = line("'<", win_getid(l:winnr))
     let l:end = line("'>", win_getid(l:winnr))
 
+    " LLM accept file:#line or file:<start,end> format (tested)
     if l:start != l:end && visualmode() ==? 'v'
-        let l:lines = "#<" .. l:start .. ", " ..  l:end .. ">"
+        let l:lines = "<" .. l:start .. "," ..  l:end .. ">"
     else
         let l:lines = "#" .. line(".", win_getid(l:winnr))
     endif
+
 
     " AI coding context: file:#line
     " - #line 和 #{buffer} 是关键
