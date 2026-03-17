@@ -99,12 +99,6 @@ augroup END
 function! s:FinderSettings() abort
     " 记录窗口 bufnr（用于后续操作）
     let g:finder_bufnr = bufnr()
-    echom 'finder_bufnr: ' .. g:finder_bufnr
-
-    " 窗口外观设置
-    " setlocal nonumber
-    " setlocal nohlsearch
-    " setlocal signcolumn=no
 
     " Suppress 'E37: No write since last change'
     setlocal buftype=nofile

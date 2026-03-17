@@ -188,9 +188,24 @@ finder.menu = function()
         })
     end
 
+    -- 计算动态高度：菜单项数量 + 标题行 + 边框
+    -- 公式：items_count + 1 (prompt) + 3 (borders) = items_count + 3
+    local min_height = #items + 4
+    local max_height = 25  -- 最大高度限制
+
     -- 调用 builtin.find_files 显示菜单
     builtin.find_files({
         prompt_title = '✨ Finder (按\'/\'开始搜索)',
+
+        -- 动态布局配置
+        layout_config = {
+            -- 高度根据菜单项数量动态计算
+            height = math.min(min_height, max_height),
+            -- 宽度固定 60 列或终端宽度的 50%
+            width = function(_, max_columns, _)
+                return math.min(60, math.floor(max_columns * 0.5))
+            end,
+        },
 
         -- 自定义 finder（使用菜单数据）
         finder = finders.new_table({
