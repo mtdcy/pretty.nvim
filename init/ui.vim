@@ -261,7 +261,8 @@ if g:lightline_enabled
         let l:bufname = bufname()
         if l:bufname =~# 'NERD_tree_*'          | return 'NERDTree'
         elseif l:bufname =~# '__Tagbar__.\d\+'  | return 'Tagbar'
-        elseif l:bufname =~# '\[denite\]-*'     | return 'denite'
+        " Denite removed - Telescope uses TelescopePrompt filetype
+        elseif l:bufname =~# '\[Telescope.*\]'  | return 'Telescope'
         else                                    | return expand('%:~:.')
         endif
     endfunction

@@ -424,7 +424,8 @@ if g:deoplete_enabled
     " enable slash completion for file source
     call deoplete#custom#var('file', 'enable_slash_completion', v:true)
 
-    autocmd FileType denite*,nerdtree,tagbar,ale*
+    " Disable auto-complete for sidebar buffers
+    autocmd FileType nerdtree,tagbar,ale*
                 \ call deoplete#custom#buffer_option('auto_complete', v:false)
 endif
 " }}}

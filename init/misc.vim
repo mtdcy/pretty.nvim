@@ -25,7 +25,8 @@ let g:DevIconsEnableFoldersOpenClose = 1
 let NERDTreeDirArrowExpandable=''
 let NERDTreeDirArrowCollapsible=''
 
-let g:webdevicons_enable_denite = 1
+" Denite removed - using Telescope instead
+" let g:webdevicons_enable_denite = 1
 
 " => tabular
 " NOTHING HERE
