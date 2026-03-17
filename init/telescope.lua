@@ -19,25 +19,31 @@ end
 -- =============================================================================
 
 require('telescope').setup({
-    defaults = {
-        initial_mode = 'normal',
+    defaults = require('telescope.themes').get_dropdown({
+        initial_mode    = 'normal',
+
+        prompt_title = '✨ Finder (按\'/\'开始搜索)',
+        results_title   = 'Result',
+        prompt_prefix   = '⌕ ',
+        selection_caret = '➤ ',
+        theme           = "dropdown",
 
         -- 布局设置：底部布局（输入框在底部）
         layout_strategy = 'center',
-        layout_config = {
-            width = 0.8,
-            height = 0.6,
-            preview_cutoff = 120,
-            prompt_position = 'top',
-        },
+        --layout_config = {
+        --    width = 0.5,
+        --    preview_cutoff = 120,
+        --    prompt_position = 'top',
+        --},
 
         -- 排序器
         sorting_strategy = 'ascending',
 
         -- 预览设置
+        previewer = true,
         preview = {
-            hide_on_startup = false,
-            timeout = 200,
+            hide_on_startup = true,
+            timeout = 60,
         },
 
         -- 文件忽略模式
@@ -77,10 +83,7 @@ require('telescope').setup({
         -- =============================================================
         mappings = {
             i = { },
-            n = {
-                -- 保留默认的 <Esc> 关闭逻辑
-              ["<esc>"] = require('telescope.actions').close,
-            },
+            n = { },
         },
 
         -- =============================================================
@@ -89,12 +92,13 @@ require('telescope').setup({
         completion = {
             complete = false,
         },
-    },
+    }),
 
     -- pickers 特定配置
     pickers = {
         -- 文件搜索
         find_files = {
+            prompt_title = '📄 Finder (' .. vim.g.finder_tips .. ')',
             hidden = true,
             find_command = {"rg", "--files", "--glob", "!.git", "--hidden"},
             sorters = { fzy_sorter() },
@@ -102,12 +106,14 @@ require('telescope').setup({
 
         -- 缓冲区列表
         buffers = {
+            prompt_title = '📝 Buffers (' .. vim.g.finder_tips .. ')',
             sort_lastused = true,
             sort_mru = true,
         },
 
         -- 实时搜索
         live_grep = {
+            prompt_title = '🔎 Search (' .. vim.g.finder_tips .. ')',
             additional_args = function() return {"--hidden", "--glob", "!.git"} end,
             sorters = { fzy_sorter() },
         },
@@ -161,9 +167,9 @@ finder.menu = function()
         })
     end
 
-    -- 使用 ui-select dropdown 主题
-    builtin.find_files(themes.get_dropdown({
-        prompt_title = '✨ Finder',
+    builtin.find_files({
+        prompt_title = '✨ Finder (按\'/\'开始搜索)',
+
         finder = finders.new_table({
             results = results,
             entry_maker = function(entry)
@@ -178,13 +184,16 @@ finder.menu = function()
             actions.select_default:replace(function()
                 local selection = action_state.get_selected_entry()
                 if selection and selection.value then
-                    vim.cmd(selection.value)
+                    -- 先关闭 picker，再执行命令
+                    actions.close(prompt_bufnr)
+                    vim.schedule(function()
+                        vim.cmd(selection.value)
+                    end)
                 end
             end)
             return true
         end,
-        disable_devicons = true,
-    }))
+    })
 end
 
 -- 注册扩展

@@ -5,6 +5,9 @@
 " 全局设置
 " =============================================================================
 
+let g:finder_tips = "按'/'开始搜索"
+let g:finder_bufnr = 0 " Prompt bufnr
+
 luafile <sfile>:h/telescope.lua
 
 " =============================================================================
@@ -13,106 +16,103 @@ luafile <sfile>:h/telescope.lua
 
 let g:finder = {
             \ 'items': [
-            \   ['Finder          (CTRL-o)  ', 'Finder'                               ] ,
-            \   ['Buffer          (CTRL-e)  ', 'Buffer'                               ] ,
-            \   ['Search          (CTRL-g)  ', 'SearchResume'                         ] ,
-            \   ['Undo            (u)       ', 'undo'                                 ] ,
-            \   ['Redo            (U)       ', 'redo'                                 ] ,
-            \   ['Format          (F8)      ', 'ALEFix'                               ] ,
-            \   ['Edit init.vim             ', 'edit ' . $MYVIMRC                     ] ,
-            \   ['Move Up         (CTRL-k)  ', 'wincmd k'                             ] ,
-            \   ['Move Down       (CTRL-j)  ', 'wincmd j'                             ] ,
-            \   ['Move Left       (CTRL-h)  ', 'wincmd h'                             ] ,
-            \   ['Move Right      (CTRL-l)  ', 'wincmd l'                             ] ,
-            \   ['Explorer        (F9)      ', 'ExplorerFocus'                        ] ,
-            \   ['Taglist         (F10)     ', 'TaglistFocus'                         ] ,
-            \   ['LazyGit         (F12)     ', 'VCS'                                  ] ,
-            \   ['Close           (CTRL-w)  ', 'BufferClose'                          ] ,
-            \   ['Quit            (:qa)     ', 'confirm quit'                         ] ,
-            \   ['Help                      ', 'edit ' . g:pretty_home . '/README.md' ] ,
+            \   ['1. Finder          (CTRL-o)  ', 'Finder'                               ] ,
+            \   ['2. Buffer          (CTRL-e)  ', 'Buffer'                               ] ,
+            \   ['3. Search          (CTRL-g)  ', 'Search'                               ] ,
+            \   ['4. Format          (F8)      ', 'ALEFix'                               ] ,
+            \   ['5. Explorer        (F9)      ', 'ExplorerFocus'                        ] ,
+            \   ['6. Taglist         (F10)     ', 'TaglistFocus'                         ] ,
+            \   ['7. LazyGit         (F12)     ', 'VCS'                                  ] ,
+            \   ['8. Close           (CTRL-w)  ', 'BufferClose'                          ] ,
+            \   ['9. Quit            (:qa)     ', 'confirm quit'                         ] ,
+            \   ['?. Help                      ', 'edit ' . g:pretty_home . '/README.md' ] ,
             \ ],
             \ }
 
 " =============================================================================
-" 命令定义（对应 Denite 命令）
+" 命令定义
 " =============================================================================
 
-" Finder - 文件搜索（对应 Denite file/rec）
-command! -nargs=0 Finder lua require('telescope.builtin').find_files()
-
-" Buffer - 缓冲区列表（对应 Denite buffer）
-command! -nargs=0 Buffer lua require('telescope.builtin').buffers({initial_mode = "normal"})
-
-" Search - 项目搜索（对应 Denite grep）
-command! -nargs=0 Search call s:telescope_search()
-
-" SearchResume - 恢复上次搜索
-command! -nargs=0 SearchResume lua require('telescope.builtin').live_grep()
-
 " Menu - 主菜单
-command! -nargs=0 Menu lua require('init.telescope').finder.menu()
+command! -nargs=0 FinderMenu lua require('init.telescope').finder.menu()
+
+command! -nargs=0 FinderExit lua require('telescope.actions').close(vim.g.finder_bufnr)
+
+" Finder - 文件搜索
+command! -nargs=* Finder Telescope find_files <args>
+
+" Search - 项目搜索
+command! -nargs=* Search Telescope live_grep <args>
+
+" Buffer - 缓冲区
+command! -nargs=* Buffer Telescope buffers <args>
 
 " =============================================================================
 " 搜索功能（支持从当前单词开始搜索）
 " =============================================================================
 
-function! s:telescope_search() abort
+function! s:Grep() abort
     let l:word = expand("<cword>")
     if l:word !=# ''
         " 如果有当前单词，直接搜索
-        lua require('telescope.builtin').live_grep({ default_text = vim.fn.expand("<cword>") })
+        exe 'Search default_text=' .. l:word
     else
         " 否则打开搜索框
-        lua require('telescope.builtin').live_grep()
+        exe 'Search'
     endif
 endfunction
 
+" Grep <cword>
+command! -nargs=0 Grep call <SID>Grep()
 
 " =============================================================================
 " Telescope 窗口设置
 " =============================================================================
 augroup FinderKeymaps
     autocmd!
-    autocmd FileType TelescopePrompt call s:TelescopeSettings()
+    autocmd FileType TelescopePrompt call s:FinderSettings()
 augroup END
 
-function! s:TelescopeSettings() abort
-    setlocal nonumber
-    setlocal nohlsearch
-    setlocal signcolumn=no
+function! s:FinderSettings() abort
+    " 记录窗口bufnr
+    let g:finder_bufnr = bufnr()
+    echom 'finder_bufnr: ' .. g:finder_bufnr
+
+    "setlocal nonumber
+    "setlocal nohlsearch
+    "setlocal signcolumn=no
+
+    " Suppress 'E37: No write since last change'
+    setlocal buftype=nofile
 
     setlocal cursorline
     setlocal termguicolors
-    highlight Cursor blend=100
+    "highlight Cursor blend=100
 
     " 基本导航
-    nnoremap <silent><buffer> <CR>    <Cmd>lua require('telescope.actions').select_default()<CR>
-    inoremap <silent><buffer> <CR>    <Cmd>lua require('telescope.actions').select_default()<CR>
+    nnoremap <silent><buffer> /       :startinsert!<CR>
+    inoremap <silent><buffer> <CR>    <C-o>:stopinsert<CR>
+    nnoremap <silent><buffer> <Esc>   :FinderExit<CR>
 
-    " 预览
-    nnoremap <silent><buffer> p       <Cmd>lua require('telescope.actions').preview_scrolling_up()<CR>
+    " --- 预览 ---
+    " Normal 模式：按 p 切换预览
+    nnoremap <silent><buffer> p       :lua require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)
 
-    " 选择
-    nnoremap <silent><buffer> <Space> <Cmd>lua require('telescope.actions').toggle_selection()<CR>j
+    " --- 缓冲区 ---
+    " Normal 模式：按 w 删除选中的缓冲区
+    nnoremap <silent><buffer> w       :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)
 
-    " 删除缓冲区
-    nnoremap <silent><buffer> w       <Cmd>lua require('telescope.actions').delete_buffer()<CR>
-
-    " 数字选择（1-9）
-    nnoremap <silent><buffer> 1       <Cmd>lua require('telescope.actions').select_default({ index = 1 })<CR>
-    nnoremap <silent><buffer> 2       <Cmd>lua require('telescope.actions').select_default({ index = 2 })<CR>
-    nnoremap <silent><buffer> 3       <Cmd>lua require('telescope.actions').select_default({ index = 3 })<CR>
-    nnoremap <silent><buffer> 4       <Cmd>lua require('telescope.actions').select_default({ index = 4 })<CR>
-    nnoremap <silent><buffer> 5       <Cmd>lua require('telescope.actions').select_default({ index = 5 })<CR>
-    nnoremap <silent><buffer> 6       <Cmd>lua require('telescope.actions').select_default({ index = 6 })<CR>
-    nnoremap <silent><buffer> 7       <Cmd>lua require('telescope.actions').select_default({ index = 7 })<CR>
-    nnoremap <silent><buffer> 8       <Cmd>lua require('telescope.actions').select_default({ index = 8 })<CR>
-    nnoremap <silent><buffer> 9       <Cmd>lua require('telescope.actions').select_default({ index = 9 })<CR>
+    " --- 选择 ---
+    " Normal 模式：按 Space 打开选中的项
+    nnoremap <silent><buffer> <Space> :lua require('telescope.actions').select_default(vim.g.finder_bufnr)
 endfunction
 
 " =============================================================================
 " Telescope 窗口按键绑定
 " =============================================================================
+
+" Menu - 主菜单（对应 <Enter>）
+nnoremap <Enter>    :FinderMenu<cr>
 
 " Finder - 文件查找（对应 <C-o>）
 nnoremap <C-o>      :Finder<cr>
@@ -122,12 +122,9 @@ inoremap <C-o>      <C-o>:Finder<cr>
 nnoremap <C-e>      :Buffer<cr>
 inoremap <C-e>      <C-o>:Buffer<cr>
 
-" Search - 项目搜索（对应 <C-g>）
-nnoremap <C-g>      :Search<cr>
-inoremap <C-g>      <C-o>:Search<cr>
-
-" Menu - 主菜单（对应 <Enter>）
-nnoremap <Enter>    :Menu<cr>
+" Grep - 项目搜索（对应 <C-g>）
+nnoremap <C-g>      :Grep<cr>
+inoremap <C-g>      <C-o>:Grep<cr>
 
 " Window
 nnoremap <F9>       :ExplorerFocus<cr>
