@@ -11,7 +11,10 @@ if g:dark_mode
 else
     set background=light
 endif
-colorscheme solarized8
+
+" 加载 Solarized 主题配置
+luafile <sfile>:h/solarized.lua
+
 if !has('gui_running')
     set t_Co=256
 endif
