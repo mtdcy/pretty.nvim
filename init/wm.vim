@@ -11,13 +11,15 @@
 "   4. 互斥窗口管理（如 Tagbar vs CodeCompanion）
 "
 " 窗口布局：
+"   +----------------------------------------+
+"   |               headbar (2)              |
 "   +----------+------------------+----------+
 "   |          |                  |          |
 "   | leftbar  |     main         | rightbar |
 "   | (1)      |     (0)          | (4)      |
 "   |          |                  |          |
 "   +----------+------------------+----------+
-"   | headbar (2) / footbar (3)              |
+"   |               footbar (3)              |
 "   +----------------------------------------+
 "
 " 窗口 ID 映射：
@@ -42,8 +44,8 @@ let g:wm_debug  = 0
 let g:wm_height = min([12, winheight(0) / 4])
 
 " 侧边栏宽度（垂直窗口：NERDTree/Tagbar）
-" 最小为当前窗口宽度的 1/4，最大为 1/2（但不超过 40 列）
-let g:wm_width  = max([min([40, winwidth(0) / 2]), winwidth(0) / 4])
+" 最大为 1/2（但不超过 32 列）
+let g:wm_width  = min([32, winwidth(0) / 2])
 
 " 重置 wildignore（使用默认值）
 set wildignore&

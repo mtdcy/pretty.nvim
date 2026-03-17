@@ -38,7 +38,7 @@ let g:finder = {
             \   ['4. Format          (F8)      ', 'ALEFix'                               ] ,
             \   ['5. Explorer        (F9)      ', 'ExplorerFocus'                        ] ,
             \   ['6. Taglist         (F10)     ', 'TaglistFocus'                         ] ,
-            \   ['7. LazyGit         (F12)     ', 'VCS'                                  ] ,
+            \   ['7. LazyGit         (F12)     ', 'GitOpen'                                  ] ,
             \   ['8. Close           (CTRL-w)  ', 'BufferClose'                          ] ,
             \   ['9. Quit            (:qa)     ', 'confirm quit'                         ] ,
             \   ['?. Help                      ', 'edit ' . g:pretty_home . '/README.md' ] ,
@@ -101,7 +101,8 @@ function! s:FinderSettings() abort
     let g:finder_bufnr = bufnr()
 
     " Suppress 'E37: No write since last change'
-    setlocal buftype=nofile
+    "setlocal buftype=nofile
+    " 会导致 prompt_prefix 配置不生效
 
     setlocal cursorline
     setlocal termguicolors
@@ -117,15 +118,15 @@ function! s:FinderSettings() abort
 
     " --- 预览 ---
     " Normal 模式：按 p 切换预览
-    nnoremap <silent><buffer> p       :lua require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)
+    nnoremap <silent><buffer> p       :lua require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)<CR>
 
     " --- 缓冲区 ---
     " Normal 模式：按 w 删除选中的缓冲区
-    nnoremap <silent><buffer> w       :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)
+    nnoremap <silent><buffer> w       :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)<CR>
 
     " --- 选择 ---
     " Normal 模式：按 Space 打开选中的项
-    nnoremap <silent><buffer> <Space> :lua require('telescope.actions').select_default(vim.g.finder_bufnr)
+    nnoremap <silent><buffer> <Space> :lua require('telescope.actions').select_default(vim.g.finder_bufnr)<CR>
 endfunction
 
 " =============================================================================
@@ -158,8 +159,8 @@ inoremap <F9>       <C-o>:ExplorerFocus<cr>
 nnoremap <F10>      :TaglistFocus<cr>
 inoremap <F10>      <C-o>:TaglistFocus<cr>
 " no F11 here, as macOS has global define
-nnoremap <F12>      :VCS<cr>
-inoremap <F12>      <C-o>:VCS<cr>
+nnoremap <F12>      :GitOpen<cr>
+inoremap <F12>      <C-o>:GitOpen<cr>
 
 " =============================================================================
 " 缓冲区导航（保持与 Denite 一致）

@@ -223,18 +223,15 @@ augroup END
 
 " => Load $HOME/.env files using dotenv.nvim
 if filereadable($HOME . '/.env')
-    execute 'lua require("dotenv").command({fargs = {"' . $HOME . '/.env "}})'
+    lua require("dotenv").command({fargs = {"' . $HOME . '/.env "}})
 endif
-
-" => Load basic lua plugins
-luafile <sfile>:h/init/markdown.lua
 
 " => Load init scripts
 source <sfile>:h/init/ui.vim
 source <sfile>:h/init/explorer.vim
 source <sfile>:h/init/taglist.vim
 source <sfile>:h/init/cmp.vim
-source <sfile>:h/init/vcs.vim
+source <sfile>:h/init/git.vim
 source <sfile>:h/init/ai.vim
 source <sfile>:h/init/misc.vim
 
@@ -253,19 +250,19 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
 
-" lcd to git root when opening FIRST file {{{
+" lcd to project root when opening FIRST file {{{
 " Use finddir() to find .git directory (no external command needed)
 " Only run once per nvim session
-let g:auto_cd_done = v:false
+let g:auto_lcd_done = v:false
 
-augroup AutoGitRoot
+augroup ProjectSettings
     autocmd!
-    autocmd BufReadPost,BufNewFile * call s:AutoCdToGitRoot()
+    autocmd BufReadPost,BufNewFile * call s:FindProjectRoot()
 augroup END
 
-function! s:AutoCdToGitRoot() abort
+function! s:FindProjectRoot() abort
     " Only run once per session
-    if g:auto_cd_done | return | endif
+    if g:auto_lcd_done | return | endif
 
     " Skip for no-name buffers (e.g. [No Name])
     if expand('%') == '' | return | endif
@@ -277,7 +274,7 @@ function! s:AutoCdToGitRoot() abort
     let l:gitroot = finddir('.git', expand('%:p:h') . ';')
     if l:gitroot !=# ''
         execute 'lcd ' . fnameescape(fnamemodify(l:gitroot, ':h'))
-        let g:auto_cd_done = v:true
+        let g:auto_lcd_done = v:true
     endif
 endfunction
 " }}}

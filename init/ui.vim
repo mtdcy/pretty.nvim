@@ -27,6 +27,11 @@ let g:lightline_enabled = 1
 " 启用真彩色支持（24 位色）
 set termguicolors
 
+" 终端颜色数（非 GUI 模式）
+if !has('gui_running')
+    set t_Co=256
+endif
+
 " 根据 dark_mode 设置背景
 if g:dark_mode
     set background=dark
@@ -37,10 +42,8 @@ endif
 " 加载 Solarized 主题配置（Lua 配置）
 luafile <sfile>:h/solarized.lua
 
-" 终端颜色数（非 GUI 模式）
-if !has('gui_running')
-    set t_Co=256
-endif
+" => Load basic lua plugins
+luafile <sfile>:h/markdown.lua
 
 " 光标设置：a=所有模式，blinkwait5=等待 5ms 开始闪烁，blinkon5=亮 5ms，blinkoff5=灭 5ms
 set guicursor=a:blinkwait5-blinkon5-blinkoff5
