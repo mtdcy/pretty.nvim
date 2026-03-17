@@ -12,9 +12,9 @@ endif
 " Lazygit {{{
 if g:lazygit_enabled
     " transparency of floating window
-    let g:lazygit_floating_window_winblend = 1
+    let g:lazygit_floating_window_winblend = 0
     " use plenary.nvim to manage floating window if available
-    let g:lazygit_floating_window_use_plenary = 1
+    let g:lazygit_floating_window_use_plenary = LuaExists('plenary.window')
     " customize lazygit popup window border characters
     let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
     " custom config file first for nvim

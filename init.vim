@@ -221,6 +221,11 @@ augroup EditorConfig
     autocmd InsertLeave * set ic
 augroup END
 
+" => Check if Lua plugin exists (like exists('*func') for VimScript)
+function! LuaExists(plugin) abort
+    return luaeval('select(1, pcall(require, _A))', a:plugin)
+endfunction
+
 " => Load $HOME/.env files using dotenv.nvim
 if filereadable($HOME . '/.env')
     lua require("dotenv").command({fargs = {"' . $HOME . '/.env "}})
