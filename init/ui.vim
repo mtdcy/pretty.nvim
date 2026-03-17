@@ -236,8 +236,17 @@ if g:lightline_enabled
     " 自定义函数
     " ---------------------------------------------------------------------
 
-    " 获取 Git 分支名称
+    " 获取 Git 分支名称（优先使用 gitsigns，回退到 system 调用）
     function! GitBranch() abort
+        " 尝试使用 gitsigns.nvim（高性能，无阻塞）
+        if exists('*gitsigns.get_status_string')
+            let l:head = gitsigns.get_status_string()
+            if l:head !=? ''
+                return l:head
+            endif
+        endif
+
+        " Fallback: 使用 system 调用（兼容旧方式）
         let head = trim(system('git branch --show-current 2>/dev/null'))
         if head !=? ''
             " 获取仓库目录名
