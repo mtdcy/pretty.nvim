@@ -128,7 +128,7 @@ function! s:wmsettle(wmid) abort
 endfunction
 
 function! s:wminfo() abort
-    echom '== wmid:' . s:wmid() . '|wmtype:' . s:wmtype('%')
+    echo '== wmid:' . s:wmid() . '|wmtype:' . s:wmtype('%')
                 \ . '|winid:' . win_getid()
                 \ . '|winnr:' . winnr() . '#' . winnr('$')
                 \ . '|type:' . win_gettype() . '|winbufnr:' . winbufnr(0)
@@ -140,6 +140,24 @@ function! s:wminfo() abort
                 \ . '|hide:' . &bufhidden . '|buflisted:' . &buflisted . '|swapfile:' . &swapfile
 endfunction
 
+" 主窗口管理
+function! s:wm_main() abort
+    let winid = win_getid()
+    " 检查 main 窗口状态,
+    " - 要是buffer是在外部被删除的，winid还被保存着，所以检查 winnr (1-based)
+    if s:wmwinnr(0) > 0 | return | endif
+
+    " 这种情况主要发生在唯一的buf被外部命令删除
+    echo '== main window closed, take ' .. winid
+
+    " main 窗口不存在，sp|vsp 一个很复杂，直接抢一个窗口
+    call s:wmwinidset(s:winid2wmid(winid), 0)
+    call s:wmwinidset(0, winid)
+
+    enew " 这个很关键，不然后面 wmtype 判断会失效
+endfunction
+
+" wm_update 可能在未被管理的窗口调用到
 function! s:wm_update() abort
     if g:wm_debug | call s:wminfo() | endif
     let type  = s:wmtype('%')
@@ -147,12 +165,12 @@ function! s:wm_update() abort
     " 1. sticky buffer: buffer mis-placed?
     let wmid = s:type2wmid(type)
     if s:wmid() > 0 && wmid != s:wmid()
-        echom '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
+        echo '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
         if bufwinnr('#') > 0
-            echom '== settle window'
+            echo '== settle window'
             call s:wmsettle(wmid)
         else
-            echom '== move buffer'
+            echo '== move buffer'
             call s:wmmove('%')
         endif
     endif
@@ -166,10 +184,10 @@ function! s:wm_update() abort
         if winid != s:wmwinid(wmid)
             " how to deal with the new window?
             if s:wmwinid(wmid) > 0
-                echom '== move buffer to window ' . s:wmwinid(wmid)
+                echo '== move buffer to window ' . s:wmwinid(wmid)
                 call s:wmsettle(wmid)
             else
-                echom '== set new window ' . winid . ' for type ' . type
+                echo '== set new window ' . winid . ' for type ' . type
                 call s:wmwinidset(wmid, winid)
                 if type ==? 'docs' || type ==? 'quickfix'
                     exe 'resize ' . g:wm_height
@@ -186,7 +204,7 @@ function! s:wm_update() abort
                 if getbufvar(bufnr, '&ft') ==? 'codecompanion'
                     let winid = bufwinid(bufnr)
                     if winid > 0 && winid != win_getid()
-                        echom "== rightbar: closing codecompanion for tagbar"
+                        echo "== rightbar: closing codecompanion for tagbar"
                         call win_execute(winid, 'quit')
                         break
                     endif
@@ -198,31 +216,12 @@ function! s:wm_update() abort
                 if getbufvar(bufnr, '&ft') ==? 'tagbar'
                     let tagbar_winid = bufwinid(bufnr)
                     if tagbar_winid > 0 && tagbar_winid != win_getid()
-                        echom "== rightbar: closing tagbar for codecompanion"
+                        echo "== rightbar: closing tagbar for codecompanion"
                         call win_execute(tagbar_winid, 'quit')
                         break
                     endif
                 endif
             endfor
-        endif
-    endif
-endfunction
-
-" clean records on window close
-function! s:wm_on_winclosed(winid) abort
-    echom "== window " . a:winid . " closed"
-    let wmid = s:winid2wmid(a:winid)
-    if wmid >= 0
-        call s:wmwinidset(wmid, 0)
-    endif
-
-    " find another main window
-    if s:wmwinid(0) < 0
-        echo '== main window closed'
-        let li = filter(range(1, winnr('$')), "v:val != winnr() && s:winnr2wmid(v:val) < 0")
-        if len(li) > 0
-            echo '== main window closed, switch to ' . win_getid(li[0])
-            call s:wmwinidset(0, win_getid(li[0]))
         endif
     endif
 endfunction
@@ -235,10 +234,9 @@ function! s:close() abort
         let li = filter(range(1, bufnr('$')), 'buflisted(v:val) == 1 && v:val != ' . bufnr)
         if len(li) > 0
             " switch to previous buffer and delete current one
-            echom "close " . bufname(bufnr)
-            exe 'bprev | bdelete ' . bufname(bufnr)
+            exe 'bprev | bdelete ' . bufnr
         else
-            echom "Last buffer, close it with :qa"
+            echo "Last buffer, close it with :qa"
         endif
     endif
 endfunction
@@ -255,13 +253,10 @@ endfunction
 
 augroup WM
     autocmd!
+    autocmd BufDelete   * call s:wm_main()
     autocmd BufEnter    * call s:wm_update()
     " workarounds for NERDTree and Tagbar which set eventignore on creation
     autocmd FileType    nerdtree,tagbar,codecompanion call s:wm_update()
-    " WinClosed may be called out of box
-    autocmd WinClosed   * silent call s:wm_on_winclosed(str2nr(expand('<amatch>')))
-    " quit window parts if main window went away
-    autocmd WinEnter    * if g:winids[0] < 0 | quit | endif
 
     autocmd BufEnter    term://* startinsert
     autocmd BufLeave    term://* stopinsert
