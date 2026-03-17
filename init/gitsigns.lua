@@ -25,10 +25,10 @@ gitsigns.setup({
     numhl = false,      -- 默认：false
 
     -- 是否高亮整行
-    linehl = true,     -- 默认：false
+    linehl = false,     -- 默认：false
 
     -- 是否启用 word diff
-    word_diff = true,  -- 默认：false
+    word_diff = false,  -- 默认：false
 
     -- 自动命令配置
     on_attach = function(bufnr)
