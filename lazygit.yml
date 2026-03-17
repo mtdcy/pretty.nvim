@@ -1,48 +1,58 @@
-# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+# =============================================================================
+# LazyGit 配置文件 - pretty.nvim
+# =============================================================================
+# 文档：https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+#
+# 按键绑定约定：
+#   - 空字符串 '' = 禁用该功能
+#   - 保留原默认值作为注释，方便参考
+#   - 自定义按键绑定已配置
+# =============================================================================
+
+# --- 基本设置 ---
 quitOnTopLevelReturn: true
 promptToReturnFromSubprocess: false
 disableStartupPopups: true
+
+# --- GUI 设置 ---
 gui:
-  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'  #
-  screenMode: 'normal' # one of 'normal' | 'half' | 'full' default is 'normal'  #
-  mainPanelSplitMode: 'flexible' # one of 'horizontal' | 'flexible' | 'vertical'  #
-  enlargedSideViewLocation: 'left' # one of 'left' | 'top'  #
+  border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
+  screenMode: 'normal' # one of 'normal' | 'half' | 'full'
+  mainPanelSplitMode: 'flexible' # one of 'horizontal' | 'flexible' | 'vertical'
+  enlargedSideViewLocation: 'left' # one of 'left' | 'top'
   nerdFontsVersion: 3
   showFileIcons: true
   showPanelJumps: true
   scrollOffMargin: 2
-  scrollOffBehavior: margin # One of: 'margin' (default) | 'jump'  #
-  # show commit hashes alongside branch names in the branches view.
+  scrollOffBehavior: 'margin' # one of 'margin' | 'jump'
   showBranchCommitHash: false
-  # Whether to show the divergence from the base branch in the branches view.
-  # One of: 'none' | 'onlyArrow'  | 'arrowAndNumber'
-  showDivergenceFromBaseBranch: 'arrowAndNumber'
+  showDivergenceFromBaseBranch: 'arrowAndNumber' # one of 'none' | 'onlyArrow' | 'arrowAndNumber'
   theme:
     activeBorderColor:
       - red
       - bold
     selectedLineBgColor:
       - reverse
+
+# --- 自定义命令 ---
 customCommands:
   - key: 'p'
     context: 'global'
     command: 'git pull --rebase && git fetch --prune --tags'
     loadingText: 'Pull and rebase and fetching tags'
+
+# --- Git 设置 ---
 git:
   mainBranches:
     - main
     - master
-  # If true, periodically fetch from remote
   autoFetch: false
-  # If true, periodically refresh files and submodules
   autoRefresh: false
-  # If true, lazygit will automatically stage files that used to have merge conflicts but no longer do
   autoStageResolvedConflicts: true
-  # If true, pass the --all arg to git fetch
   fetchAll: true
   disableForcePushing: false
   parseEmoji: true
-  overrideGpg: false # prevents lazygit from spawning a separate process when using GPG
+  overrideGpg: false
   branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
   externalDiffCommand: 'nvim -d'
   pagers:
@@ -53,167 +63,228 @@ git:
     signOff: false
     autoWrapCommitMessage: false
   merging:
-    manualCommit: false # only applicable to unix users  #
-    args: '--no-ff --no-edit' # extra args passed to `git merge`, e.g. --no-ff  #
+    manualCommit: false
+    args: '--no-ff --no-edit'
     squashMergeMessage: 'Squash merge {{selectedRef}} into {{currentBranch}}'
   log:
-    showGraph: 'always' # Deprecated: Configure this with `Log menu -> Show git graph` (<c-l> in the commits window by default).  #
-    showWholeGraph: true # displays the whole git graph by default in the commits panel (equivalent to passing the `--all` argument to `git log`)  #
+    showGraph: 'always'
+    showWholeGraph: true
   allBranchesLogCmds:
     - git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline
-# lower case for local, upper case for remote
+
+# =============================================================================
+# 按键绑定配置
+# =============================================================================
+# 约定：
+#   - 小写字母 = 本地操作
+#   - 大写字母 = 远程操作
+#   - 空字符串 '' = 禁用（原默认值保留在注释中）
+# =============================================================================
+
 keybinding:
+  # --- 全局通用绑定 ---
   universal:
-    jumpToBlock: # goto the Nth block / panel
+    # 面板跳转
+    jumpToBlock:
       - ''
       - '1'
       - '2'
       - '3'
       - '4'
-    quit: 'Q' #  # use return instead
-    quit-alt1: '' #  # alternative/alias of quit
-    return: '<esc>' #  # return to previous menu, will quit if there's nowhere to return
-    prevItem: '<up>' #  # go one line up
-    nextItem: '<down>' #  # go one line down
-    # panel & tab  #
-    togglePanel: '<tab>' #  # goto the next panel
-    prevBlock: 'h' #  # goto the previous block / panel
-    nextBlock: 'l' #  # goto the next block / panel
-    prevBlock-alt: '' #  # goto the previous block / panel
-    nextBlock-alt: '' #  # goto the next block / panel
-    prevItem-alt: 'k' #  # go one line up
-    nextItem-alt: 'j' #  # go one line down
-    nextTab: ']'
-    prevTab: '['
-    prevPage: '<pgup>' # ','  # go to next page in list
-    nextPage: '<pgdown>' # '.'  # go to previous page in list
-    gotoTop: '<home>' # '<'  # go to top of list
-    gotoBottom: '<end>' # '>'  # go to bottom of list
-    optionMenu: '?' #  # show help menu
-    extrasMenu: '@'
-    select: '<space>'
-    goInto: '<enter>'
-    confirm: '<enter>'
-    pullFiles: '' #  # pull rebase
-    pushFiles: 'P' #  # Push (force)
-    submitEditorText: '<enter>'
-    remove: 'd' #  # Delete
-    new: 'n'
-    edit: 'e'
-    undo: 'u'
-    redo: 'U'
-    refresh: 'r'
-    nextMatch: 'n'
-    prevMatch: 'N'
-    openRecentRepos: ''
-    toggleRangeSelect: 'v'
-    executeShellCommand: ':'
-    # screen mode  #
-    nextScreenMode: '\'
-    prevScreenMode: 'q'
-    ## disable actions  ##
-    scrollLeft: '' # 'H'       # scroll left within list view  #
-    scrollRight: '' # 'L'       # scroll right within list view  #
-    copyToClipboard: '' # '<c-o>'   #  #
-    scrollUpMain: '' # '<pgup>'  # main panel scroll up  #
-    scrollDownMain: '' # '<pgdown>'# main panel scroll down  #
-    scrollUpMain-alt1: '' # 'K'       # main panel scroll up  #
-    scrollDownMain-alt1: '' # 'J'       # main panel scroll down  #
-    openFile: 'o' # 'o'       #  #
-    createRebaseOptionsMenu: '' # 'm'       #  #
-    createPatchOptionsMenu: '' # '<c-p>'   #  #
-    filteringMenu: '' # '<c-s>'   #  #
-    diffingMenu: '' # 'W'  #
-    diffingMenu-alt: '' # '<c-e>'   #  # deprecated
-    rangeSelectUp: '' # '<s-up>'  #  #
-    rangeSelectDown: '' # '<s-down>'#  #
-    increaseContextInDiffView: '}'
-    decreaseContextInDiffView: '{'
-    toggleWhitespaceInDiffView: '' # '<c-w>'   #  #
-    quitWithoutChangingDirectory: '' # 'Q'       #  #
+    
+    # 基本导航
+    quit: 'Q'                     # 默认：'q' - 使用 Q 代替
+    quit-alt1: ''                 # 默认：'' - 备用退出
+    return: '<esc>'               # 默认：'<esc>' - 返回上级菜单
+    prevItem: '<up>'              # 默认：'<up>' - 上一行
+    nextItem: '<down>'            # 默认：'<down>' - 下一行
+    
+    # 面板切换
+    togglePanel: '<tab>'          # 默认：'<tab>' - 切换到下一个面板
+    prevBlock: 'h'                # 默认：'h' - 左侧面板
+    nextBlock: 'l'                # 默认：'l' - 右侧面板
+    prevBlock-alt: ''             # 默认：'' - 备用左侧
+    nextBlock-alt: ''             # 默认：'' - 备用右侧
+    prevItem-alt: 'k'             # 默认：'k' - 上一行（备用）
+    nextItem-alt: 'j'             # 默认：'j' - 下一行（备用）
+    
+    # Tab 切换
+    nextTab: ']'                  # 默认：']' - 下一个 Tab
+    prevTab: '['                  # 默认：'[' - 上一个 Tab
+    
+    # 页面导航
+    prevPage: '<pgup>'            # 默认：'<pgup>' - 上一页
+    nextPage: '<pgdown>'          # 默认：'<pgdown>' - 下一页
+    gotoTop: '<home>'             # 默认：'<home>' - 顶部
+    gotoBottom: '<end>'           # 默认：'<end>' - 底部
+    
+    # 菜单
+    optionMenu: '?'               # 默认：'?' - 帮助菜单
+    extrasMenu: '@'               # 默认：'@' - 额外菜单
+    
+    # 选择操作
+    select: '<space>'             # 默认：'<space>' - 选择
+    goInto: '<enter>'             # 默认：'<enter>' - 进入
+    confirm: '<enter>'            # 默认：'<enter>' - 确认
+    
+    # Git 操作
+    pullFiles: ''                 # 默认：'p' - 已禁用（使用自定义命令）
+    pushFiles: 'P'                # 默认：'P' - 推送（强制）
+    
+    # 编辑器
+    submitEditorText: '<enter>'   # 默认：'<enter>' - 提交编辑器文本
+    
+    # 基本操作
+    remove: 'd'                   # 默认：'d' - 删除
+    new: 'n'                      # 默认：'n' - 新建
+    edit: 'e'                     # 默认：'e' - 编辑
+    undo: 'u'                     # 默认：'u' - 撤销
+    redo: 'U'                     # 默认：'U' - 重做
+    refresh: 'r'                  # 默认：'r' - 刷新
+    
+    # 搜索
+    nextMatch: 'n'                # 默认：'n' - 下一个匹配
+    prevMatch: 'N'                # 默认：'N' - 上一个匹配
+    
+    # 其他
+    openRecentRepos: ''           # 默认：'' - 打开最近仓库
+    toggleRangeSelect: 'v'        # 默认：'v' - 范围选择
+    executeShellCommand: ':'      # 默认：':' - 执行 shell 命令
+    
+    # 屏幕模式
+    nextScreenMode: '\'           # 默认：'\' - 下一个屏幕模式
+    prevScreenMode: 'q'           # 默认：'q' - 上一个屏幕模式（与 quit 冲突，需注意）
+    
+    # --- 禁用的操作（保留原默认值作为注释参考）---
+    scrollLeft: ''                # 默认：'H' - 向左滚动
+    scrollRight: ''               # 默认：'L' - 向右滚动
+    copyToClipboard: ''           # 默认：'<c-o>' - 复制到剪贴板
+    scrollUpMain: ''              # 默认：'<pgup>' - 主面板向上滚动
+    scrollDownMain: ''            # 默认：'<pgdown>' - 主面板向下滚动
+    scrollUpMain-alt1: ''         # 默认：'K' - 主面板向上滚动（备用）
+    scrollDownMain-alt1: ''       # 默认：'J' - 主面板向下滚动（备用）
+    openFile: 'o'                 # 默认：'o' - 打开文件
+    createRebaseOptionsMenu: ''   # 默认：'m' - 创建 rebase 选项菜单
+    createPatchOptionsMenu: ''      # 默认：'<c-p>' - 创建 patch 选项菜单
+    filteringMenu: ''             # 默认：'<c-s>' - 过滤菜单
+    diffingMenu: ''               # 默认：'W' - 差异菜单
+    diffingMenu-alt: ''           # 默认：'<c-e>' - 差异菜单（备用，已废弃）
+    rangeSelectUp: ''             # 默认：'<s-up>' - 范围选择向上
+    rangeSelectDown: ''           # 默认：'<s-down>' - 范围选择向下
+    increaseContextInDiffView: '}' # 默认：'}' - 增加差异视图上下文
+    decreaseContextInDiffView: '{' # 默认：'{' - 减少差异视图上下文
+    toggleWhitespaceInDiffView: '' # 默认：'<c-w>' - 切换空白字符显示
+    quitWithoutChangingDirectory: '' # 默认：'Q' - 退出不切换目录
+
+  # --- 状态面板 ---
   status:
-    checkForUpdate: '' # 'u'       #  #
-    recentRepos: '' # '<enter>' #  #
+    checkForUpdate: ''            # 默认：'u' - 检查更新
+    recentRepos: ''               # 默认：'<enter>' - 最近仓库
+
+  # --- 文件面板 ---
   files:
-    ### files: commit & amend is enough.  ###
-    ignoreFile: 'i' # 'i'       # ignore file  #
-    commitChanges: 'c' # 'c'       # commit  #
-    amendLastCommit: 'a' # 'A'       # amend  #
-    toggleStagedAll: '<space>' # => universal:select  #
-    ## disable actions  ##
-    fetch: '' # 'f'       #  #
-    refreshFiles: '' # 'R'       #  #
-    openMergeOptions: '' # 'M'       #  #
-    confirmDiscard: '' # 'x'       #  => universal:remove  #
-    toggleTreeView: '' # '`'       #  #
-    stashAllChanges: '' # 's'       #  #
-    viewStashOptions: '' # 'S'       #  #
-    viewResetOptions: '' # 'D'       #  #
-    openStatusFilter: '' # '<c-b>'   #  #
-    findBaseCommitForFixup: '' # '<c-f>'   #  #
-    commitChangesWithEditor: '' # 'C'       #  #
-    commitChangesWithoutHook: '' # 'w'       #  #
+    # 核心操作（保留）
+    ignoreFile: 'i'               # 默认：'i' - 忽略文件
+    commitChanges: 'c'            # 默认：'c' - 提交更改
+    amendLastCommit: 'a'          # 默认：'A' - 修正上次提交
+    toggleStagedAll: '<space>'    # 默认：'<space>' - 切换全部暂存
+    
+    # --- 禁用的操作 ---
+    fetch: ''                     # 默认：'f' - 获取
+    refreshFiles: ''              # 默认：'R' - 刷新文件
+    openMergeOptions: ''          # 默认：'M' - 打开合并选项
+    confirmDiscard: ''            # 默认：'x' - 确认丢弃
+    toggleTreeView: ''            # 默认：'`' - 切换树视图
+    stashAllChanges: ''           # 默认：'s' - 暂存所有更改
+    viewStashOptions: ''          # 默认：'S' - 查看暂存选项
+    viewResetOptions: ''          # 默认：'D' - 查看重置选项
+    openStatusFilter: ''          # 默认：'<c-b>' - 打开状态过滤器
+    findBaseCommitForFixup: ''    # 默认：'<c-f>' - 查找基础提交
+    commitChangesWithEditor: ''   # 默认：'C' - 使用编辑器提交
+    commitChangesWithoutHook: ''  # 默认：'w' - 不使用 hook 提交
+
+  # --- 分支面板 ---
   branches:
-    ## branches  ##
-    checkoutBranchByName: 'c' # 'c'  # normal checkout = universal:select <space>
-    renameBranch: 'e' # 'R'  # => universal:edit
-    mergeIntoCurrentBranch: 'm' # 'M'  #
-    rebaseBranch: 'r' # 'r'  # rebase current branch to the selected
-    ## remote  ##
-    fetchRemote: 'f' # 'f'  # fetch @ remote tab
-    setUpstream: 'e' # 'u'  # => universal:edit
-    ## Tags  ##
-    createTag: 't' # 'T'  #
-    pushTag: 'P' # 'P'  # push(force) won't push tags => universal:Push
-    ## disabled actions  ##
-    forceCheckoutBranch: '' # 'F'  #
-    fastForward: '' # 'f'  # fast-forward @ branch tab
-    createPullRequest: '' # 'o'  #
-    viewPullRequestOptions: '' # 'O'  #
-    viewGitFlowOptions: '' # 'i'  #
-    checkoutPreviousBranch: '' # '-'  #
-    moveCommitsToNewBranch: '' # 'N'  #
+    # 分支操作
+    checkoutBranchByName: 'c'     # 默认：'c' - 按名称检出分支
+    renameBranch: 'e'             # 默认：'R' - 重命名分支
+    mergeIntoCurrentBranch: 'm'   # 默认：'M' - 合并到当前分支
+    rebaseBranch: 'r'             # 默认：'r' - 变基分支
+    
+    # 远程操作
+    fetchRemote: 'f'              # 默认：'f' - 获取远程
+    setUpstream: 'e'              # 默认：'u' - 设置上游
+    
+    # 标签操作
+    createTag: 't'                # 默认：'T' - 创建标签
+    pushTag: 'P'                  # 默认：'P' - 推送标签
+    
+    # --- 禁用的操作 ---
+    forceCheckoutBranch: ''       # 默认：'F' - 强制检出分支
+    fastForward: ''               # 默认：'f' - 快进合并
+    createPullRequest: ''         # 默认：'o' - 创建 Pull Request
+    viewPullRequestOptions: ''    # 默认：'O' - 查看 Pull Request 选项
+    viewGitFlowOptions: ''        # 默认：'i' - 查看 Git Flow 选项
+    checkoutPreviousBranch: ''    # 默认：'-' - 检出上一个分支
+    moveCommitsToNewBranch: ''    # 默认：'N' - 移动提交到新分支
+
+  # --- 提交面板 ---
   commits:
-    ## Commits  ##
-    checkoutCommit: '<space>' # ''    # => universal:select  #
-    renameCommit: 'e' # 'r'   # => universal:edit (TUI: reword commit, **wired**)  #
-    revertCommit: 'r' # 't'   # revert/remove commit  #
-    openLogMenu: 'l' # ''    # log/list commits options  #
-    viewResetOptions: 'c' # 'g'   # Reset soft/mixed/hard => branches:checkoutBranchByName  #
-    ## Fixup  ##
-    createFixupCommit: 'f' # 'f'   # create fixup commit for this commit  #
-    squashAboveCommits: 'F' # 'S'   # squash fixup commits into one (must be together)  #
-    squashDown: 's' #       # alt choice for fix & amend  #
-    amendToCommit: 'a' # 'A'   # => files:amendLastCommit  #
-    tagCommit: 't' # 'T'   # => branches:createTag  #
-    ## Move commits  ##
-    moveUpCommit: 'K' #       # move commit up one  #
-    moveDownCommit: 'J' #       # move commit down one  #
-    cherryPickCopy: '<c-c>' # 'C'   # pick commits in one branch  #
-    pasteCommits: '<c-v>' # 'V'   # paste in another  #
-    ## disabled actions  ##
-    renameCommitWithEditor: '' # 'R'   #  #
-    markCommitAsFixup: '' # 'f'   # mark as fixup & amend  #
-    pickCommit: '' # 'p'   # pick commit (when mid-rebase)  #
-    copyCommitMessageToClipboard: '' # ''    #  #
-    amendAttributeMenu: '' # 'a'   #  #
-    resetCherryPick: '' #  #
-    viewBisectOptions: '' # 'b'   #  #
+    # 提交操作
+    checkoutCommit: '<space>'     # 默认：'<space>' - 检出提交
+    renameCommit: 'e'             # 默认：'r' - 重命名提交（reword）
+    revertCommit: 'r'             # 默认：'t' - 还原提交
+    openLogMenu: 'l'              # 默认：'' - 打开日志菜单
+    viewResetOptions: 'c'         # 默认：'g' - 查看重置选项
+    
+    # Fixup 操作
+    createFixupCommit: 'f'        # 默认：'f' - 创建 fixup 提交
+    squashAboveCommits: 'F'       # 默认：'S' - 压缩上方提交
+    squashDown: 's'               # 默认：'' - 向下压缩
+    amendToCommit: 'a'            # 默认：'A' - 修正到提交
+    tagCommit: 't'                # 默认：'T' - 标签提交
+    
+    # 移动提交
+    moveUpCommit: 'K'             # 默认：'' - 向上移动提交
+    moveDownCommit: 'J'           # 默认：'' - 向下移动提交
+    cherryPickCopy: '<c-c>'       # 默认：'C' - 复制提交（cherry-pick）
+    pasteCommits: '<c-v>'         # 默认：'V' - 粘贴提交
+    
+    # --- 禁用的操作 ---
+    renameCommitWithEditor: ''    # 默认：'R' - 使用编辑器重命名提交
+    markCommitAsFixup: ''         # 默认：'f' - 标记为 fixup
+    pickCommit: ''                # 默认：'p' - 选择提交（rebase 中）
+    copyCommitMessageToClipboard: '' # 默认：'' - 复制提交消息
+    amendAttributeMenu: ''        # 默认：'a' - 修正属性菜单
+    resetCherryPick: ''           # 默认：'' - 重置 cherry-pick
+    viewBisectOptions: ''         # 默认：'b' - 查看二分选项
+
+  # --- 暂存面板 ---
   stash:
-    popStash: 'u' # 'g'   # => universal:undo  #
-    renameStash: 'e' # 'r'   # => universal:edit  #
+    popStash: 'u'                 # 默认：'g' - 弹出暂存
+    renameStash: 'e'              # 默认：'r' - 重命名暂存
+
+  # --- 提交文件面板 ---
   commitFiles:
-    checkoutCommitFile: '' # 'c'   #  #
+    checkoutCommitFile: ''        # 默认：'c' - 检出提交文件
+
+  # --- 主面板（差异视图）---
   main:
-    toggleSelectHunk: '' # 'a'   #  #
-    pickBothHunks: '' # 'b'   #  #
+    toggleSelectHunk: ''          # 默认：'a' - 切换选择 hunk
+    pickBothHunks: ''             # 默认：'b' - 选择两个 hunks
+
+  # --- 子模块面板 ---
   submodules:
-    init: 'i'
-    update: 'p' # 'u'   # => universal:pull  #
-    bulkMenu: '' # 'b'   #  #
+    init: 'i'                     # 默认：'i' - 初始化
+    update: 'p'                   # 默认：'u' - 更新
+    bulkMenu: ''                  # 默认：'b' - 批量菜单
+
+  # --- 提交消息面板 ---
   commitMessage:
-    commitMenu: '' #       #  #
+    commitMenu: ''                # 默认：'' - 提交菜单
+
+  # --- 修正属性面板 ---
   amendAttribute:
-    addCoAuthor: '' # 'c'   #  #
-    resetAuthor: '' # 'a'   #  #
-    setAuthor: '' # 'A'   #  #
+    addCoAuthor: ''               # 默认：'c' - 添加共同作者
+    resetAuthor: ''               # 默认：'a' - 重置作者
+    setAuthor: ''                 # 默认：'A' - 设置作者
