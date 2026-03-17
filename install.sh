@@ -176,7 +176,7 @@ else
 fi
 
 # nvim final prepare
-./run -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+./run -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins | TSUpdate' +quit
 test -f prebuilts/fruzzy_mod.so || ./run -c 'call fruzzy#install()' +quit
 
 # test
