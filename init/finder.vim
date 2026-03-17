@@ -1,13 +1,29 @@
+" =============================================================================
 " Telescope Finder 配置
-" 保持与 Denite 一致的功能和按键绑定
+" =============================================================================
+" 说明：
+"   本文件负责 Telescope 的按键绑定和命令定义，包括：
+"   1. g:finder 菜单配置（扁平化设计）
+"   2. Telescope 窗口设置（通过 autocmd）
+"   3. 全局快捷键绑定（Finder/Buffer/Search 等）
+"
+" 设计理念：
+"   - 保持与 Denite 一致的功能和按键绑定
+"   - 所有菜单项在同一层级，无需多级导航
+"   - 按键绑定在 finder.vim 中统一定义
+" =============================================================================
 
 " =============================================================================
 " 全局设置
 " =============================================================================
 
+" Finder 提示信息
 let g:finder_tips = "按'/'开始搜索"
-let g:finder_bufnr = 0 " Prompt bufnr
 
+" Prompt 窗口 bufnr（用于后续操作）
+let g:finder_bufnr = 0
+
+" 加载 Telescope 配置文件
 luafile <sfile>:h/telescope.lua
 
 " =============================================================================
@@ -33,24 +49,28 @@ let g:finder = {
 " 命令定义
 " =============================================================================
 
-" Menu - 主菜单
+" --- 主菜单命令 ---
+" 打开 Finder 主菜单
 command! -nargs=0 FinderMenu lua require('init.telescope').finder.menu()
 
+" 关闭 Telescope 窗口
 command! -nargs=0 FinderExit lua require('telescope.actions').close(vim.g.finder_bufnr)
 
-" Finder - 文件搜索
+" --- 搜索命令 ---
+" 文件搜索
 command! -nargs=* Finder Telescope find_files <args>
 
-" Search - 项目搜索
+" 项目搜索（grep）
 command! -nargs=* Search Telescope live_grep <args>
 
-" Buffer - 缓冲区
+" 缓冲区列表
 command! -nargs=* Buffer Telescope buffers <args>
 
 " =============================================================================
 " 搜索功能（支持从当前单词开始搜索）
 " =============================================================================
 
+" Grep 当前单词
 function! s:Grep() abort
     let l:word = expand("<cword>")
     if l:word !=# ''
@@ -62,36 +82,43 @@ function! s:Grep() abort
     endif
 endfunction
 
-" Grep <cword>
+" Grep <cword> 命令
 command! -nargs=0 Grep call <SID>Grep()
 
 " =============================================================================
-" Telescope 窗口设置
+" Telescope 窗口设置（通过 autocmd 实现）
 " =============================================================================
+
 augroup FinderKeymaps
     autocmd!
+    " 当进入 Telescope 窗口时调用设置函数
     autocmd FileType TelescopePrompt call s:FinderSettings()
 augroup END
 
+" Telescope 窗口设置函数
 function! s:FinderSettings() abort
-    " 记录窗口bufnr
+    " 记录窗口 bufnr（用于后续操作）
     let g:finder_bufnr = bufnr()
     echom 'finder_bufnr: ' .. g:finder_bufnr
 
-    "setlocal nonumber
-    "setlocal nohlsearch
-    "setlocal signcolumn=no
+    " 窗口外观设置
+    " setlocal nonumber
+    " setlocal nohlsearch
+    " setlocal signcolumn=no
 
     " Suppress 'E37: No write since last change'
     setlocal buftype=nofile
 
     setlocal cursorline
     setlocal termguicolors
-    "highlight Cursor blend=100
+    " highlight Cursor blend=100
 
-    " 基本导航
+    " --- 基本导航 ---
+    " Normal 模式：按 / 进入插入模式（反向搜索）
     nnoremap <silent><buffer> /       :startinsert!<CR>
+    " Insert 模式：按 CR 停止插入模式
     inoremap <silent><buffer> <CR>    <C-o>:stopinsert<CR>
+    " Normal 模式：按 Esc 关闭窗口
     nnoremap <silent><buffer> <Esc>   :FinderExit<CR>
 
     " --- 预览 ---
@@ -108,25 +135,30 @@ function! s:FinderSettings() abort
 endfunction
 
 " =============================================================================
-" Telescope 窗口按键绑定
+" Telescope 窗口按键绑定（全局）
 " =============================================================================
 
-" Menu - 主菜单（对应 <Enter>）
+" --- 主菜单 ---
+" Normal/Insert 模式：按 Enter 打开主菜单
 nnoremap <Enter>    :FinderMenu<cr>
 
-" Finder - 文件查找（对应 <C-o>）
+" --- 文件搜索 ---
+" Normal/Insert 模式：按 CTRL-o 打开文件搜索
 nnoremap <C-o>      :Finder<cr>
 inoremap <C-o>      <C-o>:Finder<cr>
 
-" Buffer - 缓冲区列表（对应 <C-e>）
+" --- 缓冲区列表 ---
+" Normal/Insert 模式：按 CTRL-e 打开缓冲区列表
 nnoremap <C-e>      :Buffer<cr>
 inoremap <C-e>      <C-o>:Buffer<cr>
 
-" Grep - 项目搜索（对应 <C-g>）
+" --- 项目搜索 ---
+" Normal/Insert 模式：按 CTRL-g 打开项目搜索
 nnoremap <C-g>      :Grep<cr>
 inoremap <C-g>      <C-o>:Grep<cr>
 
-" Window
+" --- 窗口管理 ---
+" Normal/Insert 模式：F9/F10/F12 打开 Explorer/Taglist/LazyGit
 nnoremap <F9>       :ExplorerFocus<cr>
 inoremap <F9>       <C-o>:ExplorerFocus<cr>
 nnoremap <F10>      :TaglistFocus<cr>
@@ -139,19 +171,19 @@ inoremap <F12>      <C-o>:VCS<cr>
 " 缓冲区导航（保持与 Denite 一致）
 " =============================================================================
 
-" 下一个缓冲区
+" --- 下一个缓冲区 ---
 nnoremap <C-n>      :BufferNext<cr>
 inoremap <C-n>      <C-o>:BufferNext<cr>
 tnoremap <C-n>      <C-\><C-N>:bnext<cr>
 nnoremap <Tab>      :BufferNext<cr>
 
-" 上一个缓冲区
+" --- 上一个缓冲区 ---
 nnoremap <C-p>      :BufferPrev<cr>
 inoremap <C-p>      <C-o>:BufferPrev<cr>
 tnoremap <C-p>      <C-\><C-N>:bprev<cr>
 nnoremap <S-Tab>    :BufferPrev<cr>
 
-" 关闭缓冲区
+" --- 关闭缓冲区 ---
 nnoremap <C-w>      :BufferClose<cr>
 inoremap <C-w>      <C-o>:BufferClose<cr>
 tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>
@@ -171,7 +203,10 @@ nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
 nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
 nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
 
-" Move focus
+" =============================================================================
+" 窗口切换（Move focus）
+" =============================================================================
+
 noremap <C-j>       <C-W>j
 noremap <C-k>       <C-W>k
 noremap <C-h>       <C-W>h
@@ -181,32 +216,43 @@ tnoremap <C-k>      <C-\><C-N><C-W>k
 tnoremap <C-h>      <C-\><C-N><C-W>h
 tnoremap <C-l>      <C-\><C-N><C-W>l
 
+" =============================================================================
 " 跳转 - Goto
+" =============================================================================
+
 " Go to first line - `gg`
 " Go to last line
 noremap  gG         G
+
 " Go to begin or end of code block
 noremap  g[         [{
 noremap  g]         ]}
-" Go to Define and Back(Top of stack)
+
+" Go to Define and Back (Top of stack)
 " TODO: map K,<C-]>,gD,... to one key
 "nnoremap gd         <C-]>
 nnoremap gd         :ALEGoToDefinition<cr>
 nnoremap gD         :ALEGoToImplementation<cr>
 nnoremap gb         <C-T>
+
 " Go to man or doc
 nnoremap gk         K
+
 " Go to Type
 " nmap gt
+
 " Go to next error of ale
 nnoremap ge         <Plug>(ale_next_wrap)
+
 " Go to yank and paste
 vnoremap gy         "+y
 nnoremap gy         y<Space>
 nnoremap gp         "+p
 vnoremap <C-c>      "+y
+
 " Go to list, FIXME: what about quickfix
 nnoremap gl         :lopen<CR>
+
 " Tabularize
 vnoremap /          :Tabularize /
 

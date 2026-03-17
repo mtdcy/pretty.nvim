@@ -1,6 +1,20 @@
+--[[
+-- =============================================================================
 -- Telescope 配置文件
--- 只保留：UI 配置、功能配置、g:finder 处理
+-- =============================================================================
+-- 说明：
+--   本文件负责 Telescope 的核心配置，包括：
+--   1. UI 配置（布局、主题、提示符等）
+--   2. 功能配置（排序器、文件忽略等）
+--   3. Finder 菜单扩展（g:finder 处理）
+--
+-- 注意：
+--   - 按键绑定全部在 finder.vim 中通过 autocmd 定义
+--   - 使用 ui-select dropdown 主题实现菜单功能
+-- =============================================================================
+--]]
 
+-- 引入 Telescope 模块
 local actions = require('telescope.actions')
 local action_state = require('telescope.actions.state')
 local sorters = require('telescope.sorters')
@@ -9,7 +23,8 @@ local sorters = require('telescope.sorters')
 -- 功能配置
 -- =============================================================================
 
--- 自定义排序器：使用 fzy 算法（类似 Denite 的 fruzzy）
+--- 自定义排序器：使用 fzy 算法（类似 Denite 的 fruzzy）
+--- @return table sorter
 local function fzy_sorter()
     return sorters.fuzzy_with_index_bias()
 end
@@ -19,34 +34,37 @@ end
 -- =============================================================================
 
 require('telescope').setup({
+    -- 默认配置（使用 dropdown 主题）
     defaults = require('telescope.themes').get_dropdown({
-        initial_mode    = 'normal',
+        -- 初始模式：normal = 不自动进入插入模式
+        initial_mode = 'normal',
 
+        -- 提示符配置
         prompt_title = '✨ Finder (按\'/\'开始搜索)',
-        results_title   = 'Result',
-        prompt_prefix   = '⌕ ',
+        results_title = 'Result',
+        prompt_prefix = '⌕ ',
         selection_caret = '➤ ',
-        theme           = "dropdown",
+        theme = "dropdown",
 
-        -- 布局设置：底部布局（输入框在底部）
+        -- 布局策略：居中显示
         layout_strategy = 'center',
-        --layout_config = {
-        --    width = 0.5,
-        --    preview_cutoff = 120,
-        --    prompt_position = 'top',
-        --},
+        -- layout_config = {
+        --     width = 0.5,
+        --     preview_cutoff = 120,
+        --     prompt_position = 'top',
+        -- },
 
-        -- 排序器
+        -- 排序策略：从下往上
         sorting_strategy = 'ascending',
 
-        -- 预览设置
+        -- 预览器配置
         previewer = true,
         preview = {
-            hide_on_startup = true,
-            timeout = 60,
+            hide_on_startup = true,  -- 启动时隐藏预览
+            timeout = 60,             -- 预览超时时间（毫秒）
         },
 
-        -- 文件忽略模式
+        -- 文件忽略模式（不搜索这些文件/目录）
         file_ignore_patterns = {
             "node_modules",
             "%.git/",
@@ -69,10 +87,10 @@ require('telescope').setup({
             "*.class",
         },
 
-        -- 路径显示
+        -- 路径显示方式：截断长路径
         path_display = { "truncate" },
 
-        -- 历史记录
+        -- 历史记录配置
         history = {
             path = vim.fn.stdpath("data") .. "/telescope_history",
             limit = 100,
@@ -82,8 +100,8 @@ require('telescope').setup({
         -- 按键绑定：全部禁用（在 finder.vim 中使用 autocmd 定义）
         -- =============================================================
         mappings = {
-            i = { },
-            n = { },
+            i = {},
+            n = {},
         },
 
         -- =============================================================
@@ -100,7 +118,7 @@ require('telescope').setup({
         find_files = {
             prompt_title = '📄 Finder (' .. vim.g.finder_tips .. ')',
             hidden = true,
-            find_command = {"rg", "--files", "--glob", "!.git", "--hidden"},
+            find_command = { "rg", "--files", "--glob", "!.git", "--hidden" },
             sorters = { fzy_sorter() },
         },
 
@@ -114,7 +132,9 @@ require('telescope').setup({
         -- 实时搜索
         live_grep = {
             prompt_title = '🔎 Search (' .. vim.g.finder_tips .. ')',
-            additional_args = function() return {"--hidden", "--glob", "!.git"} end,
+            additional_args = function()
+                return { "--hidden", "--glob", "!.git" }
+            end,
             sorters = { fzy_sorter() },
         },
     },
@@ -142,7 +162,8 @@ pcall(require('telescope').load_extension, 'codecompanion')
 local finder = {}
 local themes = require('telescope.themes')
 
--- 显示主菜单（使用 ui-select dropdown 主题）
+--- 显示主菜单（使用 ui-select dropdown 主题）
+--- @return nil
 finder.menu = function()
     local builtin = require('telescope.builtin')
     local finders = require('telescope.finders')
@@ -167,25 +188,30 @@ finder.menu = function()
         })
     end
 
+    -- 调用 builtin.find_files 显示菜单
     builtin.find_files({
         prompt_title = '✨ Finder (按\'/\'开始搜索)',
 
+        -- 自定义 finder（使用菜单数据）
         finder = finders.new_table({
             results = results,
             entry_maker = function(entry)
                 return {
-                    value = entry.action,
-                    display = entry.text,
-                    ordinal = entry.text,
+                    value = entry.action,   -- 执行的命令
+                    display = entry.text,   -- 显示文本
+                    ordinal = entry.text,   -- 搜索关键词
                 }
             end,
         }),
+
+        -- 自定义按键映射
         attach_mappings = function(prompt_bufnr, map)
             actions.select_default:replace(function()
                 local selection = action_state.get_selected_entry()
                 if selection and selection.value then
                     -- 先关闭 picker，再执行命令
                     actions.close(prompt_bufnr)
+                    -- 使用 vim.schedule 确保在正确的上下文中执行
                     vim.schedule(function()
                         vim.cmd(selection.value)
                     end)
