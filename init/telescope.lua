@@ -167,6 +167,7 @@ vim.g.start_finder = function(opts)
     local finders = require('telescope.finders')
     local actions = require('telescope.actions')
     local action_state = require('telescope.actions.state')
+    local entry_display = require('telescope.pickers.entry_display')
 
     -- 从 VimL 全局变量获取菜单数据
     local finder_config = vim.g.finder
@@ -177,18 +178,31 @@ vim.g.start_finder = function(opts)
 
     local items = finder_config.items or {}
 
-    -- 构建显示列表
-    local results = {}
-    for _, item in ipairs(items) do
-        table.insert(results, {
-            text = item[1],
-            action = item[2],
-        })
-    end
-
     -- 计算动态高度：菜单项数量 + 标题行 + 边框
     local min_height = #items + 4
     local max_height = 25
+
+    -- 构建显示列表（3 部分：Text, Keymap, Command）
+    local results = {}
+    for _, item in ipairs(items) do
+        local text = item[1]
+        local keymap = item[2]
+        local command = item[3]
+        table.insert(results, {
+            text = text,
+            keymap = keymap,
+            action = command,
+        })
+    end
+
+    -- 创建显示配置：Text 靠左，Keymap 靠右
+    local displayer = entry_display.create {
+        separator = ' ',
+        items = {
+            {width = 0.7},  -- Text 占 70% 宽度（靠左）
+            {remaining = true},  -- Keymap 占剩余宽度（靠右）
+        },
+    }
 
     -- 调用 builtin.find_files 显示菜单
     builtin.find_files({
@@ -205,10 +219,20 @@ vim.g.start_finder = function(opts)
         finder = finders.new_table({
             results = results,
             entry_maker = function(entry)
+                -- 创建显示：| Text (靠左) Keymap (靠右) |
+                local make_display = function()
+                    return displayer {
+                        {entry.text},
+                        {entry.keymap},
+                    }
+                end
+
                 return {
                     value = entry.action,
-                    display = entry.text,
-                    ordinal = entry.text,
+                    display = make_display,
+                    ordinal = entry.text .. ' ' .. entry.keymap,
+                    text = entry.text,
+                    keymap = entry.keymap,
                 }
             end,
         }),

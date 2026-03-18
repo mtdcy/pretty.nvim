@@ -26,19 +26,23 @@ let g:finder_bufnr = 0
 " =============================================================================
 " Finder 菜单配置（扁平化设计，所有菜单项在同一层级）
 " =============================================================================
+" 格式：[Text, Keymap, Command]
+"   - Text: 显示文本（靠左）
+"   - Keymap: 快捷键（靠右）
+"   - Command: 执行的命令
 
 let g:finder = {
             \ 'items': [
-            \   ['1. Finder          (CTRL-o)  ', 'Finder'                               ] ,
-            \   ['2. Buffer          (CTRL-e)  ', 'Buffer'                               ] ,
-            \   ['3. Search          (CTRL-g)  ', 'Search'                               ] ,
-            \   ['4. Format          (F8)      ', 'ALEFix'                               ] ,
-            \   ['5. Explorer        (F9)      ', 'ExplorerFocus'                        ] ,
-            \   ['6. Taglist         (F10)     ', 'TaglistFocus'                         ] ,
-            \   ['7. LazyGit         (F12)     ', 'GitOpen'                                  ] ,
-            \   ['8. Close           (CTRL-w)  ', 'BufferClose'                          ] ,
-            \   ['9. Quit            (:qa)     ', 'confirm quit'                         ] ,
-            \   ['?. Help                      ', 'edit ' . g:pretty_home . '/README.md' ] ,
+            \   ['1. Finder          ', '(CTRL-o)  ', 'Finder'                               ] ,
+            \   ['2. Buffer          ', '(CTRL-e)  ', 'Buffer'                               ] ,
+            \   ['3. Search          ', '(CTRL-g)  ', 'Search'                               ] ,
+            \   ['4. Format          ', '(F8)      ', 'ALEFix'                               ] ,
+            \   ['5. Explorer        ', '(F9)      ', 'ExplorerFocus'                        ] ,
+            \   ['6. Taglist         ', '(F10)     ', 'TaglistFocus'                         ] ,
+            \   ['7. LazyGit         ', '(F12)     ', 'GitOpen'                              ] ,
+            \   ['8. Close           ', '(CTRL-w)  ', 'BufferClose'                          ] ,
+            \   ['9. Quit            ', '(:qa)     ', 'confirm quit'                         ] ,
+            \   ['?. Help            ', '          ', 'edit ' . g:pretty_home . '/README.md' ] ,
             \ ],
             \ }
 
