@@ -70,66 +70,6 @@ let g:winids = [ win_getid(), 0, 0, 0, 0 ]
 "   3 - footbar  (底部栏): quickfix/location list
 "   4 - rightbar (右侧栏): Tagbar 或 CodeCompanion（互斥）
 
-" --- 窗口 ID 查询函数 ---
-
-" 根据窗口 ID 查找 wmid
-" 参数：winid - 窗口 ID
-" 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
-function! s:wmid(winid = '') abort
-    if a:winid == ''
-        return index(g:winids, win_getid())
-    else
-        return index(g:winids, a:winid)
-    endif
-endfunction
-
-" 根据窗口号查找 wmid
-" 参数：winnr - 窗口号
-" 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
-function! s:wmid_winnr(winnr = '') abort
-    if a:winnr == ''
-        return index(g:winids, win_getid())
-    else
-        return index(g:winids, win_getid(a:winnr))
-    endif
-endfunction
-
-" 根据 Buffer 类型查找期望的 wmid
-" 参数：type - Buffer 类型字符串
-" 返回：wmid（1-4 表示侧边栏，-1 表示主窗口）
-function! s:wmid_filetype(type) abort
-    if a:type ==? 'nerdtree'
-        return 1
-    elseif a:type ==? 'docs'
-        return 2
-    elseif a:type ==? 'quickfix'
-        return 3
-    elseif a:type ==? 'tagbar' || a:type ==? 'codecompanion'
-        return 4  " rightbar: tagbar 或 codecompanion（互斥）
-    endif
-    return -1
-endfunction
-
-" 根据 wmid 获取窗口 ID
-" 参数：wmid - 窗口类型 ID (0-4)
-" 返回：窗口 ID（>0 表示有效，<=0 表示无效）
-function! s:wm_winid(wmid) abort
-    return g:winids[a:wmid]
-endfunction
-
-" 设置窗口 ID
-" 参数：wmid - 窗口类型 ID, winid - 窗口 ID
-function! s:wm_winid_set(wmid, winid) abort
-    let g:winids[a:wmid] = a:winid
-endfunction
-
-" 根据 wmid 获取窗口号（winnr）
-" 参数：wmid - 窗口类型 ID
-" 返回：窗口号（>0 表示有效，0 表示窗口不存在）
-function! s:wm_winnr(wmid) abort
-    return win_id2win(s:wm_winid(a:wmid))
-endfunction
-
 " =============================================================================
 " Buffer 类型识别
 " =============================================================================
@@ -158,28 +98,88 @@ function! s:wmtype(bufnr) abort
     return ''
 endfunction
 
+" --- 窗口 ID 查询函数 ---
+
+" 根据窗口 ID 查找 wmid
+" 参数：winid - 窗口 ID
+" 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
+function! s:wmid(winid = '') abort
+    if a:winid == ''
+        return index(g:winids, win_getid())
+    else
+        return index(g:winids, a:winid)
+    endif
+endfunction
+
+" 根据窗口号查找 wmid
+" 参数：winnr - 窗口号
+" 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
+function! s:wmid_winnr(winnr = '') abort
+    if a:winnr == ''
+        return index(g:winids, win_getid())
+    else
+        return index(g:winids, win_getid(a:winnr))
+    endif
+endfunction
+
+" 根据 Buffer 类型查找期望的 wmid
+" 参数：type - Buffer 类型字符串
+" 返回：wmid（1-4 表示侧边栏，-1 表示主窗口）
+function! s:wmid_filetype(wmtype) abort
+    if a:wmtype ==? 'nerdtree'
+        return 1
+    elseif a:wmtype ==? 'docs'
+        return 2
+    elseif a:wmtype ==? 'quickfix'
+        return 3
+    elseif a:wmtype ==? 'tagbar' || a:wmtype ==? 'codecompanion'
+        return 4  " rightbar: tagbar 或 codecompanion（互斥）
+    endif
+    return 0
+endfunction
+
+" 根据 wmid 获取窗口 ID
+" 参数：wmid - 窗口类型 ID (0-4)
+" 返回：窗口 ID（>0 表示有效，<=0 表示无效）
+function! s:wm_winid(wmid) abort
+    return g:winids[a:wmid]
+endfunction
+
+" 设置窗口 ID
+" 参数：wmid - 窗口类型 ID, winid - 窗口 ID
+function! s:wm_winid_set(wmid, winid) abort
+    let g:winids[a:wmid] = a:winid
+endfunction
+
+" 根据 wmid 获取窗口号（winnr）
+" 参数：wmid - 窗口类型 ID
+" 返回：窗口号（>0 表示有效，0 表示窗口不存在）
+function! s:wm_winnr(wmid) abort
+    return win_id2win(s:wm_winid(a:wmid))
+endfunction
+
 " =============================================================================
 " 窗口操作函数
 " =============================================================================
 
 " 切换到指定窗口
 " 参数：wmid - 窗口类型 ID
-function! s:window(wmid) abort
+function! s:wm_window(wmid) abort
     exe s:wm_winnr(a:wmid) . 'wincmd w'
 endfunction
 
 " 移动 Buffer 到正确的窗口
 " 参数：buf - 缓冲区号或名称
 " 用途：当 Buffer 被错误地分配到侧边栏时，将其移回主窗口
-function! s:wm_move(buf) abort
-    let bufnr = bufnr(a:buf)
+function! s:wm_move(bufnr) abort
+    let bufnr = bufnr(a:bufnr)
     " 切换到备用 buffer（避免删除当前 buffer）
     exe 'buffer#'
     " 查找包含该 buffer 的其他窗口
     let li = filter(range(1, winnr('$')), 'v:val != winnr() && winbufnr(v:val)==' . bufnr)
     " 切换到正确的窗口
-    if len(li) | call s:window(s:wmid_winnr(li[0]))
-    else       | call s:window(0)
+    if len(li) | call s:wm_window(s:wmid_winnr(li[0]))
+    else       | call s:wm_window(0)
     endif
     " 将 buffer 加载到当前窗口
     exe 'buffer ' . bufnr
@@ -191,7 +191,7 @@ endfunction
 function! s:wm_create(wmid) abort
     if a:wmid > 0 && s:wm_winid(a:wmid) <= 0
         let saved = winnr()
-        call s:window(0)
+        call s:wm_window(0)
         if a:wmid == 1
             Explorer
         elseif a:wmid == 2
@@ -214,7 +214,7 @@ function! s:wm_settle(wmid) abort
     call s:wm_create(a:wmid)
     let bufnr = bufnr('%')
     exe 'wincmd c'
-    call s:window(a:wmid)
+    call s:wm_window(a:wmid)
     exe 'buffer ' . bufnr
 endfunction
 
@@ -261,6 +261,56 @@ function! s:wm_main() abort
 
     " 创建空 buffer（关键：不然后续 wmtype 判断会失效）
     enew
+endfunction
+
+" =============================================================================
+" 窗口重载（新增功能）
+" =============================================================================
+
+" 重载窗口 ID 映射
+" 功能：
+"   1. 遍历所有 buffer
+"   2. 根据 buffer 类型（wmtype）重新分配窗口 ID
+"   3. 最后切换到 main 窗口
+" 用途：
+"   - 窗口状态混乱时恢复
+"   - 手动修复窗口映射
+"   - 调试窗口问题
+function! s:wm_reload() abort
+    " 更新 main 窗口 winid ( 存在在多个bufnr 满足条件，只选一个)
+    for bufnr in range(1, bufnr('$'))
+        if !buflisted(bufnr) | continue | endif
+
+        if s:wmtype(bufnr) != '' | continue | endif
+        if bufwinid(bufnr) <= 0  | continue | endif
+
+        call s:wm_winid_set(0, bufwinid(bufnr))
+        break
+    endfor
+
+    " 遍历所有 buffer - 更新其他窗口
+    for bufnr in range(1, bufnr('$'))
+        " 跳过未加载的 buffer
+        if !buflisted(bufnr) | continue | endif
+
+        " 获取 buffer 类型
+        let type = s:wmtype(bufnr)
+        let winid = bufwinid(bufnr)
+
+        " 跳过主窗口 buffer
+        if type == '' | continue | endif
+
+        if winid <= 0  | continue | endif
+
+        call s:wm_winid_set(s:wmid_filetype(type), winid)
+    endfor
+
+    " 切换到 main 窗口
+    call s:wm_window(0)
+
+    if g:wm_debug
+        echo '== reload completed. g:winids=' . string(g:winids)
+    endif
 endfunction
 
 " =============================================================================
@@ -374,13 +424,13 @@ endfunction
 
 " 切换到下一个 Buffer
 function! s:next() abort
-    call s:window(0)
+    call s:wm_window(0)
     exe 'bnext'
 endfunction
 
 " 切换到上一个 Buffer
 function! s:prev() abort
-    call s:window(0)
+    call s:wm_window(0)
     exe 'bprev'
 endfunction
 
@@ -421,3 +471,6 @@ command! -nargs=0 BufferNext  call <sid>next()
 
 " 上一个 Buffer
 command! -nargs=0 BufferPrev  call <sid>prev()
+
+" 重载窗口 ID 映射
+command! -nargs=0 ReloadWindows call <sid>wm_reload()

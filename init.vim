@@ -254,6 +254,7 @@ nnoremap <leader>ss :source $MYVIMRC<cr>
             \ :call webdevicons#refresh()<cr>
             \ :call lightline#update()<cr>
             \ :call lightline#bufferline#reload()<cr>
+            \ :ReloadWindows<cr>
 
 " lcd to project root when opening FIRST file {{{
 " Use finddir() to find .git directory (no external command needed)
