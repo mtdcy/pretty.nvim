@@ -40,7 +40,7 @@ require('telescope').setup({
         initial_mode = 'normal',
 
         -- 提示符配置
-        prompt_title = '✨ Finder (按\'/\'开始搜索)',
+        prompt_title = '✨ Finder ' .. vim.g.finder_tips .. ')',
         results_title = 'Result',
         prompt_prefix = '⌕ ',
         selection_caret = '➤ ',
@@ -156,15 +156,13 @@ pcall(require('telescope').load_extension, 'lazygit')
 pcall(require('telescope').load_extension, 'codecompanion')
 
 -- =============================================================================
--- Finder 扩展（菜单功能 - 使用 ui-select dropdown 主题）
+-- Finder 菜单功能
 -- =============================================================================
 
-local finder = {}
-local themes = require('telescope.themes')
-
---- 显示主菜单（使用 ui-select dropdown 主题）
---- @return nil
-finder.menu = function()
+-- 将 finder 函数保存到全局变量，供 finder.vim 调用
+--- 显示主菜单
+--- @param opts table 选项
+vim.g.start_finder = function(opts)
     local builtin = require('telescope.builtin')
     local finders = require('telescope.finders')
     local actions = require('telescope.actions')
@@ -189,22 +187,18 @@ finder.menu = function()
     end
 
     -- 计算动态高度：菜单项数量 + 标题行 + 边框
-    -- 公式：items_count + 1 (prompt) + 3 (borders) = items_count + 3
     local min_height = #items + 4
-    local max_height = 25  -- 最大高度限制
+    local max_height = 25
 
     -- 调用 builtin.find_files 显示菜单
     builtin.find_files({
-        prompt_title = '✨ Finder (按\'/\'开始搜索)',
+        -- 覆盖 find_files 设置
+        prompt_title = '✨ Finder ' .. vim.g.finder_tips,
 
         -- 动态布局配置
         layout_config = {
-            -- 高度根据菜单项数量动态计算
             height = math.min(min_height, max_height),
-            -- 宽度固定 60 列或终端宽度的 50%
-            width = function(_, max_columns, _)
-                return math.min(60, math.floor(max_columns * 0.5))
-            end,
+            -- 使用主题定义的 width
         },
 
         -- 自定义 finder（使用菜单数据）
@@ -212,9 +206,9 @@ finder.menu = function()
             results = results,
             entry_maker = function(entry)
                 return {
-                    value = entry.action,   -- 执行的命令
-                    display = entry.text,   -- 显示文本
-                    ordinal = entry.text,   -- 搜索关键词
+                    value = entry.action,
+                    display = entry.text,
+                    ordinal = entry.text,
                 }
             end,
         }),
@@ -224,9 +218,8 @@ finder.menu = function()
             actions.select_default:replace(function()
                 local selection = action_state.get_selected_entry()
                 if selection and selection.value then
-                    -- 先关闭 picker，再执行命令
-                    actions.close(prompt_bufnr)
-                    -- 使用 vim.schedule 确保在正确的上下文中执行
+                    -- 好像这个 close 没必要，ls! 显示 telescope 的 buffers 会自动关闭。
+                    -- actions.close(prompt_bufnr)
                     vim.schedule(function()
                         vim.cmd(selection.value)
                     end)
@@ -236,17 +229,3 @@ finder.menu = function()
         end,
     })
 end
-
--- 注册扩展
-require('telescope').register_extension({
-    name = 'finder',
-    exports = {
-        menu = finder.menu,
-    },
-})
-
--- 返回配置模块
-return {
-    fzy_sorter = fzy_sorter,
-    finder = finder,
-}

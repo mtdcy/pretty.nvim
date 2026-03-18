@@ -23,9 +23,6 @@ let g:finder_tips = "按'/'开始搜索"
 " Prompt 窗口 bufnr（用于后续操作）
 let g:finder_bufnr = 0
 
-" 加载 Telescope 配置文件
-luafile <sfile>:h/telescope.lua
-
 " =============================================================================
 " Finder 菜单配置（扁平化设计，所有菜单项在同一层级）
 " =============================================================================
@@ -45,13 +42,17 @@ let g:finder = {
             \ ],
             \ }
 
+" 加载 Telescope 配置文件（必须在 g:finder 定义之后）
+luafile <sfile>:h/telescope.lua
+
 " =============================================================================
 " 命令定义
 " =============================================================================
 
 " --- 主菜单命令 ---
 " 打开 Finder 主菜单
-command! -nargs=0 FinderMenu lua require('init.telescope').finder.menu()
+" 注意：telescope.lua 已通过 luafile 加载，使用 vim.g 中保存的函数引用
+command! -nargs=0 FinderMenu lua vim.g.start_finder()
 
 " 关闭 Telescope 窗口
 command! -nargs=0 FinderExit lua require('telescope.actions').close(vim.g.finder_bufnr)
