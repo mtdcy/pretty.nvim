@@ -12,8 +12,8 @@ local M = {}
 local displayer = entry_display.create({
   separator = " ",
   items = {
-    { width = 45 },
-    { width = 16 },
+    { width = 50 },
+    { width = 25 },
     { remaining = true },
   },
 })
@@ -41,7 +41,8 @@ function M.finder()
     entry_maker = function(entry)
       return {
         -- this defines what terms can be searched in telescope
-        ordinal = entry.name .. entry.group,
+        -- only search by name (emoji description), not by group (category)
+        ordinal = entry.name,
 
         display = make_display,
         value = entry,

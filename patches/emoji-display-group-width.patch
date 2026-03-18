@@ -1,0 +1,15 @@
+diff --git a/lua/telescope/_extensions/emoji.lua b/lua/telescope/_extensions/emoji.lua
+index 30c99bee6..db40e71b6 100644
+--- a/lua/telescope/_extensions/emoji.lua
++++ b/lua/telescope/_extensions/emoji.lua
+@@ -12,8 +12,8 @@ local M = {}
+ local displayer = entry_display.create({
+   separator = " ",
+   items = {
+-    { width = 45 },
+-    { width = 16 },
++    { width = 50 },
++    { width = 25 },
+     { remaining = true },
+   },
+ })

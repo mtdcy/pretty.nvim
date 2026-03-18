@@ -1,0 +1,14 @@
+diff --git a/lua/telescope/_extensions/emoji.lua b/lua/telescope/_extensions/emoji.lua
+index 30c99bee6..b7afe9c12 100644
+--- a/lua/telescope/_extensions/emoji.lua
++++ b/lua/telescope/_extensions/emoji.lua
+@@ -41,7 +41,8 @@ function M.finder()
+     entry_maker = function(entry)
+       return {
+         -- this defines what terms can be searched in telescope
+-        ordinal = entry.name .. entry.group,
++        -- only search by name (emoji description), not by group (category)
++        ordinal = entry.name,
+ 
+         display = make_display,
+         value = entry,

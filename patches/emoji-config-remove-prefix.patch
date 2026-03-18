@@ -1,0 +1,15 @@
+diff --git a/lua/emoji/config.lua b/lua/emoji/config.lua
+index 73a249760..08efb68e4 100644
+--- a/lua/emoji/config.lua
++++ b/lua/emoji/config.lua
+@@ -5,8 +5,8 @@ local defaults = { enable_cmp_integration = false, plugin_path = vim.fn.stdpath(
+ M.options = {}
+ 
+ M.paths = {
+-  emoji = "emoji.nvim/lua/data/emojis.json",
+-  kaomoji = "emoji.nvim/lua/data/kaomojis.json",
++  emoji = "lua/data/emojis.json",
++  kaomoji = "lua/data/kaomojis.json",
+ }
+ 
+ function M.setup(options)
