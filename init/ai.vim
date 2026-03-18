@@ -2,8 +2,9 @@
 " Environment variables already loaded by init.vim
 
 " Global options, must set properly
-let g:pretty_ai_namespace = nvim_create_namespace('pretty.nvim.ai')
-let g:pretty_ai_ftype="codecompanion"
+let g:aicoding_ftype="codecompanion"
+let g:aicoding_tips_ready='🌹 AI Chat Ready✨!  Enter: 发送消息，Shift-Enter: 换行 '
+let g:aicoding_tips_thinking='🤖 AI is thinking ...'
 
 " => Check API Key first
 " => Load corresponding configuration
@@ -15,23 +16,15 @@ luafile <sfile>:h/codecompanion.lua
 
 " => Basic commands
 command! -nargs=* AICodingInline CodeCompanion <args>
+command! -nargs=* AIChatLaunch CodeCompanionActions <args>
 command! -nargs=* AIChatToggle CodeCompanionChat Toggle <args>
-command! AIChatSubmit lua require('codecompanion').last_chat():submit()
+command! -nargs=0 AIChatSubmit lua require('codecompanion').last_chat():submit()
 
 augroup AICodingChat
     autocmd!
-    autocmd User CodeCompanionChatCreated silent! call s:AIChatReady()
-    autocmd User CodeCompanionChatDone silent! call s:AIChatReady()
+    autocmd User CodeCompanionChatCreated   call AIChatReady()
+    autocmd User CodeCompanionChatDone      call AIChatReady()
 augroup END
-
-" Inline mode - <leader>ai
-nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
-" Visual mode - suppress the automatic range with <C-U>
-"  - without <C-U> function will be called twice.
-vnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
-
-" Chat mode - F5
-noremap  <silent> <F5> :AIChatToggle<CR>
 
 " ============================================================================
 " AI Functions (unified for both engines)
@@ -40,7 +33,7 @@ function! s:AICodingContext() abort
     " find out the right winnr & bufnr
     let l:winnr = winnr()
     " use last window's winnr if this is AI chat window
-    if &filetype == g:pretty_ai_ftype | let l:winnr = winnr('#') | endif
+    if &filetype == g:aicoding_ftype | let l:winnr = winnr('#') | endif
 
     let l:bufnr = winbufnr(l:winnr)
 
@@ -79,41 +72,9 @@ function! s:AICodingInline() abort
     exe ":AICodingInline " .. l:context .. "\n🙋 User:" .. l:prompt
 endfunction
 
-function! s:AIChatReady() abort
-    if &filetype != g:pretty_ai_ftype | return | endif
-
-    " 1. exit insert mode
-    stopinsert
-
-    " 2. show tips
-    call s:AIChatTips('🌹 AI Chat Ready✨! Enter 发送消息，Shift-Enter 换行')
-
-    " 3. do keymaps
-    inoremap <silent><buffer> <Esc> <C-o>:call <SID>AIChatReady()<CR>
-    " => Insert at end
-    nnoremap <silent><buffer> i    : call <SID>AIChatEdit()<CR>
-    nnoremap <silent><buffer> a    : call <SID>AIChatEdit()<CR>
-    nnoremap <silent><buffer> <CR> : call <SID>AIChatEdit()<CR>
-    " => Enter: submit user message (insert mode only)
-    inoremap <silent><buffer> <CR> <C-o>:call <SID>AIChatSend()<CR>
-endfunction
-
-function! s:AIChatTips(message) abort
-    let l:bufnr = bufnr('%')
-    call nvim_buf_clear_namespace(l:bufnr, g:pretty_ai_namespace, 0, -1)
-    if a:message == '' | return | endif
-
-    " line - 1: line() start with 1, but nvim use 0-based index.
-    call nvim_buf_set_extmark(l:bufnr, g:pretty_ai_namespace, line('$') - 1, 0, {
-        \ 'virt_text': [[a:message, 'Keyword']],
-        \ 'virt_text_pos': 'eol',
-        \ 'hl_mode': 'combine',
-        \ })
-endfunction
-
-function! s:AIChatEdit() abort
+function! AIChatEdit() abort
     " 1. clear tips
-    call s:AIChatTips('')
+    call ShowTips('')
 
     " 2. to the end
     call cursor(line('$'), 0)
@@ -122,7 +83,7 @@ function! s:AIChatEdit() abort
     startinsert
 endfunction
 
-function! s:AIChatSend() abort
+function! AIChatSend() abort
     " 1. exit insert mode
     stopinsert
 
@@ -132,8 +93,38 @@ function! s:AIChatSend() abort
     call cursor(line('$'), 0)
 
     " 3. show tips
-    call s:AIChatTips('🤖 AI is working...')
+    call ShowTips(g:aicoding_tips_thinking)
 
     " 4. submit using AIChatSubmit command
     exe ":AIChatSubmit"
 endfunction
+
+function! AIChatReady() abort
+    if &filetype != g:aicoding_ftype | return | endif
+
+    " 1. exit insert mode
+    stopinsert
+
+    " 2. show tips
+    call ShowTips(g:aicoding_tips_ready)
+
+    " 3. do keymaps
+    call CloseWith('AIChatToggle')
+    call StartInsertWith('call AIChatEdit()')
+    call StopInsertWith('call AIChatReady()')
+
+    " => Enter: insert at end (Normal mode)
+    nnoremap <silent><buffer> <CR>  :call AIChatEdit()<CR>
+    " => Enter: submit message (Insert mode)
+    inoremap <silent><buffer> <CR>  <C-o>:call AIChatSend()<CR>
+endfunction
+
+" Inline mode - <leader>ai
+nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
+" Visual mode - suppress the automatic range with <C-U>
+"  - without <C-U> function will be called twice.
+vnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
+
+" Chat mode - F5
+noremap  <silent> <S-F5> : AIChatLaunch<CR>
+noremap  <silent> <F5>   : AIChatToggle<CR>

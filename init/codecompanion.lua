@@ -18,6 +18,8 @@ end
 
 local model = os.getenv("OPENAI_MODEL") or os.getenv("OPENAI_MODEL_CODING") or "qwen3-coder-next"
 
+local providers = require("codecompanion.providers")
+
 -- Set splitright for vertical splits to appear on the right
 vim.opt.splitright = true
 
@@ -46,6 +48,15 @@ codecompanion.setup({
     display = {
         action_palette = {
             prompt = "✨ AI Coding: ", -- Title used for interactive LLM calls
+            -- telescope|mini_pick|snacks|default
+            -- provider = providers.action_palette,
+            provider = telescope, -- work with Telescope
+            opts = {
+                show_preset_actions = true,
+                show_preset_prompts = false,
+                show_preset_rules = true,
+                title = vim.g.finder_tips,
+            },
         },
         chat = {
             icons = {
@@ -55,10 +66,29 @@ codecompanion.setup({
                 chat_context = "📎 ",
             },
             window = {
-                layout = "vertical",
-                full_height = true,
-                position = "right",
-                width = 0.3,
+                buflisted = false, -- List the chat buffer in the buffer list?
+                -- float|vertical|horizontal|tab|buffer
+                layout = "float",
+                full_height = false, -- float 一定要设置这个
+
+                position = "bottom",     -- nil = auto (top-right for float)
+                height = 0.8,
+                width = 0.9, ---@return number|fun(): number
+                border = "single",     -- single|double|rounded|none
+                relative = "editor",   -- relative to editor
+                opts = {
+                    breakindent = true,
+                    linebreak = true,
+                    wrap = true,
+                },
+            },
+            -- Options for an floating windows
+            floating_window = {
+                width = 0.9, ---@return number|fun(): number
+                height = 0.8, ---@return number|fun(): number
+                border = "single",
+                relative = "editor",
+                opts = {},
             },
 
             show_header_separator = true, -- Show header separators in the chat buffer? Set this to false if you're using an external markdown formatting plugin

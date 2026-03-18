@@ -1,0 +1,125 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+
+  "runtime.version": "LuaJIT",
+  "runtime.path": [
+    "lua/?.lua",
+    "lua/?/init.lua"
+  ],
+
+  "diagnostics": {
+    "enable": true,
+    "globals": [
+      "vim",
+      "describe",
+      "it",
+      "before_each",
+      "after_each",
+      "pending"
+    ],
+    "disable": [
+      "lowercase-global",
+      "undefined-global",
+      "redundant-parameter",
+      "param-type-mismatch",
+      "assign-type-mismatch",
+      "unused-local",
+      "unused-vararg"
+    ],
+    "needed_checkers": [
+      "await",
+      "codestyle-check",
+      "code-after-break",
+      "empty-block",
+      "redundant-return",
+      "redundant-return-value",
+      "return-type-mismatch",
+      "trailing-space",
+      "unreachable-code"
+    ],
+    "severity": {
+      "await": "Warning",
+      "codestyle-check": "Information",
+      "code-after-break": "Warning",
+      "empty-block": "Information",
+      "redundant-return": "Warning",
+      "redundant-return-value": "Warning",
+      "return-type-mismatch": "Error",
+      "trailing-space": "Information",
+      "unreachable-code": "Warning"
+    },
+    "group_file_strategy": "folder"
+  },
+
+  "completion": {
+    "enable": true,
+    "callSnippet": "Both",
+    "keywordSnippet": "Disable",
+    "displayContext": 10,
+    "autoRequire": true
+  },
+
+  "hover": {
+    "enable": true,
+    "viewNumber": true,
+    "viewString": true,
+    "viewStringMax": 1000
+  },
+
+  "signatureHelp": {
+    "enable": true
+  },
+
+  "workspace": {
+    "library": [
+      "$VIMRUNTIME/lua",
+      "${3rd}/busted/library",
+      "${3rd}/luassert/library",
+      "${3rd}/neovim/library"
+    ],
+    "checkThirdParty": false,
+    "maxPreload": 2000,
+    "preloadFileSize": 1000,
+    "ignoreDir": [
+      "/node_modules",
+      "/.git",
+      "/prebuilts",
+      "/py3env"
+    ],
+    "useGitIgnore": true
+  },
+
+  "telemetry": {
+    "enable": false
+  },
+
+  "format": {
+    "enable": true,
+    "defaultConfig": {
+      "indent_style": "space",
+      "indent_size": "4",
+      "continuation_indent_size": "4",
+      "align_parameter": "true",
+      "chop_down_parameter": "false",
+      "align_table_field": "true",
+      "chop_down_table": "false",
+      "column_limit": 120
+    }
+  },
+
+  "codeLens": {
+    "enable": true
+  },
+
+  "semantic": {
+    "enable": true
+  },
+
+  "hint": {
+    "enable": true,
+    "setType": false,
+    "paramName": "All",
+    "paramType": true,
+    "arrayIndex": "Enable"
+  }
+}

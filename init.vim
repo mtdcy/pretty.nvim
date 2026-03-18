@@ -66,19 +66,24 @@ function! FloatingWindowBottomRight() abort
                 \ }
 endfunction
 
+" hide cursor for buffer in normal mode
 function! HideCursor() abort
     setlocal cursorline
-    setlocal termguicolors
-    augroup HideCursor
+
+    " init: hide cursor
+    set guicursor+=a:Cursor/Cursor
+    highlight Cursor blend=100
+
+    augroup HideBufferCursor
         autocmd!
         " hide cursor
-        autocmd BufEnter <buffer>
+        autocmd BufEnter,InsertLeave <buffer>
                     \ highlight Cursor blend=100
-                    \ | setlocal guicursor+=a:Cursor/lCursor
+                    \ | setlocal guicursor+=a:Cursor/Cursor
         " show cursor
-        autocmd BufLeave *
+        autocmd BufLeave,InsertEnter <buffer>
                     \ highlight Cursor blend=0
-                    \ | setlocal guicursor-=a:Cursor/lCursor
+                    \ | setlocal guicursor-=a:Cursor/Cursor
     augroup END
 endfunction
 
@@ -221,6 +226,40 @@ augroup EditorConfig
     autocmd InsertLeave * set ic
 augroup END
 
+" =============================================================================
+" Refresh Commands
+" =============================================================================
+" {{{
+
+" 需要刷新的操作列表
+" 格式：每个 item 是一个函数字符串或命令
+let g:refresh_commands = []
+
+" 刷新函数：遍历并执行 refresh_commands 中的命令
+function! Refresh() abort
+    if empty(g:refresh_commands)
+        echom 'ℹ️ No refresh commands configured'
+        return
+    endif
+
+    for cmd in g:refresh_commands
+        try
+            " 如果是函数引用，调用函数
+            if type(cmd) == v:t_func
+                call cmd()
+            " 如果是字符串，作为命令执行
+            elseif type(cmd) == v:t_string
+                execute cmd
+            endif
+        catch
+            echom '⚠️ Refresh error: ' . v:exception
+        endtry
+    endfor
+
+    echom '✅ Refresh completed'
+endfunction
+" }}}
+
 " => Check if Lua plugin exists (like exists('*func') for VimScript)
 function! LuaExists(plugin) abort
     return luaeval('select(1, pcall(require, _A))', a:plugin)
@@ -233,28 +272,15 @@ endif
 
 " => Load init scripts
 source <sfile>:h/init/ui.vim
-source <sfile>:h/init/explorer.vim
-source <sfile>:h/init/taglist.vim
-source <sfile>:h/init/cmp.vim
-source <sfile>:h/init/git.vim
-source <sfile>:h/init/ai.vim
-source <sfile>:h/init/misc.vim
-
 source <sfile>:h/init/wm.vim
-
-" => Load Telescope Finder (替代 Denite)
+source <sfile>:h/init/cmp.vim
 source <sfile>:h/init/finder.vim
-
-" => Load Denite Menu (保留作为备份，可注释掉)
-" source <sfile>:h/init/menu.vim
+source <sfile>:h/init/ai.vim
 
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
 nnoremap <leader>ss :source $MYVIMRC<cr>
-            \ :call webdevicons#refresh()<cr>
-            \ :call lightline#update()<cr>
-            \ :call lightline#bufferline#reload()<cr>
-            \ :ReloadWindows<cr>
+            \ :call Refresh()<cr>
 
 " lcd to project root when opening FIRST file {{{
 " Use finddir() to find .git directory (no external command needed)

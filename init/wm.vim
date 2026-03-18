@@ -88,8 +88,8 @@ function! s:wmtype(bufnr) abort
         return 'nerdtree'
     elseif ftype ==? 'tagbar'
         return 'tagbar'
-    elseif ftype ==? 'codecompanion'
-        return 'codecompanion'
+    "elseif ftype ==? 'codecompanion'
+    "    return 'codecompanion'
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
     elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
@@ -132,7 +132,7 @@ function! s:wmid_filetype(wmtype) abort
         return 2
     elseif a:wmtype ==? 'quickfix'
         return 3
-    elseif a:wmtype ==? 'tagbar' || a:wmtype ==? 'codecompanion'
+    elseif a:wmtype ==? 'tagbar' "|| a:wmtype ==? 'codecompanion'
         return 4  " rightbar: tagbar 或 codecompanion（互斥）
     endif
     return 0
@@ -148,6 +148,11 @@ endfunction
 " 设置窗口 ID
 " 参数：wmid - 窗口类型 ID, winid - 窗口 ID
 function! s:wm_winid_set(wmid, winid) abort
+    for i in range(len(g:winids))
+        if g:winids[i] == a:winid
+            let g:winids[i] = 0
+        endif
+    endfor
     let g:winids[a:wmid] = a:winid
 endfunction
 
@@ -424,13 +429,13 @@ endfunction
 
 " 切换到下一个 Buffer
 function! s:next() abort
-    call s:wm_window(0)
+    if s:wmid() > 0 | call s:wm_window(0) | endif
     exe 'bnext'
 endfunction
 
 " 切换到上一个 Buffer
 function! s:prev() abort
-    call s:wm_window(0)
+    if s:wmid() > 0 | call s:wm_window(0) | endif
     exe 'bprev'
 endfunction
 
@@ -464,13 +469,35 @@ augroup END
 " =============================================================================
 
 " 关闭当前 Buffer
-command! -nargs=0 BufferClose call <sid>close()
+command! -nargs=0 BufferClose  call <sid>close()
 
 " 下一个 Buffer
-command! -nargs=0 BufferNext  call <sid>next()
+command! -nargs=0 BufferNext   call <sid>next()
 
 " 上一个 Buffer
-command! -nargs=0 BufferPrev  call <sid>prev()
+command! -nargs=0 BufferPrev   call <sid>prev()
 
-" 重载窗口 ID 映射
-command! -nargs=0 ReloadWindows call <sid>wm_reload()
+command! -nargs=0 BufferReload call <sid>wm_reload()
+
+let g:refresh_commands += [ 'BufferReload' ]
+
+" =============================================================================
+" 缓冲区导航（保持与 Denite 一致）
+" =============================================================================
+
+" --- 下一个缓冲区 ---
+nnoremap <C-n>      :BufferNext<cr>
+inoremap <C-n>      <C-o>:BufferNext<cr>
+tnoremap <C-n>      <C-\><C-N>:bnext<cr>
+nnoremap <Tab>      :BufferNext<cr>
+
+" --- 上一个缓冲区 ---
+nnoremap <C-p>      :BufferPrev<cr>
+inoremap <C-p>      <C-o>:BufferPrev<cr>
+tnoremap <C-p>      <C-\><C-N>:bprev<cr>
+nnoremap <S-Tab>    :BufferPrev<cr>
+
+" --- 关闭缓冲区 ---
+nnoremap <C-w>      :BufferClose<cr>
+inoremap <C-w>      <C-o>:BufferClose<cr>
+tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>

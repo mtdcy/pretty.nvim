@@ -18,7 +18,7 @@
 " =============================================================================
 
 " Finder 提示信息
-let g:finder_tips = "按'/'开始搜索"
+let g:finder_tips = "⌨️ /: 开始搜索，j/k: 选择, Enter: 打开, Q: 退出 ⌨️"
 
 " Prompt 窗口 bufnr（用于后续操作）
 let g:finder_bufnr = 0
@@ -33,16 +33,19 @@ let g:finder_bufnr = 0
 
 let g:finder = {
             \ 'items': [
-            \   ['1. Finder          ', '(CTRL-o)  ', 'Finder'                               ] ,
-            \   ['2. Buffer          ', '(CTRL-e)  ', 'Buffer'                               ] ,
-            \   ['3. Search          ', '(CTRL-g)  ', 'Search'                               ] ,
-            \   ['4. Format          ', '(F8)      ', 'ALEFix'                               ] ,
-            \   ['5. Explorer        ', '(F9)      ', 'ExplorerFocus'                        ] ,
-            \   ['6. Taglist         ', '(F10)     ', 'TaglistFocus'                         ] ,
-            \   ['7. LazyGit         ', '(F12)     ', 'GitOpen'                              ] ,
-            \   ['8. Close           ', '(CTRL-w)  ', 'BufferClose'                          ] ,
-            \   ['9. Quit            ', '(:qa)     ', 'confirm quit'                         ] ,
-            \   ['?. Help            ', '          ', 'edit ' . g:pretty_home . '/README.md' ] ,
+            \   ['1. Finder         ', '(CTRL-o)', 'Finder'                                 ] ,
+            \   ['2. Buffer         ', '(CTRL-e)', 'Buffer'                                 ] ,
+            \   ['3. Search         ', '(CTRL-g)', 'Search'                                 ] ,
+            \   ['4. Chat           ', '(F5)    ', 'OpenChat'                               ] ,
+            \   ['5. Format         ', '(F8)    ', 'ALEFix'                                 ] ,
+            \   ['6. Explorer       ', '(F9)    ', 'ExplorerFocus'                          ] ,
+            \   ['7. Taglist        ', '(F10)   ', 'TaglistFocus'                           ] ,
+            \   ['8. LazyGit        ', '(F12)   ', 'GitOpen'                                ] ,
+            \   ['9. Close          ', '(CTRL-w)', 'BufferClose'                            ] ,
+            \   ['.. Nerdy          ', '        ', 'NerdySearch'                            ] ,
+            \   ['.. Emoji          ', '        ', 'EmojiSearch'                            ] ,
+            \   ['.. Quit           ', '(:qa)   ', 'confirm quit'                           ] ,
+            \   ['?. Help           ', '        ', 'edit ' . g:pretty_home . '/README.md'   ] ,
             \ ],
             \ }
 
@@ -71,6 +74,18 @@ command! -nargs=* Search Telescope live_grep <args>
 " 缓冲区列表
 command! -nargs=* Buffer Telescope buffers <args>
 
+" Search Nerd Fonts - 使用 Telescope 调用，保持统一的 UI
+"command! -nargs=* NerdySearch lua require('telescope').extensions.nerdy.nerdy()
+"command! -nargs=* NerdySearch Telescope nerdy <args>
+" Telescope 不一定支持所有参数，比如主题参数
+command! -nargs=0 NerdySearch lua vim.g.start_nerdy()
+
+" Search Emojis
+command! -nargs=0 EmojiSearch lua vim.g.start_emoji()
+
+" Search Emojis
+command! -nargs=0 OpenChat lua vim.g.start_codecompanion()
+
 " =============================================================================
 " 搜索功能（支持从当前单词开始搜索）
 " =============================================================================
@@ -98,6 +113,7 @@ augroup FinderKeymaps
     autocmd!
     " 当进入 Telescope 窗口时调用设置函数
     autocmd FileType TelescopePrompt call s:FinderSettings()
+    autocmd BufNewFile "[Scratch]" call s:FinderResultSettings()
 augroup END
 
 " Telescope 窗口设置函数
@@ -106,32 +122,39 @@ function! s:FinderSettings() abort
     let g:finder_bufnr = bufnr()
 
     " Suppress 'E37: No write since last change'
-    "setlocal buftype=nofile
+    setlocal buftype=nofile
     " 会导致 prompt_prefix 配置不生效
 
     setlocal cursorline
     setlocal termguicolors
-    " highlight Cursor blend=100
 
-    " --- 基本导航 ---
-    " Normal 模式：按 / 进入插入模式（反向搜索）
-    nnoremap <silent><buffer> /       :startinsert!<CR>
-    " Insert 模式：按 CR 停止插入模式
-    inoremap <silent><buffer> <CR>    <C-o>:stopinsert<CR>
-    " Normal 模式：按 Esc 关闭窗口
-    nnoremap <silent><buffer> <Esc>   :FinderExit<CR>
+    call HideCursor()
+
+    call CloseWith('FinderExit')
+
+    " Normal 模式：按 / 进入插入模式 (总是在最后插入）
+    call StartInsertWith("call ShowTips('')<CR>:startinsert!")
+
+    " Esc: 停止插入模式 (Insert Mode)
+    call StopInsertWith("stopinsert")
+
+    inoremap <silent><buffer> <CR> <C-o>:stopinsert<CR>
 
     " --- 预览 ---
     " Normal 模式：按 p 切换预览
-    nnoremap <silent><buffer> p       :lua require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)<CR>
+    nnoremap <silent><buffer> p :lua require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)<CR>
 
     " --- 缓冲区 ---
     " Normal 模式：按 w 删除选中的缓冲区
-    nnoremap <silent><buffer> w       :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)<CR>
+    nnoremap <silent><buffer> w :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)<CR>
 
     " --- 选择 ---
     " Normal 模式：按 Space 打开选中的项
     nnoremap <silent><buffer> <Space> :lua require('telescope.actions').select_default(vim.g.finder_bufnr)<CR>
+endfunction
+
+function! FinderResultSettings() abort
+    setlocal number
 endfunction
 
 " =============================================================================
@@ -156,132 +179,3 @@ inoremap <C-e>      <C-o>:Buffer<cr>
 " Normal/Insert 模式：按 CTRL-g 打开项目搜索
 nnoremap <C-g>      :Grep<cr>
 inoremap <C-g>      <C-o>:Grep<cr>
-
-" --- 窗口管理 ---
-" Normal/Insert 模式：F9/F10/F12 打开 Explorer/Taglist/LazyGit
-nnoremap <F9>       :ExplorerFocus<cr>
-inoremap <F9>       <C-o>:ExplorerFocus<cr>
-nnoremap <F10>      :TaglistFocus<cr>
-inoremap <F10>      <C-o>:TaglistFocus<cr>
-" no F11 here, as macOS has global define
-nnoremap <F12>      :GitOpen<cr>
-inoremap <F12>      <C-o>:GitOpen<cr>
-
-" =============================================================================
-" 缓冲区导航（保持与 Denite 一致）
-" =============================================================================
-
-" --- 下一个缓冲区 ---
-nnoremap <C-n>      :BufferNext<cr>
-inoremap <C-n>      <C-o>:BufferNext<cr>
-tnoremap <C-n>      <C-\><C-N>:bnext<cr>
-nnoremap <Tab>      :BufferNext<cr>
-
-" --- 上一个缓冲区 ---
-nnoremap <C-p>      :BufferPrev<cr>
-inoremap <C-p>      <C-o>:BufferPrev<cr>
-tnoremap <C-p>      <C-\><C-N>:bprev<cr>
-nnoremap <S-Tab>    :BufferPrev<cr>
-
-" --- 关闭缓冲区 ---
-nnoremap <C-w>      :BufferClose<cr>
-inoremap <C-w>      <C-o>:BufferClose<cr>
-tnoremap <C-w>      <C-\><C-N>:BufferClose<cr>
-
-" =============================================================================
-" 快速访问缓冲区（对应 lightline-bufferline）
-" =============================================================================
-
-nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
-nnoremap <leader>2  <Plug>lightline#bufferline#go(2)
-nnoremap <leader>3  <Plug>lightline#bufferline#go(3)
-nnoremap <leader>4  <Plug>lightline#bufferline#go(4)
-nnoremap <leader>5  <Plug>lightline#bufferline#go(5)
-nnoremap <leader>6  <Plug>lightline#bufferline#go(6)
-nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
-nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
-nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
-nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
-
-" =============================================================================
-" 窗口切换（Move focus）
-" =============================================================================
-
-noremap <C-j>       <C-W>j
-noremap <C-k>       <C-W>k
-noremap <C-h>       <C-W>h
-noremap <C-l>       <C-W>l
-tnoremap <C-j>      <C-\><C-N><C-W>j
-tnoremap <C-k>      <C-\><C-N><C-W>k
-tnoremap <C-h>      <C-\><C-N><C-W>h
-tnoremap <C-l>      <C-\><C-N><C-W>l
-
-" =============================================================================
-" 跳转 - Goto
-" =============================================================================
-
-" Go to first line - `gg`
-" Go to last line
-noremap  gG         G
-
-" Go to begin or end of code block
-noremap  g[         [{
-noremap  g]         ]}
-
-" Go to Define and Back (Top of stack)
-" TODO: map K,<C-]>,gD,... to one key
-"nnoremap gd         <C-]>
-nnoremap gd         :ALEGoToDefinition<cr>
-nnoremap gD         :ALEGoToImplementation<cr>
-nnoremap gb         <C-T>
-
-" Go to man or doc
-nnoremap gk         K
-
-" Go to Type
-" nmap gt
-
-" Go to next error of ale
-nnoremap ge         <Plug>(ale_next_wrap)
-
-" Go to yank and paste
-vnoremap gy         "+y
-nnoremap gy         y<Space>
-nnoremap gp         "+p
-vnoremap <C-c>      "+y
-
-" Go to list, FIXME: what about quickfix
-nnoremap gl         :lopen<CR>
-
-" Tabularize
-vnoremap /          :Tabularize /
-
-" =============================================================================
-" 帮助信息
-" =============================================================================
-
-" Telescope 模式下可用按键：
-" Normal 模式:
-"   <CR>    - 选择
-"   q/<Esc> - 关闭
-"   j/k     - 上下移动
-"   <Tab>   - 下一个
-"   <S-Tab> - 上一个
-"   gg/G    - 顶部/底部
-"   <Space> - 选择并移动
-"   w       - 删除缓冲区
-"   1-9     - 选择第 N 项
-"   <F9>    - 打开 Explorer
-"   <F10>   - 打开 Taglist
-"   <F12>   - 打开 LazyGit
-"
-" Insert 模式:
-"   <CR>    - 选择
-"   <Esc>   - 关闭
-"   <C-n>/<C-p> - 下一个/上一个
-"   <Tab>   - 下一个
-"   <S-Tab> - 上一个
-"   <Space> - 选择并移动
-"   <F9>    - 打开 Explorer
-"   <F10>   - 打开 Taglist
-"   <F12>   - 打开 LazyGit

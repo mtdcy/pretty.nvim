@@ -31,7 +31,8 @@ git restore --staged .
 git checkout HEAD -- README.md .gitignore .github   # checkout ours
 git clean -f -d .github                             # clean unneeded
 
-mv LICENSE "LICENSE.$repo" -f || true               # rename LICENSE
+mv LICENSE      "LICENSE.$repo" -f ||               # rename LICENSE
+mv LICENSE.md   "LICENSE.$repo" -f || true          # rename LICENSE
 rm test tests -rf || true                           # ...
 
 # common vim directories
