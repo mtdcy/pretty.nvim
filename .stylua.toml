@@ -6,6 +6,12 @@
 #   类似 JavaScript 的 Prettier
 #
 # 官方文档：https://github.com/JohnnyMorganz/StyLua
+#
+# TODO: 迁移 ale_fixers => autocmd
+#   当前：使用 ALE 的 fixers 在保存时格式化
+#   目标：使用 Neovim 原生 autocmd + vim.lsp.buf.format()
+#   优势：减少插件依赖，使用 Neovim 内置功能
+#   参考：https://neovim.io/doc/user/lsp.html#vim.lsp.buf.format()
 # =============================================================================
 
 # 每行最大字符数

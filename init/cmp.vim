@@ -59,79 +59,15 @@ if g:ale_enabled
     let g:ale_open_list = 0             " don't open error list
     let g:ale_keep_list_window_open = 0 " close list after error cleared
 
+    " Fixers: disable
+    let g:ale_fix_on_save = 0
+    let g:ale_fixers = { '*' : [] }
+
     " Linters:
     let g:ale_lint_on_text_changed = 0  " performance issue
     let g:ale_lint_on_insert_leave = 0
     let g:ale_lint_on_filetype_changed = 1
     let g:ale_lint_delay = 100
-
-    " Fixers: {{{
-    "  => load fixers if rc file exists, so fix on save
-    let g:ale_fix_on_save = 0
-    " default fixers
-    let g:ale_fixers = {
-                \ '*' : [ 'remove_trailing_lines', 'trim_whitespace' ],
-                \ }
-
-    " apply default fixers if not specified
-    function! s:apply_default_fixers(fixers) abort
-        if !exists('b:ale_fixers')
-            let b:ale_fixers = { &filetype : a:fixers }
-            return 1
-        endif
-        return 0
-    endfunction
-
-    function! s:apply_fixers_conditional(files, cmd, fixers) abort
-        for i in split(a:files, ';')
-            if findfile(i, '.;') !=# ''
-                let b:ale_fixers = { &filetype : a:fixers }
-                return CheckExecutable(a:cmd, &filetype)
-            endif
-        endfor
-        return 0
-    endfunction
-
-    " no executable here => user may installed different version
-    "  => only one fixer for filetype
-    augroup ALEFixersSetup
-        autocmd!
-        " stylua
-        autocmd FileType lua,luac
-                    \ call s:apply_fixers_conditional("stylua.toml;.stylua.toml;.styluaignore", 'stylua', ['stylua'])
-        " black
-        autocmd FileType python
-                    \ if s:apply_default_fixers(['black'])
-                    \ |  let b:ale_python_black_options = s:find_lintrc('--config ', 'pyproject.toml', 'lintrc/black.toml')
-                    \ | endif
-        " goimports,gofmt
-        autocmd FileType go
-                    \ call s:apply_default_fixers(['goimports', 'gofmt'])
-        " yaml
-        autocmd FileType yaml
-                    \ if s:apply_default_fixers(['yamlfix'])
-                    \ |  let b:ale_yaml_yamlfix_options = s:find_lintrc('--env-prefix "YAMLFIX_" -c ', 'yamlfix.toml;.yamlfix.toml;pyproject.toml', 'lintrc/yamlfix.toml')
-                    \ | endif
-        " json
-        autocmd FileType json
-                    \ call s:apply_default_fixers(['fixjson', 'jq'])
-
-        " sh
-        "autocmd FileType sh
-        "            \ if CheckExecutable('shfmt', 'shell script format')
-        "            \ |  call s:apply_default_fixers(['shfmt'])
-        "            \ |  let b:ale_sh_shfmt_executable = FindExecutable('shfmt')
-        "            \ |  let b:ale_sh_shfmt_options = '--posix --keep-padding --case-indent --indent'
-        "            \ | endif
-        " rustfmt
-        autocmd FileType rust
-                    \ call s:apply_fixers_conditional("rustfmt.toml;.rustfmt.toml", 'rustfmt', ['rustfmt'])
-
-        " prettier
-        autocmd FileType *
-                    \ call s:apply_fixers_conditional(".prettierrc;.prettierrc.json", 'prettier', ['prettier'])
-    augroup END
-    " }}}
 
     " Linter: language server first {{{
     let g:ale_linters_explicit = 1

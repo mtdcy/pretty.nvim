@@ -23,7 +23,10 @@ function! FindExecutable(cmd)
     elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:cmd)
         return g:pretty_home . '/node_modules/.bin/' . a:cmd
     endif
-    return '' " no executables in PATH
+    if executable(a:cmd)
+        return a:cmd
+    endif
+    return ''
 endfunction
 
 " check host and local executables
@@ -156,77 +159,6 @@ augroup reload
 augroup END
 "}}}
 
-" EditorConfig {{{
-" https://neovim.io/doc/user/editorconfig.html
-let g:editorconfig = v:true
-" => editorconfig applied after ftplugins and FileType autocmds
-
-" editorconfig.end_of_line = lf
-set fileformat=unix
-set fileformats=unix,dos
-
-" editorconfig.charset = utf-8
-set fileencoding=utf-8
-set fileencodings=utf-8,gb18030,gbk,latin1
-
-" editorconfig.indent_size = 4
-set shiftwidth=4
-set softtabstop&
-" editorconfig.tab_width = 4
-set tabstop=4
-
-" editorconfig.indent_style = space
-set expandtab
-
-" editorconfig.max_line_length
-set textwidth=0
-
-" disable auto-wrap text using textwidth
-set formatoptions-=t
-" }}}
-
-" will be override by .editorconfig
-augroup EditorConfig
-    au!
-    " set extra properties for interest files
-    au FileType vim                 setlocal fdm=marker
-    au FileType make                setlocal expandtab&
-
-    au FileType lua,luac            setlocal et ts=2 sw=2 fdm=syntax
-
-    " default yaml folding does not work well => don't fold by default
-    au FileType yaml                setlocal et ts=2 sw=2 fdm=indent foldlevel=99
-
-    au FileType markdown            setlocal et ts=2 sw=2 foldlevel=99
-    " => Markdown插件有点问题，总是不断折叠
-
-    " Python 通过indent折叠总在折叠在函数的第二行
-    au FileType python              setlocal et ts=4 sw=4 fdm=indent
-    au FileType html,css            setlocal et ts=2 sw=2 fdm=syntax
-
-    " json: ignore top bracket
-    au FileType json,jsonc          setlocal et ts=2 sw=2 foldlevel=1
-
-    " javascript,typescript
-    au FileType javascript          setlocal et ts=2 sw=2
-    au FileType typescript          setlocal et ts=2 sw=2
-
-    " 自动跳转到上一次打开的位置
-    autocmd BufReadPost *
-                \ if line("'\"") >= 1 && line("'\"") <= line("$") && &filetype !~# 'commit'
-                \ | exe "normal! g`\""
-                \ | endif
-
-    " Auto-create parent directories (except for URIs "://").
-    autocmd BufWritePre,FileWritePre *
-                \ if expand('<afile>') !~# '\(://\)'
-                \ | call mkdir(expand('<afile>:p:h'), 'p')
-                \ | endif
-
-    " no ignore case when enter insert mode
-    autocmd InsertEnter * set noic
-    autocmd InsertLeave * set ic
-augroup END
 
 " =============================================================================
 " Refresh Commands
@@ -280,6 +212,8 @@ source <sfile>:h/init/ai.vim
 
 "source <sfile>:h/init/finder.vim
 luafile <sfile>:h/init/finder.lua
+
+luafile <sfile>:h/init/style.lua
 
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
