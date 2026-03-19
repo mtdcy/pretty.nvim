@@ -395,9 +395,6 @@ endif
 " =============================================================================
 " 其他配置
 " =============================================================================
-" => Rainbow
-" let g:rainbow_active = 1 => cause conceal feature stop working
-autocmd FileType vim,sh,c,cpp,html call rainbow_main#load()
 
 " => Commenter
 let g:NERDCreateDefaultMappings = 0
