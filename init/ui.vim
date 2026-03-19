@@ -46,12 +46,6 @@ else
     set background=light
 endif
 
-" 加载 Solarized 主题配置（Lua 配置）
-luafile <sfile>:h/solarized.lua
-
-" => Load basic lua plugins
-luafile <sfile>:h/markdown.lua
-
 " 光标设置：a=所有模式，blinkwait5=等待 5ms 开始闪烁，blinkon5=亮 5ms，blinkoff5=灭 5ms
 set guicursor=a:blinkwait5-blinkon5-blinkoff5
 
@@ -412,9 +406,17 @@ highlight matchTag gui=reverse
 " 加载插件配置文件: vimscript 插件 > lua 插件
 " =============================================================================
 
+luafile <sfile>:h/rainbow.lua
+" 加载 Solarized 主题配置（Lua 配置）
+luafile <sfile>:h/solarized.lua
+
+
 luafile <sfile>:h/devicons.lua
 luafile <sfile>:h/emojis.lua
 luafile <sfile>:h/gitsigns.lua
+
+" => Load basic lua plugins
+luafile <sfile>:h/markdown.lua
 
 let g:refresh_commands += [ 'lua require("nvim-web-devicons").refresh()' ]
 
