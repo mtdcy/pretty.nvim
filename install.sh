@@ -137,6 +137,15 @@ for x in "${requirements[@]}"; do
     fi
 done
 
+info "🚀 Install submodules"
+git submodule update --init --recursive
+while read -r makefile; do
+    info "🚀 Build ${makefile%/*}"
+    cd "${makefile%/*}"
+    make
+    cd -
+done < <(find deps -name Makefile -maxdepth 2)
+
 info "🚀 Install python wheels"
 
 # true: fix 'Text file busy' if nvim is openned
