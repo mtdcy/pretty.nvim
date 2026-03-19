@@ -185,8 +185,16 @@ else
 fi
 
 # nvim final prepare
-./run -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins | TSUpdate' +quit
+./run --headless -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
 test -f prebuilts/fruzzy_mod.so || ./run -c 'call fruzzy#install()' +quit
+
+# 仅安装 pretty.nvim 所需的 treesitter, 其他的由用户自己安装
+if which gcc; then
+    info "🚀 Install nvim treesitter"
+    ./run --headless -c 'TSInstallSync! vim lua bash yaml toml json vimdoc markdown' +quit
+else
+    info "❌ Install gcc for nvim treesitter support"
+fi
 
 # test
 ./run -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt

@@ -13,3 +13,5 @@ cmdlets.sh
 /rplugin/python3/fruzzy_mod.so
 /rplugin/python3/fruzzy_mod_mac.so
 /.model.yaml
+/parser/
+/parser-info/
