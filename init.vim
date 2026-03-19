@@ -274,8 +274,10 @@ endif
 source <sfile>:h/init/ui.vim
 source <sfile>:h/init/wm.vim
 source <sfile>:h/init/cmp.vim
-source <sfile>:h/init/finder.vim
 source <sfile>:h/init/ai.vim
+
+"source <sfile>:h/init/finder.vim
+luafile <sfile>:h/init/finder.lua
 
 " edit/reload .vimrc/init.vim
 nnoremap <leader>se :e $MYVIMRC<cr>
