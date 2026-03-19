@@ -18,6 +18,22 @@
 -- UI 配置
 -- =============================================================================
 
+-- https://github.com/nvim-telescope/telescope.nvim?tab=readme-ov-file#sorters
+-- https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions
+local sorters = require('telescope.sorters')
+
+local popup_layout_config = {
+    prompt_position = 'bottom',
+
+    anchor = 'S',           -- 底部锚点
+    anchor_padding = 1,     -- 距离底部 n 行
+
+    -- max = 9 + n: 其中 n 为窗口边框 + Prompt
+    height = { 0.5, max = 9 + 4 },
+
+    width = { 0.3, min = 72 },
+}
+
 -- popup 主题 (基于dropdown)
 local popup = require('telescope.themes').get_dropdown({
     -- 初始模式：normal = 不自动进入插入模式
@@ -36,17 +52,14 @@ local popup = require('telescope.themes').get_dropdown({
 
     -- 布局策略：center vertical horizontal bottom_pane
     layout_strategy = 'center',
-    layout_config = {
-        prompt_position = 'bottom',
-
-        anchor = 'S',           -- 底部锚点
-        anchor_padding = 1,     -- 距离底部 n 行
-    },
+    layout_config = popup_layout_config,
 
     -- borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+    -- borderchars = vim.g.pretty_borderchars_plenary,
 
     -- 预览器配置
     previewer = true,
+    dynamic_preview_title = true, -- 显示文件名
     preview = {
         hide_on_startup = true, -- 启动时隐藏预览
         timeout = 60,           -- 预览超时时间（毫秒）
@@ -140,18 +153,36 @@ require('telescope').setup({
         },
         codecompanion = {
             -- CodeCompanion 扩展配置
-            opts = {
-                window_opts = { layout = "float" },
-            },
         },
+        fzy_native = {
+            override_generic_sorter = true,
+            override_file_sorter = true,
+        }
     },
 })
 
 -- 明确开启已经安装的插件 => :Telescope lazygit
+-- 注意插件顺序
+require('telescope').load_extension('fzy_native')
 require('telescope').load_extension('ui-select')
 require('telescope').load_extension('nerdy')
 require('telescope').load_extension('emoji')
 require('telescope').load_extension('lazygit')
+require('telescope').load_extension('codecompanion')
+
+-- 使用 ':Telescope nerdy' 不会应用默认主题设置 (某些参数会被覆盖)
+-- 为了保持统一的 UI => 自定义启动函数
+vim.g.start_nerdy = function()
+    require('telescope').extensions.nerdy.nerdy( popup )
+end
+
+vim.g.start_emoji = function()
+    require('telescope').extensions.emoji.emoji( popup )
+end
+
+vim.g.start_codecompanion = function()
+    require('telescope').extensions.codecompanion.codecompanion( popup )
+end
 
 -- =============================================================================
 -- 安全删除 Buffer（覆盖 Telescope 默认行为）
@@ -184,26 +215,6 @@ actions.delete_buffer = function(prompt_bufnr)
         return true
     end)
 end
-require('telescope').load_extension('codecompanion')
-
--- 使用 Telescope 启动 nerdy，保持统一的 UI
--- extensions 暂时无法配置主题
-vim.g.start_nerdy = function()
-    require('telescope').extensions.nerdy.nerdy( popup )
-end
-
-vim.g.start_emoji = function()
-    require('telescope').extensions.emoji.emoji( popup )
-end
-
-vim.g.start_codecompanion = function()
-    require('telescope').extensions.codecompanion.codecompanion(vim.tbl_extend("force", popup, {
-        -- extend theme with CodeCompanion opts
-        opts = {
-            window_opts = { layout = "float" },
-        },
-    }))
-end
 
 -- =============================================================================
 -- Finder 菜单功能
@@ -213,10 +224,10 @@ end
 --- 显示主菜单
 --- @param opts table 选项
 vim.g.start_finder = function(opts)
-    local builtin = require('telescope.builtin')
-    local finders = require('telescope.finders')
-    local actions = require('telescope.actions')
-    local action_state = require('telescope.actions.state')
+    local builtin       = require('telescope.builtin')
+    local finders       = require('telescope.finders')
+    local actions       = require('telescope.actions')
+    local action_state  = require('telescope.actions.state')
     local entry_display = require('telescope.pickers.entry_display')
 
     -- 从 VimL 全局变量获取菜单数据
@@ -228,20 +239,14 @@ vim.g.start_finder = function(opts)
 
     local items = finder_config.items or {}
 
-    -- 计算动态高度：菜单项数量 + 标题行 + 边框
-    local min_height = math.min(#items, 9) + 4
-    local max_height = 32
-
-    -- 构建显示列表（3 部分：Text, Keymap, Command）
+    -- 构建显示列表（3 部分：Text, Keymap, Command, Close）
     local results = {}
     for _, item in ipairs(items) do
-        local text = item[1]
-        local keymap = item[2]
-        local command = item[3]
         table.insert(results, {
-            text = text,
-            keymap = keymap,
-            action = command,
+            text    = item[1],
+            keymap  = item[2],
+            action  = item[3],
+            close   = item[4],
         })
     end
 
@@ -249,8 +254,8 @@ vim.g.start_finder = function(opts)
     local displayer = entry_display.create {
         separator = ' ',
         items = {
-            {width = 0.8},  -- Text 占 80% 宽度（靠左）
-            {remaining = true},  -- Keymap 占剩余宽度（靠右）
+            { width     = 0.8   },  -- Text 占 80% 宽度（靠左）
+            { remaining = true  },  -- Keymap 占剩余宽度（靠右）
         },
     }
 
@@ -260,11 +265,8 @@ vim.g.start_finder = function(opts)
         results_title = '✨ Commands ✨',
         prompt_title = vim.g.finder_tips,
 
-        -- 动态布局配置
-        layout_config = {
-            height = math.min(min_height, max_height),
-            -- 使用主题定义的 width
-        },
+        -- 布局配置
+        layout_config = popup_layout_config,
 
         -- 自定义 finder（使用菜单数据）
         finder = finders.new_table({
@@ -279,12 +281,13 @@ vim.g.start_finder = function(opts)
                 end
 
                 return {
-                    value = entry.action,
-                    display = make_display,
                     -- 不匹配快捷键
                     ordinal = entry.text,
-                    text = entry.text,
-                    keymap = entry.keymap,
+                    value   = entry.action,
+                    display = make_display,
+                    text    = entry.text,
+                    keymap  = entry.keymap,
+                    close   = entry.close,
                 }
             end,
         }),
@@ -294,7 +297,9 @@ vim.g.start_finder = function(opts)
             actions.select_default:replace(function()
                 local selection = action_state.get_selected_entry()
                 if selection and selection.value then
-                    actions.close(prompt_bufnr)
+                    if selection.close then
+                        actions.close(prompt_bufnr)
+                    end
                     vim.schedule(function()
                         vim.cmd(selection.value)
                     end)

@@ -30,22 +30,23 @@ let g:finder_bufnr = 0
 "   - Text: 显示文本（靠左）
 "   - Keymap: 快捷键（靠右）
 "   - Command: 执行的命令
+"   - Close: 关闭当前窗口
 
 let g:finder = {
             \ 'items': [
-            \   ['1. Finder         ', '(CTRL-o)', 'Finder'                                 ] ,
-            \   ['2. Buffer         ', '(CTRL-e)', 'Buffer'                                 ] ,
-            \   ['3. Search         ', '(CTRL-g)', 'Search'                                 ] ,
-            \   ['4. Chat           ', '(F5)    ', 'OpenChat'                               ] ,
-            \   ['5. Format         ', '(F8)    ', 'ALEFix'                                 ] ,
-            \   ['6. Explorer       ', '(F9)    ', 'ExplorerFocus'                          ] ,
-            \   ['7. Taglist        ', '(F10)   ', 'TaglistFocus'                           ] ,
-            \   ['8. LazyGit        ', '(F12)   ', 'GitOpen'                                ] ,
-            \   ['9. Close          ', '(CTRL-w)', 'BufferClose'                            ] ,
-            \   ['.. Nerdy          ', '        ', 'NerdySearch'                            ] ,
-            \   ['.. Emoji          ', '        ', 'EmojiSearch'                            ] ,
-            \   ['.. Quit           ', '(:qa)   ', 'confirm quit'                           ] ,
-            \   ['?. Help           ', '        ', 'edit ' . g:pretty_home . '/README.md'   ] ,
+            \   ['1. Finder         ', '(CTRL-o)', 'Finder'                              , v:false ] ,
+            \   ['2. Buffer         ', '(CTRL-e)', 'Buffer'                              , v:false ] ,
+            \   ['3. Search         ', '(CTRL-g)', 'Search'                              , v:false ] ,
+            \   ['4. Chat           ', '(F5)    ', 'OpenChat'                            , v:false ] ,
+            \   ['5. Format         ', '(F8)    ', 'ALEFix'                              , v:true  ] ,
+            \   ['6. Explorer       ', '(F9)    ', 'ExplorerFocus'                       , v:true  ] ,
+            \   ['7. Taglist        ', '(F10)   ', 'TaglistFocus'                        , v:true  ] ,
+            \   ['8. LazyGit        ', '(F12)   ', 'GitOpen'                             , v:true  ] ,
+            \   ['9. Close          ', '(CTRL-w)', 'BufferClose'                         , v:false ] ,
+            \   ['.. Nerdy          ', '        ', 'NerdySearch'                         , v:false ] ,
+            \   ['.. Emoji          ', '        ', 'EmojiSearch'                         , v:false ] ,
+            \   ['.. Quit           ', '(:qa)   ', 'confirm quit'                        , v:true  ] ,
+            \   ['?. Help           ', '        ', 'edit ' . g:pretty_home . '/README.md', v:true  ] ,
             \ ],
             \ }
 
@@ -113,7 +114,6 @@ augroup FinderKeymaps
     autocmd!
     " 当进入 Telescope 窗口时调用设置函数
     autocmd FileType TelescopePrompt call s:FinderSettings()
-    autocmd BufNewFile "[Scratch]" call s:FinderResultSettings()
 augroup END
 
 " Telescope 窗口设置函数
@@ -122,7 +122,7 @@ function! s:FinderSettings() abort
     let g:finder_bufnr = bufnr()
 
     " Suppress 'E37: No write since last change'
-    setlocal buftype=nofile
+    " setlocal buftype=nofile
     " 会导致 prompt_prefix 配置不生效
 
     setlocal cursorline
@@ -149,12 +149,9 @@ function! s:FinderSettings() abort
     nnoremap <silent><buffer> w :lua require("telescope.actions").delete_buffer(vim.g.finder_bufnr)<CR>
 
     " --- 选择 ---
-    " Normal 模式：按 Space 打开选中的项
+    " Normal 模式：按 Space 或 Enter 打开选中的项
+    nnoremap <silent><buffer> <CR>    :lua require('telescope.actions').select_default(vim.g.finder_bufnr)<CR>
     nnoremap <silent><buffer> <Space> :lua require('telescope.actions').select_default(vim.g.finder_bufnr)<CR>
-endfunction
-
-function! FinderResultSettings() abort
-    setlocal number
 endfunction
 
 " =============================================================================

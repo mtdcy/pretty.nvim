@@ -77,11 +77,11 @@ function! HideCursor() abort
     augroup HideBufferCursor
         autocmd!
         " hide cursor
-        autocmd BufEnter,InsertLeave <buffer>
+        autocmd BufEnter,InsertLeave,CmdlineLeave <buffer>
                     \ highlight Cursor blend=100
                     \ | setlocal guicursor+=a:Cursor/Cursor
         " show cursor
-        autocmd BufLeave,InsertEnter <buffer>
+        autocmd BufLeave,InsertEnter,CmdlineEnter <buffer>
                     \ highlight Cursor blend=0
                     \ | setlocal guicursor-=a:Cursor/Cursor
     augroup END

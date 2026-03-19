@@ -15,6 +15,10 @@ let g:nerdtree_enabled = 1
 let g:tagbar_enabled = 1
 let g:lazygit_enabled = 1
 
+" nvim_open_win
+let g:pretty_borderchars= ['╭','─', '╮', '│', '╯','─', '╰', '│']
+let g:pretty_borderchars_plenary = [ "─", "│", "─", "│", "╭", "╮", "╯", "╰" ]
+
 " =============================================================================
 " 全局选项
 " =============================================================================
@@ -378,7 +382,8 @@ if g:lazygit_enabled
     " use plenary.nvim to manage floating window if available
     let g:lazygit_floating_window_use_plenary = 0 "LuaExists('plenary.window')
     " customize lazygit popup window border characters
-    let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
+    let g:lazygit_floating_window_border_chars = g:pretty_borderchars
+    "let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
     "let g:lazygit_floating_window_border_chars = [ "─", "│", "─", "│", "╭", "╮", "╯", "╰" ]
     " custom config file first for nvim
     let g:lazygit_use_custom_config_file_path = 1
@@ -487,8 +492,8 @@ if g:lazygit_enabled
     command! -nargs=0 GitOpen LazyGit
 endif
 
-nnoremap <F7>       :ALEFixSuggest<cr>
-inoremap <F7>       <C-o>:ALEFixSuggest<cr>
+nnoremap <F7>       :ALEInfo<cr>
+inoremap <F7>       <C-o>:ALEInfo<cr>
 nnoremap <F8>       :ALEFix<cr>
 inoremap <F8>       <C-o>:ALEFix<cr>
 
