@@ -192,6 +192,8 @@ augroup EditorConfig
     au FileType vim                 setlocal fdm=marker
     au FileType make                setlocal expandtab&
 
+    au FileType lua,luac            setlocal et ts=2 sw=2 fdm=syntax
+
     " default yaml folding does not work well => don't fold by default
     au FileType yaml                setlocal et ts=2 sw=2 fdm=indent foldlevel=99
 
