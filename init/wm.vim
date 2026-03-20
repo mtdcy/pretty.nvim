@@ -23,7 +23,7 @@
 "   +----------------------------------------+
 "
 " 窗口 ID 映射：
-"   g:winids = [main, leftbar, headbar, footbar, rightbar]
+"   s:winids = [main, leftbar, headbar, footbar, rightbar]
 "              [  0  ,   1   ,   2    ,   3    ,    4    ]
 "
 " 关键修复：
@@ -37,15 +37,15 @@
 " =============================================================================
 
 " 调试模式：1 = 启用，0 = 禁用
-let g:wm_debug  = 0
+let s:wm_debug  = 0
 
 " 侧边栏高度（水平窗口：help/quickfix）
 " 最小 12 行，最大为当前窗口高度的 1/4
-let g:wm_height = min([12, winheight(0) / 4])
+let s:wm_height = min([12, winheight(0) / 4])
 
 " 侧边栏宽度（垂直窗口：NERDTree/Tagbar）
 " 最大为 1/2（但不超过 32 列）
-let g:wm_width  = min([32, winwidth(0) / 2])
+let s:wm_width  = min([32, winwidth(0) / 2])
 
 " 重置 wildignore（使用默认值）
 set wildignore&
@@ -62,7 +62,7 @@ set cmdheight=1
 
 " 窗口 ID 数组：[main, leftbar, headbar, footbar, rightbar]
 " 初始值：当前窗口设为 main (0)，其他设为 0（未分配）
-let g:winids = [ win_getid(), 0, 0, 0, 0 ]
+let s:winids = [ win_getid(), 0, 0, 0, 0 ]
 
 " 窗口类型映射：
 "   1 - leftbar  (左侧栏): NERDTree
@@ -81,15 +81,12 @@ function! s:wmtype(bufnr) abort
     " 获取文件类型
     let ftype = getbufvar(bufnr(a:bufnr), '&ft')
 
-    " 主窗口检查：如果在主窗口中，允许编辑任何文件
-    if winnr() == s:wm_winnr(0)
-        return ''
-    elseif ftype ==? 'nerdtree'
+    if ftype ==? 'nerdtree'
         return 'nerdtree'
     elseif ftype ==? 'tagbar'
         return 'tagbar'
-    "elseif ftype ==? 'codecompanion'
-    "    return 'codecompanion'
+        "elseif ftype ==? 'codecompanion'
+        "    return 'codecompanion'
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
     elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
@@ -105,9 +102,9 @@ endfunction
 " 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
 function! s:wmid(winid = '') abort
     if a:winid == ''
-        return index(g:winids, win_getid())
+        return index(s:winids, win_getid())
     else
-        return index(g:winids, a:winid)
+        return index(s:winids, a:winid)
     endif
 endfunction
 
@@ -116,9 +113,9 @@ endfunction
 " 返回：wmid（0-4 表示窗口类型，-1 表示未分类）
 function! s:wmid_winnr(winnr = '') abort
     if a:winnr == ''
-        return index(g:winids, win_getid())
+        return index(s:winids, win_getid())
     else
-        return index(g:winids, win_getid(a:winnr))
+        return index(s:winids, win_getid(a:winnr))
     endif
 endfunction
 
@@ -142,18 +139,18 @@ endfunction
 " 参数：wmid - 窗口类型 ID (0-4)
 " 返回：窗口 ID（>0 表示有效，<=0 表示无效）
 function! s:wm_winid(wmid) abort
-    return g:winids[a:wmid]
+    return s:winids[a:wmid]
 endfunction
 
 " 设置窗口 ID
 " 参数：wmid - 窗口类型 ID, winid - 窗口 ID
 function! s:wm_winid_set(wmid, winid) abort
-    for i in range(len(g:winids))
-        if g:winids[i] == a:winid
-            let g:winids[i] = 0
+    for i in range(len(s:winids))
+        if s:winids[i] == a:winid
+            let s:winids[i] = 0
         endif
     endfor
-    let g:winids[a:wmid] = a:winid
+    let s:winids[a:wmid] = a:winid
 endfunction
 
 " 根据 wmid 获取窗口号（winnr）
@@ -246,26 +243,33 @@ endfunction
 " =============================================================================
 
 " 检查并恢复主窗口
-" 触发时机：BufDelete 事件
+" 触发时机：BufNew 事件
 " 修复问题：使用 bdelete 删除最后一个 buffer 会导致窗口关闭
 function! s:wm_main() abort
-    let winid = win_getid()
-
     " 检查 main 窗口状态
     " 注意：要是 buffer 是在外部被删除的，winid 还被保存着，所以检查 winnr (1-based)
     if s:wm_winnr(0) > 0 | return | endif
 
-    " 这种情况主要发生在唯一的 buffer 被外部命令删除
-    echo '== main window closed, take ' .. winid
+    let winid = win_getid()
+    let width = winwidth(0) - s:wm_width
+    let height = winheight(0) - s:wm_height
 
-    " main 窗口不存在，sp|vsp 一个很复杂，直接抢一个窗口
-    " 清除旧的 winid 记录
-    call s:wm_winid_set(s:wmid(winid), 0)
-    " 将当前窗口设为新的 main 窗口
-    call s:wm_winid_set(0, winid)
+    if winid == s:wm_winid(1)
+        exe 'rightbelow vnew'
+        exe 'vertical resize ' . width
+    elseif winid == s:wm_winid(2)
+        exe 'below new'
+        exe 'resize ' . height
+    elseif winid == s:wm_winid(3)
+        exe 'leftabove vnew'
+        exe 'vertical resize ' . width
+    else
+        exe 'above new'
+        exe 'resize ' . height
+    endif
 
-    " 创建空 buffer（关键：不然后续 wmtype 判断会失效）
-    enew
+    echom '== main window gone, restore it'
+    call s:wm_winid_set(0, win_getid())
 endfunction
 
 " =============================================================================
@@ -282,6 +286,14 @@ endfunction
 "   - 手动修复窗口映射
 "   - 调试窗口问题
 function! s:wm_reload() abort
+    " 切换到 main 窗口
+    call s:wm_window(0)
+
+    " 清除历史值
+    for wmid in range(1, 4)
+        call s:wm_winid_set(wmid, 0)
+    endfor
+
     " 更新 main 窗口 winid ( 存在在多个bufnr 满足条件，只选一个)
     for bufnr in range(1, bufnr('$'))
         if !buflisted(bufnr) | continue | endif
@@ -295,27 +307,23 @@ function! s:wm_reload() abort
 
     " 遍历所有 buffer - 更新其他窗口
     for bufnr in range(1, bufnr('$'))
-        " 跳过未加载的 buffer
-        if !buflisted(bufnr) | continue | endif
-
         " 获取 buffer 类型
         let type = s:wmtype(bufnr)
-        let winid = bufwinid(bufnr)
 
         " 跳过主窗口 buffer
         if type == '' | continue | endif
 
-        if winid <= 0  | continue | endif
+        let winid = bufwinid(bufnr)
+
+        " 跳过未显示的 buffer
+        if winid <= 0 | continue | endif
+
+        call s:wminfo()
 
         call s:wm_winid_set(s:wmid_filetype(type), winid)
     endfor
 
-    " 切换到 main 窗口
-    call s:wm_window(0)
-
-    if g:wm_debug
-        echo '== reload completed. g:winids=' . string(g:winids)
-    endif
+    echo '== reload completed. winids: ' . string(s:winids)
 endfunction
 
 " =============================================================================
@@ -328,11 +336,15 @@ endfunction
 "   2. 为侧边栏 Buffer 分配正确的窗口
 "   3. 处理互斥窗口（Tagbar vs CodeCompanion）
 function! s:wm_update() abort
-    if g:wm_debug | call s:wminfo() | endif
-    let type = s:wmtype('%')
+    if s:wm_debug | call s:wminfo() | endif
+
+    let bufnr = bufnr('%')
+    let winid = bufwinid(bufname(bufnr))
+
+    let type = s:wmtype(bufnr)
+    let wmid = s:wmid_filetype(type)
 
     " 1. sticky buffer: 检查 Buffer 是否被错误分配
-    let wmid = s:wmid_filetype(type)
     if s:wmid() > 0 && wmid != s:wmid()
         echo '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
         if bufwinnr('#') > 0
@@ -363,9 +375,9 @@ function! s:wm_update() abort
                 call s:wm_winid_set(wmid, winid)
                 " 调整窗口大小
                 if type ==? 'docs' || type ==? 'quickfix'
-                    exe 'resize ' . g:wm_height
+                    exe 'resize ' . s:wm_height
                 else
-                    exe 'vertical resize ' . g:wm_width
+                    exe 'vertical resize ' . s:wm_width
                 endif
             endif
         endif
@@ -408,7 +420,7 @@ endfunction
 "   - 侧边栏窗口：直接 quit
 "   - 主窗口：切换到其他 buffer，删除当前 buffer
 " 注意：不删除最后一个 buffer（避免窗口关闭）
-function! s:close() abort
+function! s:wm_buffer_close() abort
     if win_getid() != s:wm_winid(0)
         " 侧边栏窗口：直接关闭
         exe 'quit'
@@ -419,22 +431,22 @@ function! s:close() abort
         let li = filter(range(1, bufnr('$')), 'buflisted(v:val) == 1 && v:val != ' . bufnr)
         if len(li) > 0
             " 切换到前一个 buffer 并删除当前 buffer
-            exe 'bprev | bdelete ' . bufnr
+            exe 'bprev | bdelete' . bufnr
         else
             " 最后一个 buffer：提示用户使用 :qa
-            echo "Last buffer, close it with :qa"
+            echo "⚠️ Last buffer, close it with :qa"
         endif
     endif
 endfunction
 
 " 切换到下一个 Buffer
-function! s:next() abort
+function! s:wm_buffer_next() abort
     if s:wmid() > 0 | call s:wm_window(0) | endif
     exe 'bnext'
 endfunction
 
 " 切换到上一个 Buffer
-function! s:prev() abort
+function! s:wm_buffer_prev() abort
     if s:wmid() > 0 | call s:wm_window(0) | endif
     exe 'bprev'
 endfunction
@@ -447,8 +459,8 @@ augroup WM
     autocmd!
 
     " 主窗口管理：检测 main 窗口关闭并恢复
-    " 关键：使用 BufDelete 而非 WinClosed
-    autocmd BufDelete   * call s:wm_main()
+    " Can't split a window while closing another - 选择打开 buffer 时的 events
+    autocmd BufNew      * call s:wm_main()
 
     " 窗口更新：检查 Buffer 分配
     autocmd BufEnter    * call s:wm_update()
@@ -461,21 +473,21 @@ augroup WM
     autocmd BufLeave    term://* stopinsert
 augroup END
 
-" 调试快捷键（启用 g:wm_debug 时使用）
-" if g:wm_debug | nnoremap <C-Y> :call <sid>wminfo()<cr> | endif
+" 调试快捷键（启用 s:wm_debug 时使用）
+" if s:wm_debug | nnoremap <C-Y> :call <sid>wminfo()<cr> | endif
 
 " =============================================================================
 " 用户命令
 " =============================================================================
 
 " 关闭当前 Buffer
-command! -nargs=0 BufferClose  call <sid>close()
+command! -nargs=0 BufferClose  call <sid>wm_buffer_close()
 
 " 下一个 Buffer
-command! -nargs=0 BufferNext   call <sid>next()
+command! -nargs=0 BufferNext   call <sid>wm_buffer_next()
 
 " 上一个 Buffer
-command! -nargs=0 BufferPrev   call <sid>prev()
+command! -nargs=0 BufferPrev   call <sid>wm_buffer_prev()
 
 command! -nargs=0 BufferReload call <sid>wm_reload()
 
