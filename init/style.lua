@@ -18,7 +18,7 @@
 --   - 减少手动配置
 -- =============================================================================
 
-vim.g.style_format_on_save = true
+vim.g.style_format_on_save = false
 
 -- =============================================================================
 -- Filetype 和 Indent 配置
@@ -87,12 +87,12 @@ vim.opt.fillchars = vim.opt.fillchars + { fold = " " } -- 隐藏 v:folddashes（
 -- 注意：必须使用 _G 定义全局函数
 
 -- 设置 foldtext
-_G.pretty_set_foldtext = function()
+_G.pretty_style_foldtext = function()
   local text = vim.fn.getline(vim.v.foldstart)
   local lines = vim.v.foldend - vim.v.foldstart
   return text .. " 󰍻 " .. lines .. " more lines "
 end
-vim.opt.foldtext = "v:lua.pretty_set_foldtext()"
+vim.opt.foldtext = "v:lua.pretty_style_foldtext()"
 
 -- =============================================================================
 -- 文件类型特定配置
@@ -100,12 +100,15 @@ vim.opt.foldtext = "v:lua.pretty_set_foldtext()"
 -- 注意：.editorconfig 会覆盖这些设置
 
 -- style 模块
-local style = {}
+local style = {
+  -- 创建自动命令组
+  augroup = vim.api.nvim_create_augroup("StyleGroup", { clear = true }),
+}
 
 -- =============================================================================
 -- 文件类型配置数据结构
 -- =============================================================================
--- 格式：filetype = { et, ts, sw, foldmethod='xxx', foldlevel=n, command='xxx', files={}, ext={} }
+-- 格式：filetype = { et, ts, sw, foldmethod='xxx', foldlevel=n, command='xxx', files={}, exts={} }
 --
 -- 必需项（位置参数）:
 --   [1] et        : expandtab (布尔值)
@@ -113,11 +116,14 @@ local style = {}
 --   [3] sw        : shiftwidth (数字)
 --
 -- 可选项（命名参数，不必按顺序）:
+--   exts        : 文件扩展名数组（如 {'lua'}，默认为 {filetype}）
 --   foldmethod  : foldmethod (字符串，默认不设置)
 --   foldlevel   : foldlevel (数字，默认 99)
 --   command     : 格式化命令（字符串，如 'stylua'，默认不设置）
+--   opts        : 命令行参数 (如 {'-c'}, 默认为空）
 --   files       : 配置文件数组（如 {'.stylua.toml'}，默认不设置）
---   ext         : 文件扩展名数组（如 {'lua'}，默认为 {filetype}）
+--
+-- 最终命令组成: command opts files %
 --
 -- 示例：
 --   lua = { true, 2, 2, foldmethod='syntax', foldlevel=99, command='stylua', files={'.stylua.toml'} }
@@ -130,13 +136,11 @@ style.filetypes = {
   -- Makefile：4 空格，使用制表符
   make = { false, 4, 4 },
 
+  -- shell script
+  sh = { true, 4, 4, command = "shfmt", opts = { "-w", "-kp", "-i", "4", "-ln", "bash", "-sr" } },
+
   -- VimL：4 空格缩进，标记折叠
-  vim = {
-    true,
-    4,
-    4,
-    foldmethod = "marker",
-  },
+  vim = { true, 4, 4, foldmethod = "marker" },
 
   -- Lua：2 空格缩进，语法折叠，自动格式化
   lua = {
@@ -145,9 +149,9 @@ style.filetypes = {
     2,
     command = "stylua",
     files = { ".stylua.toml", ".styluaignore" },
-    ext = { "lua" },
     foldmethod = "syntax",
     foldlevel = 99,
+    exts = { "lua" },
   },
 
   -- YAML：2 空格缩进，缩进折叠
@@ -155,11 +159,16 @@ style.filetypes = {
     true,
     2,
     2,
+    -- yamlfix 自动检测 pyproject.toml or .yamlfix.toml
     command = "yamlfix",
-    ext = { "yaml", "yml" },
+    exts = { "yaml", "yml" },
     foldmethod = "indent",
     foldlevel = 99,
   },
+
+  -- JSON：2 空格缩进，忽略顶层括号
+  json = { true, 2, 2, command = "fixjson", opts = { "-i", "2", "-w" }, foldlevel = 1 },
+  json5 = { true, 2, 2, command = "fixjson", opts = { "-i", "2", "-w" }, foldlevel = 1 },
 
   -- Markdown：2 空格缩进
   markdown = { true, 2, 2, foldlevel = 99 },
@@ -170,10 +179,6 @@ style.filetypes = {
   -- HTML/CSS：2 空格缩进，语法折叠
   html = { true, 2, 2, foldmethod = "syntax" },
   css = { true, 2, 2, foldmethod = "syntax" },
-
-  -- JSON：2 空格缩进，忽略顶层括号
-  json = { true, 2, 2, foldlevel = 1 },
-  jsonc = { true, 2, 2, foldlevel = 1 },
 
   -- JavaScript：2 空格缩进
   javascript = { true, 2, 2 },
@@ -186,60 +191,73 @@ style.filetypes = {
 -- 自动格式化工具
 -- =============================================================================
 
--- 创建自动命令组
-style.augroup = vim.api.nvim_create_augroup("StyleGroup", { clear = true })
+local style_default_formatter = function()
+  vim.cmd("normal! gg=G") -- use vim formatter
+end
 
 --- 查找格式化工具
----@param command string 命令名称
----@param files table|nil 配置文件数组
----@return string|nil 工具路径，找不到返回 nil
-local function style_find_executable(command, files)
+---@param config {} filetype 对应的配置
+---@return string|function 工具路径，找不到返回 style_default_formatter
+local function style_find_formatter(config)
+  if not config or not config.command then
+    return style_default_formatter
+  end
+
   -- 检查配置文件是否存在（如果有指定）
-  if files then
-    local config_found = false
-    for _, file in ipairs(files) do
+  if config.files then
+    local found = false
+    for _, file in ipairs(config.files) do
       if vim.fn.findfile(file, ".;") ~= "" then
-        config_found = true
+        found = true
         break
       end
     end
     -- 如果配置文件没找到，不格式化
-    if not config_found then
-      return nil
+    if not found then
+      return style_default_formatter
     end
   end
 
   -- 使用 PrettyFindExecutable 获取完整路径（VimL 函数）
-  local executable = vim.fn.call("PrettyFindExecutable", { command })
+  local executable = vim.fn.call("PrettyFindExecutable", { config.command })
 
   -- 检查返回值
   if executable and executable ~= "" then
-    return executable
+    if config.opts then
+      return executable .. " " .. table.concat(config.opts, " ")
+    else
+      return executable
+    end
+  else
+    return style_default_formatter
   end
-
-  return nil
 end
 
---- 启用格式化工具
----@param exts table 文件扩展名数组
----@param command string 命令名称
----@param files table|nil 配置文件数组
-local function style_enable_formatter(exts, command, files)
-  local executable = style_find_executable(command, files)
-  if not executable or executable == "" then
-    -- 静默失败，不显示警告（可能用户没安装）
-    return
-  end
+--- 执行命令（支持 string 和 function 两种类型）
+---@param formatter string|function 要执行的命令或函数
+local function style_format(formatter, opts)
+  if type(formatter) == "function" then
+    -- Lua 函数：直接调用
+    formatter()
 
-  -- 为每个扩展名注册 autocmd
-  for _, ext in ipairs(exts) do
-    vim.api.nvim_create_autocmd("BufWritePost", {
-      group = style.augroup,
-      pattern = "*." .. ext,
-      callback = function()
-        vim.cmd("silent! !" .. executable .. " %")
-      end,
-    })
+    if opts and opts.verbose then
+      vim.notify("✅ Format done", vim.log.levels.INFO)
+    end
+  elseif type(formatter) == "string" then
+    -- 执行格式化（使用 system() 捕获输出）
+    local bufname = vim.api.nvim_buf_get_name(0)
+    local cmd = formatter .. " " .. vim.fn.fnameescape(bufname)
+    local output = vim.fn.system(cmd)
+
+    -- 检查错误
+    if vim.v.shell_error ~= 0 then
+      vim.notify("❌ Style Format: " .. output, vim.log.levels.ERROR)
+      return
+    end
+
+    if opts and opts.verbose then
+      vim.notify("✅ Format with " .. formatter, vim.log.levels.INFO)
+    end
   end
 end
 
@@ -268,12 +286,32 @@ local function style_filetype(ft, config)
     end,
   })
 
+  local formatter = style_find_formatter(config)
+
   if vim.g.style_format_on_save then
-    -- 如果定义了 command，启用自动格式化
-    if config.command then
-      -- 使用 ext 或默认为 {ft}
-      local exts = config.ext or { ft }
-      style_enable_formatter(exts, config.command, config.files)
+    if config.exts then
+      local exts = {}
+      for i, ext in ipairs(config.exts) do
+        exts[i] = "*." .. ext
+      end
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        group = style.augroup,
+        pattern = exts,
+        callback = function()
+          style_format(formatter)
+        end,
+      })
+    else
+      vim.api.nvim_create_autocmd("BufWritePost", {
+        group = style.augroup,
+        pattern = "*",
+        callback = function()
+          if vim.bo.filetype ~= ft then
+            return
+          end
+          style_format(formatter)
+        end,
+      })
     end
   end
 end
@@ -303,13 +341,13 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHo
 })
 
 -- 文件变化后的通知
-vim.api.nvim_create_autocmd("FileChangedShellPost", {
-  group = style.augroup,
-  pattern = "*",
-  callback = function()
-    vim.notify("✅️ File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
-  end,
-})
+-- vim.api.nvim_create_autocmd("FileChangedShellPost", {
+--   group = style.augroup,
+--   pattern = "*",
+--   callback = function()
+--     vim.notify("✅️ File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
+--   end,
+-- })
 
 -- 自动跳转到上一次打开的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -362,56 +400,28 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 
 --- 手动格式化当前文件
 ---@param ftype string|nil 文件类型，nil 表示使用当前 buffer 的 filetype
-function style_format(ftype)
+function style_format_toggle(ftype)
   ftype = ftype or vim.bo.filetype
   local config = style.filetypes[ftype]
-
-  if not config then
-    vim.notify("❌ No formatter for filetype: " .. ftype, vim.log.levels.WARN)
-    return
-  end
-
-  if not config.command then
-    vim.notify("⚠️ No formatter command defined for " .. ftype, vim.log.levels.INFO)
-    return
-  end
 
   -- 先保存文件
   vim.cmd("silent! write")
 
   -- 如果 style_format_on_save = true，保存时已经自动格式化，不需要额外工作
   if vim.g.style_format_on_save then
-    vim.notify("✅ Formatted on save with " .. config.command, vim.log.levels.INFO)
     return
   end
 
   -- style_format_on_save = false，手动格式化
-  local executable = style_find_executable(config.command, config.files)
-  if not executable then
-    vim.notify("❌ Formatter not found: " .. config.command, vim.log.levels.ERROR)
-    return
-  end
+  local formatter = style_find_formatter(config)
 
-  -- 执行格式化（使用 system() 捕获输出）
-  local bufname = vim.api.nvim_buf_get_name(0)
-  local cmd = executable .. " " .. vim.fn.fnameescape(bufname)
-  local output = vim.fn.system(cmd)
-
-  -- 检查错误
-  if vim.v.shell_error ~= 0 then
-    vim.notify("❌ Failed: " .. output, vim.log.levels.ERROR)
-    return
-  end
-
-  -- 重新加载文件
-  vim.cmd("checktime")
-
-  vim.notify("✅ Formatted with " .. config.command, vim.log.levels.INFO)
+  -- 执行格式化
+  style_format(formatter, { verbose = true })
 end
 
 -- 手动格式化当前文件
 vim.api.nvim_create_user_command("StyleFormat", function()
-  style_format()
+  style_format_toggle()
 end, { desc = "Format current file using configured formatter" })
 
 -- =============================================================================

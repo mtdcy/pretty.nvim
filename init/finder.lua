@@ -31,8 +31,8 @@ finder = {
 
 -- 关闭 Telescope 并重置状态
 finder.close = function()
-    finder.active = false
-    finder.telescope.close()
+  finder.active = false
+  finder.telescope.close()
 end
 
 -- =============================================================================
@@ -138,7 +138,7 @@ finder.bindings = {
     name = "5. Format",
     key = "<F8>",
     close = true,
-    command = "ALEFix",
+    command = "StyleFormat",
   },
 
   -- 打开资源管理器
@@ -323,7 +323,7 @@ finder.buffers = {
     -- Normal 模式：按 Space 或 Enter 打开选中的项
     {
       key = "<Space>",
-        command = finder.telescope.select,
+      command = finder.telescope.select,
     },
     {
       key = "<Enter>",
