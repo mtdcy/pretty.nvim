@@ -11,9 +11,10 @@
 " =============================================================================
 
 let g:lightline_enabled = 1
-let g:nerdtree_enabled = 1
+let g:nerdtree_enabled = 0
 let g:tagbar_enabled = 1
 let g:lazygit_enabled = 1
+let g:nvimtree_enabled = 1
 
 " nvim_open_win
 let g:pretty_borderchars= ['╭','─', '╮', '│', '╯','─', '╰', '│']
@@ -274,8 +275,6 @@ if g:nerdtree_enabled
     ""  => keep only: Enter, Space, Mouse, F1/?
     "let g:NERDTreeMapActivateNode = ''
 
-    autocmd FileType nerdtree call PrettyCursorToggle()
-
     " => devicons
     " https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
     let g:webdevicons_enable = 1
@@ -329,8 +328,6 @@ if g:tagbar_enabled
     " multiple key mapping to these one, can't disable single one
     "let g:tagbar_map_openfold = ''
     "let g:tagbar_map_closefold = ''
-
-    autocmd FileType tagbar call PrettyCursorToggle()
 endif
 " }}}
 
@@ -376,6 +373,9 @@ highlight matchTag gui=reverse
 " 加载插件配置文件: vimscript 插件 > lua 插件
 " =============================================================================
 
+if g:nvimtree_enabled
+    luafile <sfile>:h/nvim-tree.lua
+endif
 
 " 代码风格和质量工具（Lua）
 luafile <sfile>:h/style.lua
@@ -406,6 +406,9 @@ if g:nerdtree_enabled
                 \ |  exe 'NERDTree'
                 \ | endif
                 \ | exe bufwinnr('NERD_tree') . 'wincmd w'
+else
+    command! -nargs=0 FileExplorer lua require("nvim-tree.api").tree.open()
+    command! -nargs=0 FileExplorerFocus lua require("nvim-tree.api").tree.toggle()
 endif
 
 if g:tagbar_enabled

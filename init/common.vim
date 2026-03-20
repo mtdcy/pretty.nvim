@@ -264,7 +264,8 @@ endfunction
 " 获取相对文件名（特殊缓冲区显示特殊名称）
 function! PrettyFileName() abort
     let l:bufname = bufname()
-    if l:bufname =~# 'NERD_tree_*'          | return 'NERDTree'
+    if l:bufname =~# 'NERD_tree_*'          | return 'Explorer'
+    elseif l:bufname =~# 'NvimTree_*'       | return 'Explorer'
     elseif l:bufname =~# '__Tagbar__.\d\+'  | return 'Tagbar'
         " Denite removed - Telescope uses TelescopePrompt filetype
     elseif l:bufname =~# '\[Telescope.*\]'  | return 'Telescope'

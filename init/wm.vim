@@ -81,12 +81,12 @@ function! s:wmtype(bufnr) abort
     " 获取文件类型
     let ftype = getbufvar(bufnr(a:bufnr), '&ft')
 
-    if ftype ==? 'nerdtree'
+    if ftype ==? 'nerdtree' || ftype ==? 'NvimTree'
         return 'nerdtree'
     elseif ftype ==? 'tagbar'
         return 'tagbar'
-        "elseif ftype ==? 'codecompanion'
-        "    return 'codecompanion'
+    "elseif ftype ==? 'codecompanion'
+    "    return 'codecompanion'
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype =~? '\.*doc' || ftype ==? 'ale-info'
         return 'docs'
     elseif ftype ==? 'qf' || getbufvar(bufnr(a:bufnr), '&bt') ==? 'quickfix'
@@ -360,14 +360,14 @@ function! s:wm_update() abort
     if wmid > 0
         " 侧边栏 Buffer 不列入 buffer 列表
         setlocal nobuflisted
-        let winid = bufwinid('%')
+        let winid = bufwinid(bufname(bufnr))
 
         " 多文档窗口类型（help/man/doc）：每个文档一个新窗口
         if winid != s:wm_winid(wmid)
             " 如何处理新窗口？
             if s:wm_winid(wmid) > 0
                 " 已有窗口，移动 buffer 过去
-                echo '== move buffer to window ' . s:wm_winid(wmid)
+                echo '== move buffer ' . type . ' to window ' . s:wm_winid(wmid)
                 call s:wm_settle(wmid)
             else
                 " 新窗口类型，记录 winid
@@ -466,11 +466,13 @@ augroup WM
     autocmd BufEnter    * call s:wm_update()
 
     " 特殊处理：NERDTree 和 Tagbar 在创建时设置 eventignore
-    autocmd FileType    nerdtree,tagbar,codecompanion call s:wm_update()
+    autocmd FileType    nerdtree,tagbar call s:wm_update()
 
     " Terminal 自动进入插入模式
     autocmd BufEnter    term://* startinsert
     autocmd BufLeave    term://* stopinsert
+
+    autocmd FileType    nerdtree,NvimTree,tarbar call PrettyCursorToggle()
 augroup END
 
 " 调试快捷键（启用 s:wm_debug 时使用）
