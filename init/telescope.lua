@@ -112,6 +112,12 @@ local popup = require("telescope.themes").get_dropdown({
   completion = {
     complete = false,
   },
+
+  -- for live_grep and grep_string
+  vimgrep_arguments = vim.list_extend(
+    { vim.g.pretty_rg_executable } ,
+    vim.deepcopy(vim.g.pretty_rg_options)
+  ),
 })
 
 -- Telescope 初始化配置
@@ -126,7 +132,10 @@ require("telescope").setup({
       results_title = "📄 Files 📄",
       prompt_title = vim.g.finder_tips,
       hidden = true, -- 搜索隐藏文件
-      find_command = { "rg", "--files", "--glob", "!.git", "--hidden" },
+      find_command = {
+        unpack(popup.vimgrep_arguments),
+        "--files",
+      },
     },
 
     -- 缓冲区列表
@@ -141,9 +150,6 @@ require("telescope").setup({
     live_grep = {
       results_title = "🔎 Search 🔎",
       prompt_title = vim.g.finder_tips,
-      additional_args = function()
-        return { "--hidden", "--glob", "!.git" }
-      end,
     },
   },
 

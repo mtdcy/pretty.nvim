@@ -101,7 +101,10 @@ set cursorline
 " 不高亮当前列
 set nocursorcolumn
 
-" 启用语法高亮
+" 启用 filetype 检测、插件和缩进
+filetype plugin indent on
+
+" 启用语法高亮 - 传统 Vim Syntax
 syntax enable
 
 " 强制使用旧版正则引擎（解决某些高亮慢的问题）
@@ -147,9 +150,9 @@ if g:lightline_enabled
                 \       [ 'linter_ok', 'linter_errors', 'linter_warnings' ]
                 \ ]},
                 \ 'component'           : {
-                \   'gitbranch'         : '%{GitBranch()}',
+                \   'gitbranch'         : '%{PrettyGitBranch()}',
                 \   'readonly'          : '%{&readonly ? "" : ""}',
-                \   'filename'          : '%{RelativeFileName()}',
+                \   'filename'          : '%{PrettyFileName()}',
                 \   'datetime'          : '%{strftime("%m-%d %H:%M:%S")}',
                 \ },
                 \ 'component_expand'    : {
@@ -237,42 +240,7 @@ if g:lightline_enabled
                 \ 't'      : 'T'
                 \ }
 
-    " ---------------------------------------------------------------------
-    " 自定义函数
-    " ---------------------------------------------------------------------
-
-    " 获取 Git 分支名称（优先使用 gitsigns，回退到 system 调用）
-    function! GitBranch() abort
-        " 尝试使用 gitsigns.nvim（高性能，无阻塞）
-        if exists('*gitsigns.get_status_string')
-            let l:head = gitsigns.get_status_string()
-            if l:head !=? ''
-                return l:head
-            endif
-        endif
-
-        " Fallback: 使用 system 调用（兼容旧方式）
-        let head = trim(system('git branch --show-current 2>/dev/null'))
-        if head !=? ''
-            " 获取仓库目录名
-            let l:git = fnamemodify(finddir('.git', '.;'), ':p:h:h:t')
-            let head = l:git . '  ' . head
-        endif
-        return head
-    endfunction
-
-    " 获取相对文件名（特殊缓冲区显示特殊名称）
-    function! RelativeFileName() abort
-        let l:bufname = bufname()
-        if l:bufname =~# 'NERD_tree_*'          | return 'NERDTree'
-        elseif l:bufname =~# '__Tagbar__.\d\+'  | return 'Tagbar'
-        " Denite removed - Telescope uses TelescopePrompt filetype
-        elseif l:bufname =~# '\[Telescope.*\]'  | return 'Telescope'
-        else                                    | return expand('%:~:.')
-        endif
-    endfunction
-
-    let g:refresh_commands += [
+    let g:pretty_reload_commands += [
                 \ 'call lightline#update()',
                 \ 'call lightline#bufferline#reload()'
                 \ ]
@@ -306,7 +274,7 @@ if g:nerdtree_enabled
     ""  => keep only: Enter, Space, Mouse, F1/?
     "let g:NERDTreeMapActivateNode = ''
 
-    autocmd FileType nerdtree call HideCursor()
+    autocmd FileType nerdtree call PrettyCursorToggle()
 
     " => devicons
     " https://github.com/ryanoasis/vim-devicons/wiki/Extra-Configuration
@@ -362,7 +330,7 @@ if g:tagbar_enabled
     "let g:tagbar_map_openfold = ''
     "let g:tagbar_map_closefold = ''
 
-    autocmd FileType tagbar call HideCursor()
+    autocmd FileType tagbar call PrettyCursorToggle()
 endif
 " }}}
 
@@ -374,7 +342,7 @@ if g:lazygit_enabled
     " transparency of floating window
     let g:lazygit_floating_window_winblend = 0
     " use plenary.nvim to manage floating window if available
-    let g:lazygit_floating_window_use_plenary = 0 "LuaExists('plenary.window')
+    let g:lazygit_floating_window_use_plenary = 0 "PrettyLuaExists('plenary.window')
     " customize lazygit popup window border characters
     let g:lazygit_floating_window_border_chars = g:pretty_borderchars
     "let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
@@ -389,6 +357,7 @@ endif
 " =============================================================================
 " 其他配置
 " =============================================================================
+" {{{
 
 " => Commenter
 let g:NERDCreateDefaultMappings = 0
@@ -401,15 +370,19 @@ highlight link matchTag Search
 highlight link matchTag MatchParen
 highlight link matchTagError Todo
 highlight matchTag gui=reverse
+" }}}
 
 " =============================================================================
 " 加载插件配置文件: vimscript 插件 > lua 插件
 " =============================================================================
 
-luafile <sfile>:h/rainbow.lua
+
+" 代码风格和质量工具（Lua）
+luafile <sfile>:h/style.lua
+
 " 加载 Solarized 主题配置（Lua 配置）
 luafile <sfile>:h/solarized.lua
-
+luafile <sfile>:h/rainbow.lua
 
 luafile <sfile>:h/devicons.lua
 luafile <sfile>:h/emojis.lua
@@ -418,56 +391,17 @@ luafile <sfile>:h/gitsigns.lua
 " => Load basic lua plugins
 luafile <sfile>:h/markdown.lua
 
-let g:refresh_commands += [ 'lua require("nvim-web-devicons").refresh()' ]
-
-" =============================================================================
-" 通过 virtual text 发送界面消息
-" =============================================================================
-function! ShowTips(message) abort
-    if ! exists("g:tips_namespace")
-        let g:tips_namespace = nvim_create_namespace('pretty.nvim.tips')
-    endif
-
-    let l:bufnr = bufnr('%')
-
-    " clear tips
-    call nvim_buf_clear_namespace(l:bufnr, g:tips_namespace, 0, -1)
-    if a:message == '' | return | endif
-
-    " line - 1: line() start with 1, but nvim use 0-based index.
-    call nvim_buf_set_extmark(l:bufnr, g:tips_namespace, line('$') - 1, 0, {
-        \ 'virt_text': [[a:message, 'Keyword']],
-        \ 'virt_text_pos': 'eol',
-        \ 'hl_mode': 'combine',
-        \ })
-endfunction
-
-" Suppress Esc and Close with 'Q' - for float windows
-function! CloseWith(cmd) abort
-    " => Disable Esc and Exit with 'Q' (Normal mode)
-    nnoremap <silent><buffer> <Esc> :call ShowTips("⌨️ Exit with 'Q' ⌨️")<CR>
-    exe "nnoremap <silent><buffer> Q :" .. a:cmd .. "<CR>"
-endfunction
-
-function! StartInsertWith(cmd) abort
-    exe "nnoremap <silent><buffer> / :" .. a:cmd .. "<CR>"
-    exe "nnoremap <silent><buffer> i :" .. a:cmd .. "<CR>"
-    exe "nnoremap <silent><buffer> a :" .. a:cmd .. "<CR>"
-endfunction
-
-function! StopInsertWith(cmd) abort
-    exe "inoremap <silent><buffer> <Esc> <C-o>:" .. a:cmd .. "<CR>"
-endfunction
+let g:pretty_reload_commands += [ 'lua require("nvim-web-devicons").refresh()' ]
 
 " =============================================================================
 " 插件命令
 " =============================================================================
 if g:nerdtree_enabled
     " open or close explorer
-    command! -nargs=0 Explorer NERDTreeToggle
+    command! -nargs=0 FileExplorer NERDTreeToggle
 
     " open or focus explorer
-    command! -nargs=0 ExplorerFocus
+    command! -nargs=0 FileExplorerFocus
                 \ if bufwinnr('NERD_tree') == -1
                 \ |  exe 'NERDTree'
                 \ | endif
@@ -476,10 +410,10 @@ endif
 
 if g:tagbar_enabled
     " open or close taglist
-    command! -nargs=0 Taglist TagbarToggle
+    command! -nargs=0 TagExplorer TagbarToggle
 
     " open or focus taglist
-    command! -nargs=0 TaglistFocus
+    command! -nargs=0 TagExplorerFocus
                 \ if bufwinnr('Tagbar') == -1
                 \ |  call tagbar#OpenWindow()
                 \ | endif
@@ -488,7 +422,7 @@ endif
 
 if g:lazygit_enabled
     " already lcd to git root
-    command! -nargs=0 GitOpen LazyGit
+    command! -nargs=0 GitExplorer LazyGit
 endif
 
 nnoremap <F7>       :ALEInfo<cr>
@@ -498,28 +432,36 @@ inoremap <F8>       <C-o>:ALEFix<cr>
 
 " --- 窗口管理 ---
 " Normal/Insert 模式：F9/F10/F12 打开 Explorer/Taglist/LazyGit
-nnoremap <F9>       :ExplorerFocus<cr>
-inoremap <F9>       <C-o>:ExplorerFocus<cr>
-nnoremap <F10>      :TaglistFocus<cr>
-inoremap <F10>      <C-o>:TaglistFocus<cr>
+nnoremap <F9>       :FileExplorerFocus<cr>
+inoremap <F9>       <C-o>:FileExplorerFocus<cr>
+nnoremap <F10>      :TagExplorerFocus<cr>
+inoremap <F10>      <C-o>:TagExplorerFocus<cr>
 " no F11 here, as macOS has global define
-nnoremap <F12>      :GitOpen<cr>
-inoremap <F12>      <C-o>:GitOpen<cr>
+nnoremap <F12>      :GitExplorer<cr>
+inoremap <F12>      <C-o>:GitExplorer<cr>
 
 " =============================================================================
 " 快速访问缓冲区（对应 lightline-bufferline）
 " =============================================================================
 
-nnoremap <leader>1  <Plug>lightline#bufferline#go(1)
-nnoremap <leader>2  <Plug>lightline#bufferline#go(2)
-nnoremap <leader>3  <Plug>lightline#bufferline#go(3)
-nnoremap <leader>4  <Plug>lightline#bufferline#go(4)
-nnoremap <leader>5  <Plug>lightline#bufferline#go(5)
-nnoremap <leader>6  <Plug>lightline#bufferline#go(6)
-nnoremap <leader>7  <Plug>lightline#bufferline#go(7)
-nnoremap <leader>8  <Plug>lightline#bufferline#go(8)
-nnoremap <leader>9  <Plug>lightline#bufferline#go(9)
-nnoremap <leader>0  <Plug>lightline#bufferline#go(10)
+function! s:buffer_explorer(index) abort
+    if g:lightline_enabled
+        call lightline#bufferline#go(a:index)
+    else
+        exe ':buffer ' . a:index
+    endif
+endfunction
+
+nnoremap <leader>1  :call <SID>buffer_explorer(1)<cr>
+nnoremap <leader>2  :call <SID>buffer_explorer(2)<cr>
+nnoremap <leader>3  :call <SID>buffer_explorer(3)<cr>
+nnoremap <leader>4  :call <SID>buffer_explorer(4)<cr>
+nnoremap <leader>5  :call <SID>buffer_explorer(5)<cr>
+nnoremap <leader>6  :call <SID>buffer_explorer(6)<cr>
+nnoremap <leader>7  :call <SID>buffer_explorer(7)<cr>
+nnoremap <leader>8  :call <SID>buffer_explorer(8)<cr>
+nnoremap <leader>9  :call <SID>buffer_explorer(9)<cr>
+nnoremap <leader>0  :call <SID>buffer_explorer(10)<cr>
 
 " =============================================================================
 " 窗口切换（Move focus）

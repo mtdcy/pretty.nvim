@@ -73,12 +73,12 @@ finder.launchers = {
 
   -- LazyGit（智能切换）
   -- 如果在 Telescope 中：打开 lazygit
-  -- 如果不在：执行 GitOpen 命令
+  -- 如果不在：执行 GitExplorer 命令
   lazygit = function()
     if finder.active then
       finder.telescope.lazygit()
     else
-      vim.cmd("GitOpen")
+      vim.cmd("GitExplorer")
     end
   end,
 
@@ -146,7 +146,7 @@ finder.bindings = {
     name = "6. Explorer",
     key = "<F9>",
     close = true,
-    command = "ExplorerFocus",
+    command = "FileExplorerFocus",
   },
 
   -- 打开标签列表
@@ -154,7 +154,7 @@ finder.bindings = {
     name = "7. Taglist",
     key = "<F10>",
     close = true,
-    command = "TaglistFocus",
+    command = "TagExplorerFocus",
   },
 
   -- 打开 LazyGit
@@ -343,17 +343,17 @@ vim.api.nvim_create_autocmd("FileType", {
     -- Prompt 窗口 bufnr（telescope 很多操作都需要此 bufnr）
     vim.g.finder_bufnr = vim.api.nvim_get_current_buf()
 
-    -- HideCursor() - 调用 VimL 函数
-    vim.fn.call("HideCursor", {})
+    -- PrettyCursorToggle() - 调用 VimL 函数
+    vim.fn.call("PrettyCursorToggle", {})
 
-    -- CloseWith('FinderExit') - 调用 VimL 函数
-    vim.fn.call("CloseWith", { "lua finder.close()" })
+    -- PrettyExitWith('FinderExit') - 调用 VimL 函数
+    vim.fn.call("PrettyExitWith", { "lua finder.close()" })
 
     -- Normal 模式：按 / 进入插入模式（总是在最后插入）
-    vim.fn.call("StartInsertWith", { "call ShowTips('')<CR>:startinsert!" })
+    vim.fn.call("PrettyInsertEnter", { "call PrettyTipsToggle('')<CR>:startinsert!" })
 
     -- Esc: 停止插入模式 (Insert Mode)
-    vim.fn.call("StopInsertWith", { "stopinsert" })
+    vim.fn.call("PrettyInsertLeave", { "stopinsert" })
 
     -- Insert 模式：按 Enter 停止插入
     vim.keymap.set("i", "<CR>", "<C-o>:stopinsert<CR>", { buffer = true, silent = true })

@@ -36,7 +36,7 @@ if g:ale_enabled
     let g:ale_hover_to_preview = 0          " to preview window
     let g:ale_hover_to_floating_preview = 1 " to floating preview
     let g:ale_close_preview_on_insert = 0   " don't close preview on insert
-    let g:ale_floating_preview_popup_opts = 'g:FloatingWindowBottomRight'
+    let g:ale_floating_preview_popup_opts = 'g:PrettyFloatingHover'
 
     augroup ALEHoverEnhanced
         autocmd!
@@ -115,23 +115,13 @@ if g:ale_enabled
         return 0
     endfunction
 
-    function! s:find_lintrc(prefix, targets, def)
-        for i in split(a:targets, ';')
-            let l:config = findfile(i, '.;')
-            if config !=# ''
-                return a:prefix . config
-            endif
-        endfor
-        return a:def ==# '' ? '' : a:prefix . g:pretty_home . '/' . a:def
-    endfunction
-
     augroup ALELinterSetup
         autocmd!
         " vimls: https://github.com/iamcco/vim-language-server
         "  => enable vint linter if vintrc exists
         let g:markdown_fenced_languages = [ 'vim', 'help' ] " for document hightlight
         autocmd FileType vim
-                    \ let b:ale_vim_vimls_executable = FindExecutable('vim-language-server') |
+                    \ let b:ale_vim_vimls_executable = PrettyFindExecutable('vim-language-server') |
                     \ let b:ale_vim_vimls_config = {
                     \     'vim' : {
                     \       'isNeovim'      : has('nvim'),
@@ -153,7 +143,7 @@ if g:ale_enabled
                     \ }
         autocmd FileType vim
                     \ if s:apply_linters_conditional(".vintrc.yaml;.vintrc.yml;.vintrc", 'vint', 1)
-                    \ |  let b:ale_vim_vint_executable = FindExecutable('vint')
+                    \ |  let b:ale_vim_vint_executable = PrettyFindExecutable('vint')
                     \ |  let b:ale_vim_vint_show_style_issues = 1
                     \ | endif
 
@@ -168,58 +158,58 @@ if g:ale_enabled
         " shell => bash-language-server is very slow
         autocmd FileType sh
                     \ if s:apply_linters_conditional(".bashls", 'language_server', 0)
-                    \ |  let b:ale_sh_language_server_executable = FindExecutable('bash-language-server')
+                    \ |  let b:ale_sh_language_server_executable = PrettyFindExecutable('bash-language-server')
                     \ | else
-                    \ |  let b:ale_sh_shellcheck_options = '--extended-analysis=false ' . s:find_lintrc('--rcfile=', '.shellcheckrc', 'lintrc/shellcheckrc')
+                    \ |  let b:ale_sh_shellcheck_options = '--extended-analysis=false ' . PrettyFindFiles('--rcfile=', '.shellcheckrc', 'shellcheckrc')
                     \ | endif
                     " no local shellcheck executable
-                    "\ |  let b:ale_sh_shellcheck_executable = FindExecutable('shellcheck')
+                    "\ |  let b:ale_sh_shellcheck_executable = PrettyFindExecutable('shellcheck')
 
         " Dockerfiles:
         autocmd FileType dockerfile
-                    \ let b:ale_dockerfile_hadolint_executable = FindExecutable('hadolint') |
-                    \ let b:ale_dockerfile_hadolint_options = s:find_lintrc('-c ', '.hadolint.yaml;.hadolint.yml', 'lintrc/hadolint.yaml')
+                    \ let b:ale_dockerfile_hadolint_executable = PrettyFindExecutable('hadolint') |
+                    \ let b:ale_dockerfile_hadolint_options = PrettyFindFiles('-c ', '.hadolint.yaml;.hadolint.yml', 'hadolint.yaml')
 
         " cmake:
         autocmd FileType cmake
-                    \ let b:ale_cmake_cmakelint_executable = FindExecutable('cmakelint') |
-                    \ let b:ale_cmake_cmakelint_options = s:find_lintrc('--config=', '.cmakelintrc', 'lintrc/cmakelintrc')
+                    \ let b:ale_cmake_cmakelint_executable = PrettyFindExecutable('cmakelint') |
+                    \ let b:ale_cmake_cmakelint_options = PrettyFindFiles('--config=', '.cmakelintrc', 'cmakelintrc')
 
         " yaml:
         autocmd FileType yaml
-                    \ let b:ale_yaml_yamllint_executable = FindExecutable('yamllint') |
-                    \ let b:ale_yaml_yamllint_options = s:find_lintrc('-c ', '.yamllint.yaml;.yamllint.yml', 'lintrc/yamllint.yaml')
+                    \ let b:ale_yaml_yamllint_executable = PrettyFindExecutable('yamllint') |
+                    \ let b:ale_yaml_yamllint_options = PrettyFindFiles('-c ', '.yamllint.yaml;.yamllint.yml', 'yamllint.yaml')
 
         " python: flake8 is more popular, enable pylint if pylintrc exists
         autocmd FileType python
-                    \ let b:ale_python_jedils_executable = FindExecutable('jedi-language-server')
+                    \ let b:ale_python_jedils_executable = PrettyFindExecutable('jedi-language-server')
                     \ | if s:apply_linters_conditional(".pylintrc;pylintrc", 'pylint', 1)
-                    \ |  let b:ale_python_pylint_executable = FindExecutable('pylint')
-                    \ |  let b:ale_python_pylint_options = s:find_lintrc('--rcfile ', '.pylintrc;pylintrc', 'lintrc/pylintrc')
+                    \ |  let b:ale_python_pylint_executable = PrettyFindExecutable('pylint')
+                    \ |  let b:ale_python_pylint_options = PrettyFindFiles('--rcfile ', '.pylintrc;pylintrc', 'pylintrc')
                     \ | else
                     \ |  call s:apply_linters('flake8', 1)
-                    \ |  let b:ale_python_flake8_executable = FindExecutable('flake8')
-                    \ |  let b:ale_python_flake8_options = s:find_lintrc('--config ', '.flake8;tox.ini;setup.cfg', 'lintrc/flake8')
+                    \ |  let b:ale_python_flake8_executable = PrettyFindExecutable('flake8')
+                    \ |  let b:ale_python_flake8_options = PrettyFindFiles('--config ', '.flake8;tox.ini;setup.cfg', 'flake8')
                     \ | endif
 
         " markdown:
         autocmd FileType markdown
-                    \ let b:ale_markdown_markdownlint_executable = FindExecutable('markdownlint') |
-                    \ let b:ale_markdown_markdownlint_options = s:find_lintrc('--config ', '.markdownlint.yaml', 'lintrc/markdownlint.yaml')
+                    \ let b:ale_markdown_markdownlint_executable = PrettyFindExecutable('markdownlint') |
+                    \ let b:ale_markdown_markdownlint_options = PrettyFindFiles('--config ', '.markdownlint.yaml', 'markdownlint.yaml')
 
         " html + css
         autocmd FileType html,css
-                    \ let b:ale_html_htmlhint_executable = FindExecutable('htmlhint') |
-                    \ let b:ale_html_htmlhint_options = s:find_lintrc('--config ', '.htmlhintrc', 'lintrc/htmlhintrc') |
-                    \ let b:ale_html_stylelint_executable = FindExecutable('stylelint') |
-                    \ let b:ale_html_stylelint_options = s:find_lintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
-                    \ let b:ale_css_stylelint_executable = FindExecutable('stylelint') |
-                    \ let b:ale_css_stylelint_options = s:find_lintrc('--config ', '.stylelintrc', 'lintrc/stylelintrc')
+                    \ let b:ale_html_htmlhint_executable = PrettyFindExecutable('htmlhint') |
+                    \ let b:ale_html_htmlhint_options = PrettyFindFiles('--config ', '.htmlhintrc', 'htmlhintrc') |
+                    \ let b:ale_html_stylelint_executable = PrettyFindExecutable('stylelint') |
+                    \ let b:ale_html_stylelint_options = PrettyFindFiles('--config ', '.stylelintrc', 'stylelintrc')
+                    \ let b:ale_css_stylelint_executable = PrettyFindExecutable('stylelint') |
+                    \ let b:ale_css_stylelint_options = PrettyFindFiles('--config ', '.stylelintrc', 'stylelintrc')
 
         " javascript,typescript deno ls => no executable here, local version preferred
         autocmd FileType javascript,typescript
                     \ if s:apply_linters_conditional("deno.json", 'deno', 1)
-                    \ |  call CheckExecutable('deno', 'Deno Project')
+                    \ |  call PrettyCheckExecutable('deno', 'Deno Project')
                     \ | endif
 
         " lua => no executables here, install with luarocks or build from sources
@@ -228,14 +218,14 @@ if g:ale_enabled
         "  luacheck:
         "   => enable luacheck if .luacheckrc exists or lua-language-server is missing
         autocmd FileType lua
-                    \ if CheckExecutable('lua-language-server', 'better Lua')
+                    \ if PrettyCheckExecutable('lua-language-server', 'better Lua')
                     \ | let b:ale_lua_language_server_config = {
-                    \     'Lua' : json_decode(readfile(s:find_lintrc('', '.luarc.json', 'lintrc/luarc.json')))
+                    \     'Lua' : json_decode(readfile(PrettyFindFiles('', '.luarc.json', 'luarc.json')))
                     \ }
                     \ | endif
                     \ | if s:apply_linters_conditional(".luacheckrc", 'luacheck', 1)
-                    \ |  call CheckExecutable('luacheck', 'Lua lint')
-                    \ |  let b:ale_lua_luacheck_options = s:find_lintrc('--config ', '.luacheckrc', '')
+                    \ |  call PrettyCheckExecutable('luacheck', 'Lua lint')
+                    \ |  let b:ale_lua_luacheck_options = PrettyFindFiles('--config ', '.luacheckrc', '')
                     \ | endif
 
         " eslint => no executable here => user may installed different version

@@ -8,6 +8,9 @@
 --   3. 缩进和制表符配置
 --   4. 文件类型特定配置
 --   5. 自动格式化（StyLua 等）
+--   6. 文件自动重载（autoread）
+--   7. 折叠配置（fold）
+--   8. filetype 和 indent 配置
 --
 -- 设计理念：
 --   - 优先使用 EditorConfig 统一风格
@@ -15,16 +18,23 @@
 --   - 减少手动配置
 -- =============================================================================
 
-vim.g.style_format_on_save = false
+vim.g.style_format_on_save = true
 
 -- =============================================================================
--- EditorConfig 配置
+-- Filetype 和 Indent 配置
 -- =============================================================================
+-- 启用 filetype 插件和缩进
 
--- 启用 EditorConfig（Neovim 0.11+ 内置支持）
--- https://neovim.io/doc/user/editorconfig.html
-vim.g.editorconfig = true
--- => EditorConfig 在 ftplugins 和 FileType autocmds 之后应用
+-- 启用 filetype 检测、插件和缩进
+vim.cmd("filetype plugin indent on")
+
+-- 全局缩进设置
+vim.opt.autoindent = true -- 自动缩进
+vim.opt.smartindent = true -- 智能缩进
+vim.opt.cindent = true -- C 语言缩进
+
+-- 禁用 backspace 的某些行为（使用默认）
+vim.opt.backspace = { "indent", "eol", "start" }
 
 -- =============================================================================
 -- 全局文件设置
@@ -58,8 +68,31 @@ vim.opt.textwidth = 0 -- 不自动换行
 -- 禁用自动换行（使用 textwidth）
 vim.opt.formatoptions:remove("t")
 
--- 折叠方法：手动
+-- =============================================================================
+-- 折叠配置（Fold）
+-- =============================================================================
+-- 默认折叠，手动开关
+
+-- 全局折叠设置
 vim.opt.foldmethod = "manual"
+vim.opt.foldlevel = 0
+vim.opt.foldnestmax = 1
+vim.opt.foldminlines = 3 -- 不折叠最小的 if-else 语句
+vim.opt.foldcolumn = "1" -- 与 vim-signify 冲突时调整
+vim.opt.fillchars = vim.opt.fillchars + { fold = " " } -- 隐藏 v:folddashes（注意：\ 后面有空格）
+
+-- =============================================================================
+-- FoldText 函数
+-- =============================================================================
+-- 注意：必须使用 _G 定义全局函数
+
+-- 设置 foldtext
+_G.pretty_set_foldtext = function()
+  local text = vim.fn.getline(vim.v.foldstart)
+  local lines = vim.v.foldend - vim.v.foldstart
+  return text .. " 󰍻 " .. lines .. " more lines "
+end
+vim.opt.foldtext = "v:lua.pretty_set_foldtext()"
 
 -- =============================================================================
 -- 文件类型特定配置
@@ -98,7 +131,12 @@ style.filetypes = {
   make = { false, 4, 4 },
 
   -- VimL：4 空格缩进，标记折叠
-  vim = { true, 4, 4, foldmethod = "marker" },
+  vim = {
+    true,
+    4,
+    4,
+    foldmethod = "marker",
+  },
 
   -- Lua：2 空格缩进，语法折叠，自动格式化
   lua = {
@@ -171,8 +209,8 @@ local function style_find_executable(command, files)
     end
   end
 
-  -- 使用 FindExecutable 获取完整路径（VimL 函数）
-  local executable = vim.fn.call("FindExecutable", { command })
+  -- 使用 PrettyFindExecutable 获取完整路径（VimL 函数）
+  local executable = vim.fn.call("PrettyFindExecutable", { command })
 
   -- 检查返回值
   if executable and executable ~= "" then
@@ -248,6 +286,30 @@ end
 -- =============================================================================
 -- 实用功能
 -- =============================================================================
+
+-- 启用 autoread
+vim.opt.autoread = true
+
+-- 创建自动命令组
+-- 触发 checktime 当文件变化时
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  group = style.augroup,
+  pattern = "*",
+  callback = function()
+    if vim.fn.mode() ~= "c" then
+      vim.cmd("checktime")
+    end
+  end,
+})
+
+-- 文件变化后的通知
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  group = style.augroup,
+  pattern = "*",
+  callback = function()
+    vim.notify("✅️ File changed on disk. Buffer reloaded.", vim.log.levels.INFO)
+  end,
+})
 
 -- 自动跳转到上一次打开的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -351,3 +413,12 @@ end
 vim.api.nvim_create_user_command("StyleFormat", function()
   style_format()
 end, { desc = "Format current file using configured formatter" })
+
+-- =============================================================================
+-- EditorConfig 配置
+-- =============================================================================
+
+-- 启用 EditorConfig（Neovim 0.11+ 内置支持）
+-- https://neovim.io/doc/user/editorconfig.html
+vim.g.editorconfig = true
+-- => EditorConfig 在 ftplugins 和 FileType autocmds 之后应用

@@ -198,7 +198,7 @@ function! s:wm_create(wmid) abort
         let saved = winnr()
         call s:wm_window(0)
         if a:wmid == 1
-            Explorer
+            FileExplorer
         elseif a:wmid == 2
             help
         elseif a:wmid == 3
@@ -479,7 +479,7 @@ command! -nargs=0 BufferPrev   call <sid>prev()
 
 command! -nargs=0 BufferReload call <sid>wm_reload()
 
-let g:refresh_commands += [ 'BufferReload' ]
+let g:pretty_reload_commands += [ 'BufferReload' ]
 
 " =============================================================================
 " 缓冲区导航（保持与 Denite 一致）

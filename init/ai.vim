@@ -74,7 +74,7 @@ endfunction
 
 function! AIChatEdit() abort
     " 1. clear tips
-    call ShowTips('')
+    call PrettyTipsToggle('')
 
     " 2. to the end
     call cursor(line('$'), 0)
@@ -93,7 +93,7 @@ function! AIChatSend() abort
     call cursor(line('$'), 0)
 
     " 3. show tips
-    call ShowTips(g:aicoding_tips_thinking)
+    call PrettyTipsToggle(g:aicoding_tips_thinking)
 
     " 4. submit using AIChatSubmit command
     exe ":AIChatSubmit"
@@ -106,12 +106,12 @@ function! AIChatReady() abort
     stopinsert
 
     " 2. show tips
-    call ShowTips(g:aicoding_tips_ready)
+    call PrettyTipsToggle(g:aicoding_tips_ready)
 
     " 3. do keymaps
-    call CloseWith('AIChatToggle')
-    call StartInsertWith('call AIChatEdit()')
-    call StopInsertWith('call AIChatReady()')
+    call PrettyExitWith('AIChatToggle')
+    call PrettyInsertEnter('call AIChatEdit()')
+    call PrettyInsertLeave('call AIChatReady()')
 
     " => Enter: insert at end (Normal mode)
     nnoremap <silent><buffer> <CR>  :call AIChatEdit()<CR>
