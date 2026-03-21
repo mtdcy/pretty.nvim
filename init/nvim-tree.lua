@@ -42,6 +42,7 @@ nvim_tree.setup({
         -- 打开文件/文件夹
         vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open"))
         vim.keymap.set("n", "<Space>", api.node.open.edit, opts("Open"))
+        vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Open"))
 
         -- 其他默认禁用（不设置任何额外快捷键）
     end,
