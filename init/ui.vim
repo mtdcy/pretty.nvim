@@ -12,9 +12,10 @@
 
 let g:lightline_enabled = 1
 let g:nerdtree_enabled = 0
-let g:tagbar_enabled = 1
+let g:tagbar_enabled = 0
 let g:lazygit_enabled = 1
 let g:nvimtree_enabled = 1
+let g:outline_enabled = 1
 
 " nvim_open_win
 let g:pretty_borderchars= ['╭','─', '╮', '│', '╯','─', '╰', '│']
@@ -348,6 +349,15 @@ if g:lazygit_enabled
     let g:lazygit_use_custom_config_file_path = 1
     let g:lazygit_config_file_path = g:pretty_home . '/lazygit.yml'
     " XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
+
+    function! s:lazygit_ready() abort
+        call PrettyExitWith("echo ''")
+    endfunction
+
+    augroup LazygitSettings
+        autocmd!
+        autocmd FileType lazygit call s:lazygit_ready()
+    augroup END
 endif
 " }}}
 
@@ -411,7 +421,12 @@ else
     command! -nargs=0 FileExplorerFocus lua require("nvim-tree.api").tree.toggle()
 endif
 
-if g:tagbar_enabled
+if g:outline_enabled
+    luafile <sfile>:h/outline.lua
+
+    command! -nargs=0 TagExplorer AerialToggle!
+    command! -nargs=0 TagExplorerFocus AerialOpen
+elseif g:tagbar_enabled
     " open or close taglist
     command! -nargs=0 TagExplorer TagbarToggle
 
