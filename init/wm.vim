@@ -268,7 +268,7 @@ function! s:wm_main() abort
         exe 'resize ' . height
     endif
 
-    echom '== main window gone, restore it'
+    echom '⚠️ Restore main window'
     call s:wm_winid_set(0, win_getid())
 endfunction
 
@@ -318,12 +318,10 @@ function! s:wm_reload() abort
         " 跳过未显示的 buffer
         if winid <= 0 | continue | endif
 
-        call s:wminfo()
-
         call s:wm_winid_set(s:wmid_filetype(type), winid)
     endfor
 
-    echo '== reload completed. winids: ' . string(s:winids)
+    echom '✅ WM reload completed, winids: ' . string(s:winids)
 endfunction
 
 " =============================================================================
@@ -339,19 +337,26 @@ function! s:wm_update() abort
     if s:wm_debug | call s:wminfo() | endif
 
     let bufnr = bufnr('%')
-    let winid = bufwinid(bufname(bufnr))
+    let bufname = bufname(bufnr)
+    let winid = bufwinid(bufname)
 
     let type = s:wmtype(bufnr)
     let wmid = s:wmid_filetype(type)
 
+    " 在主窗口打开 help/doc 文件
+    if type == 'docs' && winid == s:wm_winid(0)
+        echom '✅ Open ' . bufname . ' in main window'
+        return
+    endif
+
     " 1. sticky buffer: 检查 Buffer 是否被错误分配
     if s:wmid() > 0 && wmid != s:wmid()
-        echo '== buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
+        echom '⚠️ buffer ' . bufname('%') . ' window expect ' . wmid . ' but current is ' . s:wmid()
         if bufwinnr('#') > 0
-            echo '== settle window'
+            echom '== settle window'
             call s:wm_settle(wmid)
         else
-            echo '== move buffer'
+            echom '== move buffer'
             call s:wm_move('%')
         endif
     endif
@@ -360,6 +365,8 @@ function! s:wm_update() abort
     if wmid > 0
         " 侧边栏 Buffer 不列入 buffer 列表
         setlocal nobuflisted
+        setlocal buftype=nofile
+
         let winid = bufwinid(bufname(bufnr))
 
         " 多文档窗口类型（help/man/doc）：每个文档一个新窗口
@@ -367,11 +374,11 @@ function! s:wm_update() abort
             " 如何处理新窗口？
             if s:wm_winid(wmid) > 0
                 " 已有窗口，移动 buffer 过去
-                echo '== move buffer ' . type . ' to window ' . s:wm_winid(wmid)
+                echom '⚠️ move buffer ' . type . ' to window ' . s:wm_winid(wmid)
                 call s:wm_settle(wmid)
             else
                 " 新窗口类型，记录 winid
-                echo '== set new window ' . winid . ' for type ' . type
+                echom '⚠️ set new window ' . winid . ' for type ' . type
                 call s:wm_winid_set(wmid, winid)
                 " 调整窗口大小
                 if type ==? 'docs' || type ==? 'quickfix'
@@ -389,7 +396,7 @@ function! s:wm_update() abort
                 if getbufvar(bufnr, '&ft') ==? 'codecompanion'
                     let winid = bufwinid(bufnr)
                     if winid > 0 && winid != win_getid()
-                        echo "== rightbar: closing codecompanion for tagbar"
+                        echom "⚠️ rightbar: closing codecompanion for tagbar"
                         call win_execute(winid, 'quit')
                         break
                     endif
@@ -401,7 +408,7 @@ function! s:wm_update() abort
                 if getbufvar(bufnr, '&ft') ==? 'tagbar'
                     let tagbar_winid = bufwinid(bufnr)
                     if tagbar_winid > 0 && tagbar_winid != win_getid()
-                        echo "== rightbar: closing tagbar for codecompanion"
+                        echom "⚠️ rightbar: closing tagbar for codecompanion"
                         call win_execute(tagbar_winid, 'quit')
                         break
                     endif
@@ -434,7 +441,7 @@ function! s:wm_buffer_close() abort
             exe 'bprev | bdelete' . bufnr
         else
             " 最后一个 buffer：提示用户使用 :qa
-            echo "⚠️ Last buffer, close it with :qa"
+            echom "⚠️ Last buffer, close it with :qa"
         endif
     endif
 endfunction
