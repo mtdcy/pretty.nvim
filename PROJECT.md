@@ -1,314 +1,279 @@
-# pretty.nvim - AI Assistant Guide
+# pretty.nvim 项目规则
 
-> 开箱即用的 Neovim 预配置，包含 AI 编程助手功能
+## 📋 项目概况
 
----
-
-## 📋 项目概述
-
-**pretty.nvim** 是一个精心调优的 Neovim 预配置项目，提供：
-- 🤖 AI 编程助手（CodeCompanion）
-- 🎨 Solarized8 主题
-- 🔍 智能补全（nvim-cmp）
-- ⚡ 快速导航（telescope）
-- 📝 代码检查（ALE）
-- 🔀 Git 集成（gitsigns + lazygit）
-
-**目标**：5 分钟搭建专业开发环境
+**名称**: pretty.nvim  
+**作者**: Chen Fang (方哥)  
+**位置**: `~/workspace/pretty.nvim/`  
+**类型**: Neovim 个人配置  
+**理念**: 简洁、高效、可维护
 
 ---
 
-## 🏗️ 项目结构
+## 🏗️ 架构结构
 
 ```
 pretty.nvim/
-├── init.vim              # 主配置文件（入口）
-├── init/                 # 初始化配置模块
-│   ├── ai.vim            # AI 功能配置（VimScript）
-│   ├── codecompanion.lua # CodeCompanion 配置
-│   ├── gitsigns.lua      # gitsigns 配置
-│   ├── markdown.lua      # render-markdown 配置
-│   └── ...               # 其他功能模块
-├── lua/                  # Lua 插件（第三方）
-│   ├── codecompanion/    # CodeCompanion 插件
-│   ├── gitsigns/         # gitsigns 插件
-│   └── ...
-├── plugin/               # Vim 插件（第三方）
-├── autoload/             # 自动加载函数
-├── scripts/              # 自有脚本
-├── patches/              # 第三方插件补丁
-└── README.md             # 项目文档
+├── init.vim              # 主配置入口（VimScript）
+├── init/
+│   ├── aicoding.lua      # AI 功能入口
+│   ├── codecompanion.lua # AI Adapter 配置
+│   ├── telescope.lua     # Telescope 搜索配置
+│   ├── finder.lua        # Finder 菜单入口
+│   ├── style.lua         # 代码格式化配置
+│   └── ...               # 其他模块
+└── nvim/parser/          # Treesitter parsers
 ```
 
 ---
 
-## 🎯 开发规范
+## 💻 编码规范
 
-### **核心原则**
+### **Lua 代码风格**
 
-1. **VimScript 优先** - 功能实现用 VimScript，Lua 仅用于插件配置
-2. **配置和功能分离** - 配置在 `init/*.lua`，功能在 `init/*.vim`
-3. **不修改第三方插件代码** - 使用 patch 方式修改（保存在 `patches/`）
-4. **简洁至上** - 不必要的功能就删除
-
-### **代码风格**
-
-#### VimScript
-```vim
-" 函数命名：大驼峰 + 脚本前缀
-function! s:AICodingInline() abort
-    " 局部变量：l:前缀
-    let l:prompt = input('Prompt: ', "")
-    
-    " 注释：使用双引号
-    " 获取上下文
-    let l:context = s:AICodingContext()
-endfunction
-
-" 快捷键映射
-nnoremap <silent> <leader>ai :call <SID>AICodingInline()<CR>
-xnoremap <silent> <leader>ai :<C-u>call <SID>AICodingInline()<CR>
-```
-
-#### Lua
 ```lua
--- 模块命名：小写 + 下划线
-local ok, codecompanion = pcall(require, "codecompanion")
-if not ok then
-    vim.notify("plugin not found", vim.log.levels.WARN)
-    return
+-- ✅ 函数命名：snake_case
+local function get_aicoding_context()
+  -- 局部函数用小写
 end
 
--- 配置结构清晰
-codecompanion.setup({
-    adapters = {...},
-    display = {...},
-    interactions = {...},
-})
+-- ✅ 全局函数：PascalCase 或 动词开头
+_G.AICodingReady = function()
+  -- 全局函数需要明确标记
+end
+
+-- ✅ 注释：使用中文
+-- 说明性注释用中文
+local winid = vim.api.nvim_get_current_win()
+
+-- ✅ 类型注释（LuaLS）
+---@param index number 要选择的项（从 1 开始）
+---@return boolean success 是否成功
 ```
 
-### **提交规范**
+### **VimScript 代码风格**
 
-使用 emoji + 描述：
+```vim
+" ✅ 变量命名：小写 + 下划线
+let g:aicoding_tips_ready = '...'
+
+" ✅ 函数命名：PascalCase
+function! AIChatReady() abort
+  " 全局函数用大写开头
+endfunction
+
+" ✅ 局部函数：s: 前缀
+function! s:aicoding_context() abort
+  " 局部函数用小写
+endfunction
 ```
-✨ 新功能
-🐛 Bug 修复
-♻️ 代码重构
-📝 文档更新
-🧹 代码清理
+
+---
+
+## 🔧 核心模块
+
+### **1. AI 功能 (aicoding.lua + codecompanion.lua)**
+
+**职责分工**：
+- `aicoding.lua` - 入口函数、快捷键、命令、Autocmd
+- `codecompanion.lua` - Adapter、UI、System Prompts
+
+**环境变量**：
+```bash
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+OPENAI_API_KEY=sk-xxx
+OPENAI_MODEL=qwen3.5-plus
 ```
+
+**快捷键**：
+| 快捷键 | 功能 |
+|--------|------|
+| `<leader>ai` | AI Inline（代码生成/修改） |
+| `<F5>` | Toggle Chat（打开/关闭） |
+| `<S-F5>` | Chat Actions（操作面板） |
+
+---
+
+### **2. Telescope (telescope.lua + finder.lua)**
+
+**架构**：
+- `finder.lua` - 菜单入口、全局按键
+- `telescope.lua` - UI 配置、按键绑定
+
+**布局配置**：
+```lua
+layout_strategy = "center"
+prompt_position = "bottom"
+height = { 0.5, max = 13 }
+width = { 0.3, min = 72 }
+```
+
+**按键绑定**：
+| 按键 | 功能 |
+|------|------|
+| `j/k` | 上下选择 |
+| `<CR>/<Space>` | 确认选择 |
+| `1-9` | 快速选择第 N 项 |
+| `Q` | 关闭 |
+| `<Enter>` | 打开主菜单 |
+
+---
+
+### **3. 代码格式化 (style.lua)**
+
+**格式化器**：
+| 文件类型 | 格式化器 | 配置 |
+|---------|---------|------|
+| Lua | StyLua | `.stylua.toml` |
+| Shell | shfmt | `-w -kp -i 4 -ln bash` |
+| YAML | yamlfix | `.yamlfix.toml` |
+| JSON | fixjson | `-i 2 -w` |
+
+**缩进规则**：
+- Lua: 2 空格
+- Shell: 4 空格
+- YAML/JSON: 2 空格
+- Makefile: 制表符
+
+---
+
+## 🎯 设计原则
+
+### **1. 模块化**
+
+每个功能独立文件，职责清晰：
+- VimScript 入口（`.vim`）
+- Lua 配置（`.lua`）
+
+### **2. 命名空间**
+
+- 全局函数：`Pretty*` 前缀 或 动词开头（`AICoding*`）
+- 局部函数：`s:` 前缀（VimScript）或 `local`（Lua）
+- 变量：`g:` 全局，`l:` 局部
+
+### **3. 注释规范**
+
+- 文件头：说明职责和使用方式
+- 函数：`@param`、`@return` 类型注释
+- 内联：中文说明关键逻辑
+
+### **4. 加载顺序**
+
+```
+init.vim
+ ↓
+init/ui.vim
+ ↓
+aicoding.lua → AI 功能
+ ↓
+finder.lua → 搜索功能
+```
+
+---
+
+## 🛠️ 开发流程
+
+### **1. 添加新功能**
+
+```
+1. 在 init/ 创建新文件（如 feature.lua）
+2. 在 init.vim 中加载
+3. 定义命令和快捷键
+4. 提交时 git commit -m "✨ feature: 描述"
+```
+
+### **2. 修改配置**
+
+```
+1. 修改对应模块文件
+2. 测试：<leader>ss 重载配置
+3. 验证功能正常
+4. git commit -m "🔧 module: 描述"
+```
+
+### **3. 格式化代码**
+
+```vim
+:StyleFormat  " 手动格式化当前文件
+```
+
+---
+
+## 📝 Git 规范
+
+### **Commit 格式**
+
+```
+<emoji> <type>: <description>
+```
+
+**常用 Emoji**：
+| Emoji | 含义 |
+|-------|------|
+| ✨ | 新功能 |
+| 🐛 | Bug 修复 |
+| 📝 | 文档变更 |
+| ♻️ | 代码重构 |
+| 💄 | 格式/样式 |
+| ✅ | 测试相关 |
+| 🔧 | 构建/工具 |
 
 **示例**：
 ```
-✨ AIChatSubmit 支持双引擎
-🐛 修正 Visual 模式重复调用
-♻️ 清理 NeoAI 相关代码
+✨ ai: 添加 CodeCompanion 配置
+🐛 telescope: 修复 mappings 配置
+📝 README: 更新安装说明
 ```
 
 ---
 
-## 📚 常用命令
+## ⚠️ 注意事项
 
-### **启动和更新**
+### **1. 不要修改的文件**
+
+- 第三方插件代码
+
+### **2. 敏感信息**
+
+- API Key 使用环境变量
+- 不要提交 `.env` 文件
+- 使用 `dotenv.nvim` 加载
+
+### **3. 兼容性**
+
+- Neovim 0.11+
+- bash 3.2+（Shell 脚本）
+
+---
+
+## 🚀 快速开始
+
+### **安装依赖**
+
 ```bash
-# 启动 Neovim
-./run
-
-# 更新配置
-nvim --update
-
-# 测试插件加载
-nvim -c 'echo "Plugins loaded!"' -c 'quit'
+# 格式化器
+brew install stylua shfmt
+pip install yamlfix
+npm install -g fixjson
 ```
 
-### **Git 操作**
+### **启动 Neovim**
+
 ```bash
-# 查看状态
-git status
-
-# 提交更改
-git add <file>
-git commit -m "✨ <description>"
-
-# 推送（由用户决定）
-git push
+cd ~/workspace/pretty.nvim
+nvim
 ```
 
----
-
-## 🤖 AI 助手指南
-
-### **当前 AI 引擎**
-
-**CodeCompanion**（唯一 AI 引擎）
-- 位置：`lua/codecompanion/`
-- 配置：`init/codecompanion.lua`
-- 快捷键：
-  - `<leader>ai` - Inline 模式（代码生成/修改）
-  - `<F5>` - Chat 模式（对话窗口）
-
-### **AI 功能实现**
-
-**位置**：`init/ai.vim`
-
-**关键函数**：
-```vim
-" 获取上下文（文件 + 行号）
-function! s:AICodingContext() abort
-    " 返回：📄 File: filename.lua:#line #{buffer}
-endfunction
-
-" Inline 模式
-function! s:AICodingInline() abort
-    " 1. 读取用户 prompt
-    " 2. 获取上下文
-    " 3. 执行 :AICodingInline
-endfunction
-```
-
-**格式说明**：
-- `filename:#10` - 第 10 行附近（插入）
-- `filename:<10,20>` - 第 10-20 行（替换）
-
-### **当 AI 需要修改代码时**
-
-1. **理解现有代码结构**
-   - 读取 `init/ai.vim` 了解 AI 功能实现
-   - 读取 `init/codecompanion.lua` 了解配置
-
-2. **遵循代码风格**
-   - VimScript 用于功能实现
-   - Lua 仅用于插件配置
-   - 不使用 `inputsave()/inputrestore()`
-
-3. **添加必要的注释**
-   - 函数上方说明功能
-   - 关键步骤添加行内注释
-
-4. **测试功能**
-   - Inline 模式：选中代码 → `<leader>ai`
-   - Chat 模式：`<F5>` 打开对话
-
-### **当 AI 需要创建新文件时**
-
-1. **放在正确的目录下**
-   - 功能模块：`init/<name>.vim` 或 `init/<name>.lua`
-   - 脚本文件：`scripts/<name>.sh`
-   - 补丁文件：`patches/<plugin>-<fix>.patch`
-
-2. **在 `init.vim` 中加载**
-   ```vim
-   " 加载新模块
-   luafile <sfile>:h/<name>.lua
-   " 或
-   source <sfile>:h/<name>.vim
-   ```
-
-3. **遵循命名规范**
-   - 文件名：小写 + 下划线
-   - 函数名：大驼峰 + 脚本前缀 `s:`
-
----
-
-## ⚠️ 重要注意事项
-
-### **不要做的事情**
-
-1. ❌ **不要修改第三方插件代码**
-   - 位置：`lua/`, `plugin/`, `autoload/`
-   - 如需修改：创建 patch 保存到 `patches/`
-
-2. ❌ **不要使用 `inputsave()/inputrestore()`**
-   - 会导致 Visual 模式下循环调用
-   - 使用 `vim.ui.input()` 异步回调
-
-3. ❌ **不要混合 VimScript 和 Lua**
-   - 功能实现：VimScript
-   - 插件配置：Lua
-
-4. ❌ **不要自主推送 git push**
-   - 由用户决定何时推送
-
-### **推荐的做法**
-
-1. ✅ **先读后改** - 修改前先读取文件，学习用户的编码习惯
-2. ✅ **最小改动** - 只改必要内容，保持原有风格
-3. ✅ **自动提交** - 每次修改后自动 commit（不推送）
-4. ✅ **使用 patch** - 第三方插件修改用 patch 方式
-
----
-
-## 🧪 测试方法
-
-### **AI 功能测试**
+### **常用命令**
 
 ```vim
-" 1. Inline 模式（Normal）
-" 光标放在某行，按 <leader>ai
-" 输入：写一个函数 xxx()
-
-" 2. Inline 模式（Visual）
-" 选中代码，按 <leader>ai
-" 输入：重构这个函数
-
-" 3. Chat 模式
-" 按 <F5> 打开聊天窗口
-" 输入：解释这段代码
-```
-
-### **配置测试**
-
-```vim
-" 重新加载配置
-:luafile ~/.openclaw/coding/init/ai.vim
-
-" 检查插件状态
-:CodeCompanionCheckHealth
+<Enter>        " 打开 Finder 菜单
+<leader>ss     " 重载配置
+<leader>ai     " AI Inline
+<F5>           " Toggle Chat
 ```
 
 ---
 
-## 📞 遇到问题时
-
-### **排查步骤**
-
-1. **检查错误信息**
-   ```vim
-   :messages
-   ```
-
-2. **查看日志**
-   ```vim
-   :lua print(vim.inspect(require('codecompanion').config))
-   ```
-
-3. **重新加载配置**
-   ```vim
-   :source ~/.openclaw/coding/init.vim
-   ```
-
-4. **重启 Neovim**
-   ```bash
-   :qa!
-   ./run
-   ```
-
-### **常见问题**
-
-| 问题 | 原因 | 解决 |
-|------|------|------|
-| Visual 模式循环调用 | `inputsave()/inputrestore()` | 使用 `:<C-u>` 清除范围 |
-| AI 不回复 | API Key 未设置 | 检查环境变量 |
-| 插件加载失败 | 缺少依赖 | 运行 `nvim --update` |
-
----
-
-## 📝 待处理事项
-
-详见 `TODO-completion.md`：
-- 🔴 补全插件迁移（deoplete → nvim-cmp）
-- 🟡 检查 denite 使用情况
-
----
-
-*最后更新：2026-03-16*
+**最后更新**: 2026-03-21  
+**维护者**: Chen Fang (方哥)
