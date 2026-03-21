@@ -5,8 +5,13 @@
 -- 说明：
 --   本文件负责 Telescope 的核心配置，包括：
 --   1. UI 配置（布局、主题、提示符等）
---   2. 功能配置（排序器、文件忽略等）
---   3. 返回扩展启动函数（find/grep/buffers/nerdy/emoji/lazygit/codecompanion）
+--   2. 按键绑定（清空默认映射，自定义必要映射）
+--   3. 扩展启动函数（find/grep/buffers/nerdy/emoji/lazygit/codecompanion）
+--
+-- 设计理念：
+--   - default_mappings = { i = {}, n = {} } 清空所有默认映射
+--   - 只保留必要的按键（j/k/Enter/Space/数字键/鼠标）
+--   - 所有扩展使用统一的 popup_defaults 配置
 --
 -- 使用方式：
 --   local telescope = require('init.telescope')
@@ -17,7 +22,6 @@
 --   telescope.emoji()          -- Emoji 表情搜索
 --   telescope.lazygit()        -- LazyGit
 --   telescope.codecompanion()  -- CodeCompanion
---   telescope.active()         -- 检查 Telescope 是否打开
 -- =============================================================================
 --]]
 
@@ -55,12 +59,18 @@ local popup_layout = {
 -- 1. default_mappings = { i = {}, n = {} } 清空所有默认映射
 -- 2. mappings 设置自定义映射
 
+--- 按数字键选择对应项（1-9）
+---@param index number 要选择的项（从 1 开始）
+---@return function 返回一个函数，接收 prompt_bufnr 参数
+---
+-- 使用 vim.schedule 延迟执行，避免与 Telescope 的事件循环冲突
+-- 返回空字符串防止按键输入到 prompt
 local function select_by_index(index)
   return function(prompt_bufnr)
     local picker = state.get_current_picker(prompt_bufnr)
     -- 设置选中
     vim.schedule(function()
-      picker:set_selection(index - 1)
+      picker:set_selection(index - 1)  -- index 从 1 开始，row 从 0 开始
       actions.select_default(prompt_bufnr)
     end)
     return ""
@@ -118,6 +128,7 @@ local popup_mappings = {
   },
 }
 
+-- buffers picker 的专属映射（继承 popup_mappings 并添加额外映射）
 local popup_buffers_mappings = vim.tbl_extend("force", popup_mappings, {
   -- Normal 模式
   n = {
@@ -138,8 +149,9 @@ local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_d
   color_devicons = true,
 
   -- 清空默认映射（关键！不能是 nil）
+  -- default_mappings = { i = {}, n = {} } 清空 Telescope 内置默认映射
+  -- mappings 使用 popup_mappings 中定义的自定义映射
   default_mappings = { i = {}, n = {} },
-  -- 自定义映射
   mappings = popup_mappings,
 
   -- 预览器配置
@@ -194,6 +206,7 @@ local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_d
 })
 
 -- Telescope 初始化配置
+-- clear_defaults() 清除内置默认配置，确保我们的配置完全生效
 require("telescope.config").clear_defaults()
 require("telescope").setup({
   -- 默认配置
@@ -262,6 +275,8 @@ require("telescope").load_extension("codecompanion")
 -- 问题：Telescope 默认使用 vim.api.nvim_buf_delete() 会关闭分割窗口
 -- 解决：检测最后一个 buffer 时提示用 ':qa'，不执行删除操作
 
+--- 覆盖 Telescope 默认的 delete_buffer 行为
+---@param prompt_bufnr number Telescope prompt 窗口的 bufnr
 actions.delete_buffer = function(prompt_bufnr)
   local current_picker = state.get_current_picker(prompt_bufnr)
 
@@ -294,40 +309,44 @@ end
 --   为了保持统一的 UI，自定义启动函数并返回模块
 
 return {
-  -- 文件搜索
+  --- 文件搜索
+  ---@param opts table|nil 可选参数
   find = function(opts)
     require("telescope.builtin").find_files(opts)
   end,
 
-  -- 项目搜索（grep）
+  --- 项目搜索（grep）
+  ---@param opts table|nil 可选参数
   grep = function(opts)
     require("telescope.builtin").live_grep(opts)
   end,
 
-  -- 缓冲区列表
+  --- 缓冲区列表
+  ---@param opts table|nil 可选参数
   buffers = function(opts)
     require("telescope.builtin").buffers(opts)
   end,
 
-  -- Nerdy 图标搜索
+  --- Nerdy 图标搜索
   nerdy = function()
     require("telescope").extensions.nerdy.nerdy(popup_defaults)
   end,
 
-  -- Emoji 表情搜索
+  --- Emoji 表情搜索
   emoji = function()
     require("telescope").extensions.emoji.emoji(popup_defaults)
   end,
 
-  -- LazyGit
+  --- LazyGit
   lazygit = function()
     require("telescope").extensions.lazygit.lazygit(popup_defaults)
   end,
 
-  -- CodeCompanion
+  --- CodeCompanion
   codecompanion = function()
     require("telescope").extensions.codecompanion.codecompanion(popup_defaults)
   end,
 
+  --- 关闭 Telescope
   close = actions.close
 }

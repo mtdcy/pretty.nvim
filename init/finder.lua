@@ -2,15 +2,21 @@
 -- Telescope Finder 配置
 -- =============================================================================
 -- 说明：
---   本文件负责 Telescope 的按键绑定和菜单功能，包括：
---   1. finder.bindings 菜单配置（扁平化设计）
---   2. Telescope 窗口设置（通过 autocmd）
---   3. 全局快捷键绑定（Finder/Buffer/Search 等）
+--   本文件负责 Telescope 的菜单和全局按键绑定，包括：
+--   1. finder.bindings - 扁平化菜单配置（所有功能在同一层级）
+--   2. finder.launchers - 智能启动器（根据状态决定行为）
+--   3. Telescope 窗口设置（autocmd 进入时配置）
+--   4. 全局快捷键绑定（基于 finder.bindings 自动生成）
 --
 -- 设计理念：
 --   - 保持与 Denite 一致的功能和按键绑定
 --   - 所有菜单项在同一层级，无需多级导航
---   - 按键绑定在 finder 中统一定义
+--   - 按键绑定在 finder.bindings 中统一定义，自动注册到全局
+--
+-- 架构：
+--   finder.lua (前端/入口) → telescope.lua (后端/配置)
+--   - finder.bindings 定义菜单 → attach_mappings 执行
+--   - finder.launchers 调用 → telescope 返回的启动函数
 -- =============================================================================
 
 -- =============================================================================
@@ -20,19 +26,23 @@
 -- Finder 提示信息（显示在 Telescope prompt 上方）
 vim.g.finder_tips = "⌨️ /: 开始搜索，j/k: 选择，Enter: 打开，Q: 退出 ⌨️"
 
--- 全局 finder 对象（需要被 VimL 函数访问）
-finder = {
+local finder = {
   -- 加载 Telescope 功能模块
-  telescope = loadfile(vim.fn.expand("<sfile>:h") .. "/init/telescope.lua")(),
+  engine = loadfile(vim.fn.expand("<sfile>:h") .. "/init/telescope.lua")(),
 
-  -- Telescope 是否处于活动状态（用于判断是否从子菜单返回）
+  -- Telescope 是否处于活动状态
+  -- true = 正在 Telescope 窗口中（子菜单）
+  -- false = 不在 Telescope 窗口中（主菜单/其他）
   active = false,
+
+  -- Telescope Prompt 窗口的 bufnr（用于 close 操作）
+  bufnr = nil,
 }
 
 -- 关闭 Telescope 并重置状态
-finder.close = function()
+_G.FinderClose = function() -- _G: 需要被 VimL 函数访问
   finder.active = false
-  finder.telescope.close(finder.bufnr)
+  finder.engine.close(finder.bufnr)
 end
 
 -- =============================================================================
@@ -44,19 +54,19 @@ end
 
 finder.launchers = {
   -- 文件搜索
-  find = finder.telescope.find,
+  find = finder.engine.find,
 
   -- 缓冲区列表
-  buffers = finder.telescope.buffers,
+  buffers = finder.engine.buffers,
 
   -- 项目搜索（智能 grep）
   -- 如果在 Telescope 中：直接打开 grep
   -- 如果不在：使用当前单词作为默认搜索词
   grep = function()
     if finder.active then
-      finder.telescope.grep()
+      finder.engine.grep()
     else
-      finder.telescope.grep({ default_text = vim.fn.expand("<cword>") })
+      finder.engine.grep({ default_text = vim.fn.expand("<cword>") })
     end
   end,
 
@@ -65,7 +75,7 @@ finder.launchers = {
   -- 如果不在：切换 AI Chat 窗口
   codecompanion = function()
     if finder.active then
-      finder.telescope.codecompanion()
+      finder.engine.codecompanion()
     else
       vim.cmd("AIChatToggle")
     end
@@ -76,17 +86,17 @@ finder.launchers = {
   -- 如果不在：执行 GitExplorer 命令
   lazygit = function()
     if finder.active then
-      finder.telescope.lazygit()
+      finder.engine.lazygit()
     else
       vim.cmd("GitExplorer")
     end
   end,
 
   -- Nerdy 图标搜索
-  nerdy = finder.telescope.nerdy,
+  nerdy = finder.engine.nerdy,
 
   -- Emoji 表情搜索
-  emoji = finder.telescope.emoji,
+  emoji = finder.engine.emoji,
 }
 
 -- =============================================================================
@@ -206,6 +216,7 @@ finder.bindings = {
 
 --- 执行命令（支持 string 和 function 两种类型）
 ---@param cmd string|function 要执行的命令或函数
+---@return nil
 local function finder_execute_command(cmd)
   if type(cmd) == "function" then
     -- Lua 函数：直接调用
@@ -234,7 +245,7 @@ finder.launchers.main = function()
       text = item.name,
       keymap = item.key or "",
       action = item.command,
-      close = item.close or true,
+      close = item.close or false,
     })
   end
 
@@ -254,6 +265,7 @@ finder.launchers.main = function()
     -- 自定义 finder（使用菜单数据）
     finder = finders.new_table({
       results = results,
+      ---@param entry {text: string, keymap: string, action: function|string, close: boolean}
       entry_maker = function(entry)
         -- 创建显示：| Text (靠左) Keymap (靠右) |
         local make_display = function()
@@ -273,6 +285,7 @@ finder.launchers.main = function()
 
     -- 自定义按键映射
     attach_mappings = function(prompt_bufnr, map)
+      -- 替换默认选择行为：执行菜单项的 command
       actions.select_default:replace(function()
         local selection = action_state.get_selected_entry()
         if selection and selection.value then
@@ -280,7 +293,7 @@ finder.launchers.main = function()
 
           -- 关闭菜单（如果配置了 close = true）
           if entry.close ~= false then
-            actions.close(prompt_bufnr)
+            vim.schedule(FinderClose)
           end
 
           -- 执行命令
@@ -288,11 +301,11 @@ finder.launchers.main = function()
             finder_execute_command(entry.action)
           end)
 
-          -- 重置活动状态标志
-          finder.active = false
+          -- 不重置 finder.active
         end
       end)
-      -- needs to return true if you want to map default_mappings
+      -- 返回 true：保留 popup_defaults 中定义的默认映射
+      -- 返回 false：清空所有默认映射（只保留上面 map() 定义的）
       return true
     end,
   })
@@ -301,7 +314,6 @@ end
 -- =============================================================================
 -- Telescope 窗口设置
 -- =============================================================================
-
 -- 当进入 Telescope 窗口时调用设置函数
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "TelescopePrompt",
@@ -316,7 +328,7 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.fn.call("PrettyCursorToggle", {})
 
     -- PrettyExitWith('FinderExit') - 调用 VimL 函数
-    vim.fn.call("PrettyExitWith", { "lua finder.close()" })
+    vim.fn.call("PrettyExitWith", { "lua FinderClose()" })
 
     -- Normal 模式：按 / 进入插入模式（总是在最后插入）
     vim.fn.call("PrettyInsertEnter", { "call PrettyTipsToggle('')<CR>:startinsert!" })
@@ -335,6 +347,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- --- 自动注册快捷键 ---
 -- 根据 finder.bindings 中定义的 key 自动设置（Normal 模式）
+-- 只在 bindings 中定义了 key 且 key 不为空时注册
 for i, item in ipairs(finder.bindings) do
   -- 检查是否定义了快捷键和命令
   if item.key and item.key ~= "" and item.command then
