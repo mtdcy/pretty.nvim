@@ -289,7 +289,9 @@ local function style_filetype(ft, config)
   local formatter = style_find_formatter(config)
 
   if vim.g.style_format_on_save then
-    if config.exts then
+    -- 使用 exts 或 filetype 注册 autocmd
+    if config.exts and #config.exts > 0 then
+      -- 有 exts：使用扩展名匹配
       local exts = {}
       for i, ext in ipairs(config.exts) do
         exts[i] = "*." .. ext
@@ -302,6 +304,7 @@ local function style_filetype(ft, config)
         end,
       })
     else
+      -- 无 exts：使用 filetype 匹配 (BufWritePost 无法匹配 filetype)
       vim.api.nvim_create_autocmd("BufWritePost", {
         group = style.augroup,
         pattern = "*",
@@ -333,11 +336,7 @@ vim.opt.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
   group = style.augroup,
   pattern = "*",
-  callback = function()
-    if vim.fn.mode() ~= "c" then
-      vim.cmd("checktime")
-    end
-  end,
+  command = 'checktime',
 })
 
 -- 文件变化后的通知
