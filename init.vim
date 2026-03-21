@@ -67,7 +67,7 @@ source <sfile>:h/init/wm.vim
 source <sfile>:h/init/cmp.vim
 
 " AI 集成（CodeCompanion）
-source <sfile>:h/init/ai.vim
+source <sfile>:h/init/aicoding.lua
 
 " 文件搜索（Finder - Lua）
 luafile <sfile>:h/init/finder.lua
