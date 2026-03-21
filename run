@@ -33,4 +33,7 @@ EOF
         ;;
 esac
 
-exec "$NVIM" "$@"
+export NVIM_REMOTE_SOCK="/tmp/nvim-$$.sock"
+
+# listen on sock, required by lazygit
+exec "$NVIM" --listen "$NVIM_REMOTE_SOCK" "$@"

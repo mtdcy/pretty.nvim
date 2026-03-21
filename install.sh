@@ -217,17 +217,19 @@ if ! grep -q "pretty.nvim gitconfig" "$HOME/.gitconfig"; then
 EOF
 fi
 
+# 我们不再安装 lazygit config，这是 nvim 专用的
 # Install lazygit config (always override existings)
-_lazygit="$(./prebuilts/bin/lazygit -cd)"
-mkdir -p "$_lazygit"
-info "🚀 Install lazygit.yml => $_lazygit/config.yml"
+# _lazygit="$(./prebuilts/bin/lazygit -cd)"
+# mkdir -p "$_lazygit"
+# info "🚀 Install lazygit.yml => $_lazygit/config.yml"
 
-test -L "$_lazygit/config.yml" || mv "$_lazygit/config.yml"{,.old} || true
-ln -sfv "$(pwd -P)/lazygit.yml" "$_lazygit/config.yml"
+# test -L "$_lazygit/config.yml" || mv "$_lazygit/config.yml"{,.old} || true
+# ln -sfv "$(pwd -P)/lazygit.yml" "$_lazygit/config.yml"
 
 info "🚀 Install pretty.nvim to $INSTBINDIR"
 
 sudo ln -svf "$(pwd -P)/run"                "$INSTBINDIR/nvim"
+sudo ln -svf "$(pwd -P)/scripts/nopen.sh"   "$INSTBINDIR"
 sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBINDIR"
 sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBINDIR"
 
