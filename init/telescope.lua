@@ -25,22 +25,108 @@
 -- UI 配置
 -- =============================================================================
 
+local actions = require("telescope.actions")
+local state = require("telescope.actions.state")
+local layout = require("telescope.actions.layout")
+
 -- Popup 布局配置
-local popup_layout_config = {
-  prompt_position = "bottom", -- prompt 在底部
+local popup_layout = {
+  -- 布局策略：center（居中显示）
+  layout_strategy = "center",
 
-  anchor = "S", -- 底部锚点
-  anchor_padding = 1, -- 距离底部 1 行
+  layout_config = {
+    prompt_position = "bottom", -- prompt 在底部
 
-  -- 高度配置：50% 屏幕高度，最大 13 行（9 行内容 + 4 行边框/标题）
-  height = { 0.5, max = 9 + 4 },
+    anchor = "S", -- 底部锚点
+    anchor_padding = 1, -- 距离底部 1 行
 
-  -- 宽度配置：30% 屏幕宽度，最小 72 列
-  width = { 0.3, min = 72 },
+    -- 高度配置：50% 屏幕高度，最大 13 行（9 行内容 + 4 行边框/标题）
+    height = { 0.5, max = 9 + 4 },
+
+    -- 宽度配置：30% 屏幕宽度，最小 72 列
+    width = { 0.3, min = 72 },
+  },
 }
 
+-- =============================================================
+-- 自定义按键绑定
+-- =============================================================
+-- 说明：
+-- 1. default_mappings = { i = {}, n = {} } 清空所有默认映射
+-- 2. mappings 设置自定义映射
+
+local function select_by_index(index)
+  return function(prompt_bufnr)
+    local picker = state.get_current_picker(prompt_bufnr)
+    -- 设置选中
+    vim.schedule(function()
+      picker:set_selection(index - 1)
+      actions.select_default(prompt_bufnr)
+    end)
+    return ""
+  end
+end
+
+-- 参考：https://github.com/nvim-telescope/telescope.nvim/blob/master/lua/telescope/mappings.lua
+local popup_mappings = {
+  -- Insert 模式
+  i = {
+    ["<LeftMouse>"] = {
+      actions.mouse_click,
+      type = "action",
+      opts = { expr = true },
+    },
+    ["<2-LeftMouse>"] = {
+      actions.double_mouse_click,
+      type = "action",
+      opts = { expr = true },
+    },
+  },
+  -- Normal 模式
+  n = {
+    -- 使用 Finder 的 close 逻辑
+    -- ["Q"] = actions.close,
+
+    ["<CR>"] = actions.select_default,
+    ["<Space>"] = actions.select_default,
+
+    ["j"] = actions.move_selection_next,
+    ["k"] = actions.move_selection_previous,
+
+    ["p"] = layout.toggle_preview,
+
+    ["1"] = select_by_index(1),
+    ["2"] = select_by_index(2),
+    ["3"] = select_by_index(3),
+    ["4"] = select_by_index(4),
+    ["5"] = select_by_index(5),
+    ["6"] = select_by_index(6),
+    ["7"] = select_by_index(7),
+    ["8"] = select_by_index(8),
+    ["9"] = select_by_index(9),
+
+    ["<LeftMouse>"] = {
+      actions.mouse_click,
+      type = "action",
+      opts = { expr = true },
+    },
+    ["<2-LeftMouse>"] = {
+      actions.double_mouse_click,
+      type = "action",
+      opts = { expr = true },
+    },
+  },
+}
+
+local popup_buffers_mappings = vim.tbl_extend("force", popup_mappings, {
+  -- Normal 模式
+  n = {
+    ["w"] = actions.delete_buffer,
+  },
+})
+
 -- Popup 主题（基于 dropdown）
-local popup = require("telescope.themes").get_dropdown({
+local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_dropdown(popup_layout), {
   -- 初始模式：normal = 不自动进入插入模式
   initial_mode = "normal",
 
@@ -51,12 +137,10 @@ local popup = require("telescope.themes").get_dropdown({
   selection_caret = "➤ ",
   color_devicons = true,
 
-  -- 排序策略：从下往上（ascending = 结果从底部开始）
-  sorting_strategy = "ascending",
-
-  -- 布局策略：center（居中显示）
-  layout_strategy = "center",
-  layout_config = popup_layout_config,
+  -- 清空默认映射（关键！不能是 nil）
+  default_mappings = { i = {}, n = {} },
+  -- 自定义映射
+  mappings = popup_mappings,
 
   -- 预览器配置
   previewer = true,
@@ -65,6 +149,16 @@ local popup = require("telescope.themes").get_dropdown({
     hide_on_startup = true, -- 启动时隐藏预览
     timeout = 60, -- 预览超时时间（毫秒）
   },
+
+  -- =============================================================
+  -- 自动补全：禁用
+  -- =============================================================
+  completion = {
+    complete = false,
+  },
+
+  -- for live_grep and grep_string
+  vimgrep_arguments = vim.list_extend({ vim.g.pretty_rg_executable }, vim.deepcopy(vim.g.pretty_rg_options)),
 
   -- 文件忽略模式（不搜索这些文件/目录）
   file_ignore_patterns = {
@@ -97,33 +191,13 @@ local popup = require("telescope.themes").get_dropdown({
     path = vim.fn.stdpath("data") .. "/telescope_history",
     limit = 100,
   },
-
-  -- =============================================================
-  -- 按键绑定：全部禁用（在 finder.lua 中使用 autocmd 定义）
-  -- =============================================================
-  mappings = {
-    i = {}, -- Insert 模式
-    n = {}, -- Normal 模式
-  },
-
-  -- =============================================================
-  -- 自动补全：禁用
-  -- =============================================================
-  completion = {
-    complete = false,
-  },
-
-  -- for live_grep and grep_string
-  vimgrep_arguments = vim.list_extend(
-    { vim.g.pretty_rg_executable } ,
-    vim.deepcopy(vim.g.pretty_rg_options)
-  ),
 })
 
 -- Telescope 初始化配置
+require("telescope.config").clear_defaults()
 require("telescope").setup({
   -- 默认配置
-  defaults = popup,
+  defaults = popup_defaults,
 
   -- pickers 特定配置
   pickers = {
@@ -133,7 +207,7 @@ require("telescope").setup({
       prompt_title = vim.g.finder_tips,
       hidden = true, -- 搜索隐藏文件
       find_command = {
-        unpack(popup.vimgrep_arguments),
+        unpack(popup_defaults.vimgrep_arguments),
         "--files",
       },
     },
@@ -144,6 +218,7 @@ require("telescope").setup({
       prompt_title = vim.g.finder_tips,
       sort_lastused = true, -- 按最后使用时间排序
       sort_mru = true, -- 最近使用的在前
+      mappings = popup_buffers_mappings,
     },
 
     -- 实时搜索
@@ -187,11 +262,8 @@ require("telescope").load_extension("codecompanion")
 -- 问题：Telescope 默认使用 vim.api.nvim_buf_delete() 会关闭分割窗口
 -- 解决：检测最后一个 buffer 时提示用 ':qa'，不执行删除操作
 
-local actions = require("telescope.actions")
-local action_state = require("telescope.actions.state")
-
 actions.delete_buffer = function(prompt_bufnr)
-  local current_picker = action_state.get_current_picker(prompt_bufnr)
+  local current_picker = state.get_current_picker(prompt_bufnr)
 
   current_picker:delete_selection(function(selection)
     -- 检查是否是最后一个 listed buffer
@@ -239,82 +311,23 @@ return {
 
   -- Nerdy 图标搜索
   nerdy = function()
-    require("telescope").extensions.nerdy.nerdy(popup)
+    require("telescope").extensions.nerdy.nerdy(popup_defaults)
   end,
 
   -- Emoji 表情搜索
   emoji = function()
-    require("telescope").extensions.emoji.emoji(popup)
+    require("telescope").extensions.emoji.emoji(popup_defaults)
   end,
 
   -- LazyGit
   lazygit = function()
-    require("telescope").extensions.lazygit.lazygit(popup)
+    require("telescope").extensions.lazygit.lazygit(popup_defaults)
   end,
 
   -- CodeCompanion
   codecompanion = function()
-    require("telescope").extensions.codecompanion.codecompanion(popup)
+    require("telescope").extensions.codecompanion.codecompanion(popup_defaults)
   end,
 
-  -- 检查 Telescope 是否处于活动状态
-  -- 返回值：true = 已打开，false = 未打开
-  active = function()
-    -- 方法 1：检查当前 buffer 的 filetype
-    local bufnr = vim.api.nvim_get_current_buf()
-    local filetype = vim.bo[bufnr].filetype
-
-    if filetype == "TelescopePrompt" then
-      return true
-    end
-
-    -- 方法 2：检查所有窗口是否有 TelescopePrompt
-    for _, winid in ipairs(vim.api.nvim_list_wins()) do
-      bufnr = vim.api.nvim_win_get_buf(winid)
-      filetype = vim.bo[bufnr].filetype
-
-      if filetype == "TelescopePrompt" then
-        return true
-      end
-    end
-
-    return false
-  end,
-
-  -- =============================================================================
-  -- Buffer 相关操作
-  -- =============================================================================
-
-  -- 选择第 index 项并打开
-  -- @param index number 要选择的项（从 1 开始）
-  select = function(index)
-    if index and index > 0 then
-      local picker = require("telescope.actions.state").get_current_picker(vim.g.finder_bufnr)
-
-      -- 获取对应行号（index → row）
-      local row = picker:get_row(index)
-      if row then
-        -- 设置选中
-        picker:set_selection(row)
-      end
-    end
-
-    -- 执行默认操作（打开）
-    require("telescope.actions").select_default(vim.g.finder_bufnr)
-  end,
-
-  -- 关闭 Telescope
-  close = function(opts)
-    require("telescope.actions").close(vim.g.finder_bufnr)
-  end,
-
-  -- 切换预览
-  preview = function(opts)
-    require("telescope.actions.layout").toggle_preview(vim.g.finder_bufnr)
-  end,
-
-  -- 删除选中的 buffer
-  delete = function(opts)
-    require("telescope.actions").delete_buffer(vim.g.finder_bufnr)
-  end,
+  close = actions.close
 }

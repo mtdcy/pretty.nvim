@@ -32,7 +32,7 @@ finder = {
 -- 关闭 Telescope 并重置状态
 finder.close = function()
   finder.active = false
-  finder.telescope.close()
+  finder.telescope.close(finder.bufnr)
 end
 
 -- =============================================================================
@@ -227,9 +227,6 @@ finder.launchers.main = function()
   -- 从 finder.bindings 构建菜单数据
   local bindings = finder.bindings
 
-  -- 设置活动状态标志
-  finder.active = true
-
   -- 构建显示列表（3 部分：Text, Keymap, Command）
   local results = {}
   for _, item in ipairs(bindings) do
@@ -286,62 +283,34 @@ finder.launchers.main = function()
             actions.close(prompt_bufnr)
           end
 
-          -- 执行命令（不使用 vim.schedule，避免 active 判断不准）
-          finder_execute_command(entry.action)
+          -- 执行命令
+          vim.schedule(function()
+            finder_execute_command(entry.action)
+          end)
 
           -- 重置活动状态标志
           finder.active = false
         end
       end)
+      -- needs to return true if you want to map default_mappings
       return true
     end,
   })
 end
 
 -- =============================================================================
--- Telescope 窗口设置（通过 autocmd 实现）
+-- Telescope 窗口设置
 -- =============================================================================
-
--- Telescope 窗口内的按键绑定配置
-finder.buffers = {
-  mappings = {
-    -- --- 预览 ---
-    -- Normal 模式：按 p 切换预览
-    {
-      key = "p",
-      command = finder.telescope.preview,
-    },
-
-    -- --- 缓冲区 ---
-    -- Normal 模式：按 w 删除选中的缓冲区
-    {
-      key = "w",
-      command = finder.telescope.delete,
-    },
-
-    -- --- 选择 ---
-    -- Normal 模式：按 Space 或 Enter 打开选中的项
-    {
-      key = "<Space>",
-      command = finder.telescope.select,
-    },
-    {
-      key = "<Enter>",
-      command = finder.telescope.select,
-    },
-  },
-}
-
--- 创建 augroup
-local finder_augroup = vim.api.nvim_create_augroup("FinderKeymaps", { clear = true })
 
 -- 当进入 Telescope 窗口时调用设置函数
 vim.api.nvim_create_autocmd("FileType", {
-  group = finder_augroup,
   pattern = "TelescopePrompt",
   callback = function()
+    -- 设置活动状态标志
+    finder.active = true
+
     -- Prompt 窗口 bufnr（telescope 很多操作都需要此 bufnr）
-    vim.g.finder_bufnr = vim.api.nvim_get_current_buf()
+    finder.bufnr = vim.api.nvim_get_current_buf()
 
     -- PrettyCursorToggle() - 调用 VimL 函数
     vim.fn.call("PrettyCursorToggle", {})
@@ -357,20 +326,6 @@ vim.api.nvim_create_autocmd("FileType", {
 
     -- Insert 模式：按 Enter 停止插入
     vim.keymap.set("i", "<CR>", "<C-o>:stopinsert<CR>", { buffer = true, silent = true })
-
-    -- 注册 Telescope 窗口内的按键绑定
-    for _, item in ipairs(finder.buffers.mappings) do
-      vim.keymap.set("n", item.key, function()
-        finder_execute_command(item.command)
-      end, { buffer = true, silent = true })
-    end
-
-    -- 注册数字键 1-9（快速选择第 n 项）
-    for i = 1, 9 do
-      vim.keymap.set("n", tostring(i), function()
-        finder.telescope.select(i)
-      end, { buffer = true, silent = true, desc = "Select item " .. i })
-    end
   end,
 })
 
