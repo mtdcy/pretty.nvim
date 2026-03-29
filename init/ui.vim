@@ -10,12 +10,10 @@
 "   5. 基本 UI 设置
 " =============================================================================
 
+" 💡 这个文件包含的组件很多，每个组件都由自己的开关控制
 let g:lightline_enabled = 1
-let g:vista_enabled = 1
 let g:lazygit_enabled = 1
-
-" taglist: tagbar vista ...
-let g:taglist_enabled = "vista"
+let g:outline_enabled = 1
 
 " =============================================================================
 " 全局选项
@@ -396,110 +394,22 @@ if g:lightline_enabled
 endif " g:lightline_enabled }}}
 
 " =============================================================================
-" Tagbar 配置
+" Outline 配置
 " =============================================================================
 " {{{
-if g:taglist_enabled ==? "tagbar"
-    filetype on
+if g:outline_enabled
+    source <sfile>:h/outline.lua
 
-    let g:tagbar_ctags_bin = PrettyFindExecutable("ctags")
-    let g:tagbar_position = 'botright vertical'
-    let g:tagbar_singleclick = 0
-    let g:tagbar_sort = 0
-    let g:tagbar_left = 0       " right
-    let g:tagbar_silent = 1     " no echo to statusline
-    let g:tagbar_compact = 1
-    let g:tagbar_autofocus = 0  " no tags or cursor setting won't work
-    let g:tagbar_autoshowtag = 1
-    let g:tagbar_show_data_type = 1
-    let g:tagbar_width = min([30, winwidth(0) / 4])
-    let g:tagbar_no_status_line = 1
-    " cancel some key mappings: too much mappings won't help user
-    "  => keep only: Enter, Space, Mouse, F1/?
-    let g:tagbar_map_hidenonpublic = ''
-    let g:tagbar_map_openallfolds = ''
-    let g:tagbar_map_closeallfolds = ''
-    let g:tagbar_map_incrementfolds = ''
-    let g:tagbar_map_decrementfolds = ''
-    let g:tagbar_map_togglesort = ''
-    let g:tagbar_map_toggleautoclose = ''
-    let g:tagbar_map_togglecaseinsensitive = ''
-    let g:tagbar_map_zoomwin = ''
-    let g:tagbar_map_close = ''
-    let g:tagbar_map_preview = ''
-    let g:tagbar_map_previewwin = ''
-    let g:tagbar_map_nexttag = ''
-    let g:tagbar_map_prevtag = ''
-    let g:tagbar_map_nextfold = ''
-    let g:tagbar_map_prevfold = ''
-    let g:tagbar_map_togglefold = ''
-    let g:tagbar_map_togglepause = ''
-    " multiple key mapping to these one, can't disable single one
-    "let g:tagbar_map_openfold = ''
-    "let g:tagbar_map_closefold = ''
-
-    " open or focus taglist
-    command! -nargs=0 TagsExplorer
-                \ if bufwinnr('Tagbar') == -1
-                \ |  call tagbar#OpenWindow()
-                \ | endif
-                \ | exe bufwinnr('Tagbar') . 'wincmd w'
-elseif g:taglist_enabled ==? "vista"
-    " 默认执行器：ctags => 💡 相比 tagbar，多了 toc 和 lsp 支持
-    "  查看支持列表：`:echo g:vista#executives`
-    "  内置执行器：markdown toc
-    let g:vista_default_executive = "ctags"
-    let g:vista_ctags_executable = PrettyFindExecutable('ctags')
-    let g:vista_executive_for = {
-                \   'vimwiki'   : 'markdown',
-                \   'pandoc'    : 'markdown',
-                \   'markdown'  : 'toc',
-                \   'vim'       : 'ale',
-                \   'lua'       : 'ale',
-                \   'python'    : 'ale',
-                \ }
-    " ⚠️ 如果 ale ls 不存在，taglist 将无法打开 => 📝 实现一个运行时检测方案
-    " ⚠️ 无法使用 ale tsserver => Unexpected token 'C', "Content-Length: 179" is not valid JSON
-
-    " 使用指定的 ctags
-    let g:vista_ctags_executable = PrettyFindExecutable("ctags")
-
-    " 缩进配置（紧凑风格）
-    let g:vista_icon_indent = ["󱞩 ", "󰞘 "]
-
-    " 自动更新（当切换缓冲区时）
-    let g:vista_update_on_text_changed = 1
-    let g:vista_update_on_text_changed_delay = 1000
-
-    " 侧边栏位置：右侧
-    let g:vista_sidebar_position = 'vertical botright'
-
-    " 侧边栏宽度
-    let g:vista_sidebar_width = min([30, winwidth(0) / 4])
-
-    " 高亮当前符号
-    let g:vista_enable_highlight = 1
-
-    " 启用图标渲染
-    let g:vista#renderer#enable_icon = 1
-
-    " 忽略一些不重要的内容
-    let g:vista_ignore_kinds = [ "Boolean", "Number", "Package" ]
-
-    " 其他
-    let g:vista_echo_cursor = 0
-    let g:vista_highlight_whole_line = 1
-
-    function! s:taglist_focus()
-        call vista#sidebar#ToggleFocus()
-        if vista#sidebar#IsOpen() == v:false
-            echom "⚠️ no tags or ale is loading..."
-        end
+    function! s:outline_toggle_focus() abort
+        if bufwinnr('OUTLINE_1') < 0
+            lua require("outline").open_outline()
+        else
+            lua require("outline").focus_outline()
+        endif
     endfunction
 
-    " open or focus taglist
-    command! -nargs=0 TagsExplorer call <sid>taglist_focus()
-endif " taglist_enabled
+    command! -nargs=0 TagsExplorer call <sid>outline_toggle_focus()
+endif
 " }}}
 
 " =============================================================================

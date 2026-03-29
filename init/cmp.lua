@@ -34,7 +34,7 @@ local check_filetypes = function()
     "nerdtree",
     "NvimTree",
     "tagbar",
-    "aerial",
+    "Outline",
     "ale",
     "TelescopePrompt",
     "help",

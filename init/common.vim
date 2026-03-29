@@ -276,14 +276,11 @@ endfunction
 " 获取相对文件名（特殊缓冲区显示特殊名称）
 function! PrettyFileName() abort
     let l:bufname = bufname()
-    if l:bufname =~# 'NERD_tree_*'          | return 'Explorer'
-    elseif l:bufname =~# 'NvimTree_*'       | return 'Explorer'
+    if l:bufname =~# 'NERD_tree_*'          | return 'Files'
+    elseif l:bufname =~# 'NvimTree_*'       | return 'Files'
     elseif l:bufname =~# '__Tagbar__.\d\+'  | return 'Tags'
-    elseif l:bufname ==# '__vista__'        | return 'Tags'
+    elseif l:bufname =~# 'OUTLINE_\d\+'     | return 'Tags'
     elseif l:bufname =~# '\[Telescope.*\]'  | return 'Telescope'
-    elseif l:bufname ==# ''
-        if &filetype ==# 'aerial'           | return 'Tags'
-        endif
     else                                    | return expand('%:~:.')
     endif
 endfunction

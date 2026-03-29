@@ -5,10 +5,9 @@
 "=============================================================================
 " 说明：
 "   本文件负责 Neovim 窗口管理，包括：
-"   1. 侧边栏窗口管理（NERDTree/NvimTree/Tagbar/Aerial 等）
+"   1. 侧边栏窗口管理（NERDTree/NvimTree/Tagbar/Outline 等）
 "   2. 主窗口（main window）保护与恢复
 "   3. Buffer 与窗口的智能分配
-"   4. 互斥窗口管理（如 Tagbar vs Aerial）
 "
 " 窗口布局：
 "   +----------------------------------------+
@@ -44,7 +43,7 @@ let s:wm_debug  = 0
 " 最小 12 行，最大为当前窗口高度的 1/4
 let s:wm_height = min([12, winheight(0) / 4])
 
-" 侧边栏宽度（垂直窗口：NERDTree/NvimTree/Tagbar/Aerial）
+" 侧边栏宽度（垂直窗口：NERDTree/NvimTree/Tagbar/Outline）
 " 最大 32 列，但不超过当前窗口宽度的 1/2
 let s:wm_width  = min([32, winwidth(0) / 2])
 
@@ -53,7 +52,7 @@ let s:wmid_main = 0  " 主窗口（编辑区）
 let s:wmid_tree = 1  " 左侧栏：文件浏览器（NERDTree/NvimTree）
 let s:wmid_docs = 2  " 顶部栏：文档窗口（help/man/ale-info）
 let s:wmid_foot = 3  " 底部栏：快速修复/位置列表
-let s:wmid_tags = 4  " 右侧栏：符号大纲（Tagbar/Aerial）
+let s:wmid_tags = 4  " 右侧栏：符号大纲（Tagbar/Outline）
 
 " 重置 wildignore（使用默认值，避免影响文件浏览）
 set wildignore&
@@ -84,8 +83,8 @@ function! s:wmid(bufnr = '') abort
     " 文件浏览器：NERDTree 或 NvimTree
     if ftype ==? 'nerdtree' || ftype ==? 'NvimTree'
         return s:wmid_tree
-    " 符号大纲：Tagbar 或 Aerial
-    elseif ftype ==? 'tagbar' || ftype ==? 'aerial' || ftype =~? '^vista'
+    " 符号大纲：Tagbar 或 Outline
+    elseif ftype ==? 'tagbar' || ftype ==? 'Outline'
         return s:wmid_tags
     " 文档窗口：help/man/ale-info（精确匹配，避免误判）
     elseif ftype ==? 'help' || ftype ==? 'man' || ftype ==? 'ale-info'
@@ -364,7 +363,7 @@ endfunction
 "   3. 处理多文档窗口类型（help/man 每个文档一个新窗口）
 " 触发时机：
 "   - BufRead 事件（主触发）
-"   - FileType 事件（nerdtree/tagbar/aerial 专用）
+"   - FileType 事件（nerdtree/tagbar/Outline 专用）
 function! s:wm_update() abort
     if s:wm_debug | call s:wminfo() | endif
 
@@ -524,7 +523,7 @@ augroup WM
     autocmd FileType    ale-info call s:wm_update()
     autocmd FileType    nerdtree call s:wm_update()
     autocmd FileType    tagbar   call s:wm_update()
-    autocmd FileType    vista_*  call s:wm_update()
+    autocmd FileType    Outline  call s:wm_update()
 
     " 窗口关闭
     autocmd WinClosed   call s:wm_on_winclosed(expand('<amatch>'))
@@ -534,7 +533,7 @@ augroup WM
     "autocmd BufLeave    term://* stopinsert
 
     " 文件浏览器和符号大纲调用光标切换函数
-    autocmd FileType    nerdtree,NvimTree,tagbar call PrettyCursorToggle()
+    autocmd FileType    nerdtree,NvimTree,tagbar,Outline call PrettyCursorToggle()
 augroup END
 
 " 调试快捷键（启用 s:wm_debug 时使用）
