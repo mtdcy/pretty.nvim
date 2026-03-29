@@ -337,10 +337,357 @@ let g:ale_lsp_suggestions = 0  " 禁用 ALE 的 LSP 补全
 
 ## 🔗 参考链接
 
+---
+
+## 🔗 LSP 客户端复用机制
+
+> **核心原理**: Neovim 的 `vim.lsp` 是**全局 LSP 客户端管理器**，所有插件通过它访问 LSP 服务。先启动的插件创建连接，后启动的插件自动复用。
+
+### 架构示意
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                    Neovim 实例                              │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │              vim.lsp 客户端管理器                     │ │
+│  │  (全局单例，管理所有 LSP 连接)                         │ │
+│  └──────────────────────────────────────────────────────┘ │
+│           ▲                    ▲              ▲            │
+│           │                    │              │            │
+│    ┌──────┴──────┐     ┌──────┴──────┐  ┌───┴────┐       │
+│    │    ALE      │     │  nvim-cmp   │  │ outline  │       │
+│    │  (启动 LSP) │     │  (复用 LSP) │  │ (复用)   │       │
+│    │             │     │              │  │          │       │
+│    │ 诊断检查    │     │ 代码补全     │  │ 符号树   │       │
+│    │ 悬浮窗      │     │              │  │          │       │
+│    └─────────────┘     └──────────────┘  └──────────┘       │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+              ┌─────────────────────────────┐
+              │   lua-language-server       │
+              │   (单个进程，服务所有请求)    │
+              └─────────────────────────────┘
+```
+
+---
+
+### 复用机制详解
+
+#### 1️⃣ **ALE 启动 LSP 的过程**
+
+```lua
+-- ALE 内部代码（简化版）
+-- 当检测到 Lua 文件时，ALE 会：
+
+local config = {
+  cmd = {"lua-language-server"},
+  root_dir = vim.loop.cwd(),
+  filetypes = {"lua"},
+  init_options = {...},
+}
+
+-- ALE 调用 vim.lsp.start() 启动 LSP 服务器
+vim.lsp.start(config, {
+  reuse_client = function(client, conf)
+    -- 检查是否已有相同配置的客户端
+    return client.config.name == conf.name
+  end
+})
+
+-- 结果：lua-language-server 进程启动
+-- vim.lsp 保存了这个连接的引用
+```
+
+**关键点**:
+- ✅ ALE 调用 `vim.lsp.start()` 启动 LSP
+- ✅ `vim.lsp` 是 Neovim 内置模块，管理所有 LSP 连接
+- ✅ 连接信息保存在 `vim.lsp._clients` 中
+- ✅ LSP 进程独立于 ALE 运行
+
+---
+
+#### 2️⃣ **nvim-cmp 复用 LSP**
+
+```lua
+-- cmp_nvim_lsp 内部代码（简化版）
+local function get_lsp_clients(bufnr)
+  -- 直接调用 vim.lsp.get_clients() 获取现有连接
+  return vim.lsp.get_clients({ bufnr = bufnr })
+end
+
+local function request_completions(client, params)
+  -- 通过现有 LSP 连接请求补全
+  client.request('textDocument/completion', params, function(err, result)
+    -- 返回补全项给 nvim-cmp
+    callback(result)
+  end, bufnr)
+end
+
+-- 当用户输入时：
+-- 1. nvim-cmp 触发补全
+-- 2. cmp_nvim_lsp 获取现有 LSP 客户端
+-- 3. 通过 LSP 协议请求补全
+-- 4. 显示补全列表
+```
+
+**关键**: `cmp_nvim_lsp` **不启动**自己的 LSP，它只是 `vim.lsp` 的包装器！
+
+---
+
+#### 3️⃣ **outline.nvim 复用 LSP**
+
+```lua
+-- outline.nvim 内部代码（简化版）
+local function get_symbol_provider()
+  -- 1. 获取当前缓冲区的 LSP 客户端
+  local clients = vim.lsp.get_clients({
+    bufnr = vim.api.nvim_get_current_buf(),
+  })
+  
+  -- 2. 检查是否有可用的 LSP 客户端
+  if #clients > 0 then
+    -- 3. 直接使用现有的 LSP 连接！
+    return clients[1]
+  end
+  
+  -- 4. 如果没有 LSP，降级到 Treesitter/Ctags
+  return nil
+end
+
+-- 请求文档符号
+local function request_symbols(client, bufnr)
+  client.request('textDocument/documentSymbol', {
+    textDocument = vim.lsp.util.make_text_document_params(bufnr),
+  }, function(err, result)
+    -- 处理符号列表
+    outline.render(result)
+  end, bufnr)
+end
+```
+
+**关键点**:
+- ✅ outline 调用 `vim.lsp.get_clients()` 获取现有连接
+- ✅ **不创建新的 LSP 连接**，直接复用
+- ✅ 通过 LSP 协议请求 `textDocument/documentSymbol`
+- ✅ 所有插件共享同一个 `lua-language-server` 进程
+
+---
+
+### 完整流程示例
+
+**场景**: 打开 `main.lua` 文件
+
+```
+1. 用户打开 main.lua
+   │
+   ▼
+2. ALE 检测到 Lua 文件类型
+   │
+   ▼
+3. ALE 检查配置文件 (.luarc.json)
+   │
+   ▼
+4. ALE 调用 vim.lsp.start() 启动 lua-language-server
+   │
+   ▼
+5. vim.lsp 保存连接信息到 vim.lsp._clients
+   │
+   ▼
+6. lua-language-server 进程运行（后台）
+   │
+   ▼
+7. 用户输入代码，nvim-cmp 触发补全
+   │
+   ▼
+8. cmp_nvim_lsp 调用 vim.lsp.get_clients()
+   │
+   ▼
+9. cmp_nvim_lsp 发现已有 lua-language-server 连接
+   │
+   ▼
+10. cmp_nvim_lsp 使用现有连接请求补全
+    │
+    ▼
+11. lua-language-server 返回补全项
+    │
+    ▼
+12. nvim-cmp 显示补全列表 ✅
+
+--- (同时) ---
+
+13. 用户按 F10 打开 outline 窗口
+    │
+    ▼
+14. outline 调用 vim.lsp.get_clients()
+    │
+    ▼
+15. outline 发现已有 lua-language-server 连接
+    │
+    ▼
+16. outline 直接使用现有连接请求符号
+    │
+    ▼
+17. lua-language-server 返回符号列表
+    │
+    ▼
+18. outline 渲染符号树 ✅
+```
+
+**关键**: 整个流程只有**一个** `lua-language-server` 进程！
+
+---
+
+### 各插件的 LSP 请求类型
+
+| 插件 | LSP 请求方法 | 用途 |
+|------|-------------|------|
+| **ALE** | `textDocument/publishDiagnostics` | 诊断检查 |
+| **ALE** | `textDocument/definition` | 跳转定义 |
+| **ALE** | `textDocument/hover` | 悬浮窗文档 |
+| **ALE** | `textDocument/codeAction` | 代码修复 |
+| **nvim-cmp** | `textDocument/completion` | 自动补全 |
+| **nvim-cmp** | `completionItem/resolve` | 补全项详情 |
+| **outline** | `textDocument/documentSymbol` | 文档符号树 |
+| **aerial** | `textDocument/documentSymbol` | 代码大纲 |
+| **telescope** | `textDocument/references` | 查找引用 |
+| **telescope** | `textDocument/definition` | 跳转定义 |
+
+**所有请求都通过同一个 LSP 连接！**
+
+---
+
+### 对比：独立 vs 共享 LSP 客户端
+
+#### ❌ 如果每个插件都启动自己的 LSP
+
+```
+ALE      → lua-language-server (进程 1)
+outline  → lua-language-server (进程 2)
+nvim-cmp → lua-language-server (进程 3)
+
+结果:
+- ❌ 3 个独立进程，资源浪费
+- ❌ 每个进程独立分析代码，结果可能不一致
+- ❌ CPU/内存占用翻倍
+```
+
+#### ✅ 实际：共享 LSP 客户端
+
+```
+ALE      ┐
+outline  ├─→ lua-language-server (单个进程)
+nvim-cmp ┘
+
+结果:
+- ✅ 只有 1 个进程
+- ✅ 所有插件共享分析结果
+- ✅ 资源占用最小化
+```
+
+---
+
+### 验证方法
+
+#### 方法 1: 查看 LSP 客户端列表
+
+```lua
+-- 在 Neovim 中执行
+:lua =vim.lsp.get_clients()
+
+-- 输出示例:
+-- [
+--   {
+--     id = 1,
+--     name = "lua_language_server",
+--     config = { ... },
+--     attached_buffers = { 1, 2, 3 },
+--   }
+-- ]
+```
+
+#### 方法 2: 查看系统进程
+
+```bash
+# 在终端执行
+ps aux | grep lua-language-server
+
+# 输出（只有 1 个进程）:
+# user  12345  0.5%  0.3%  lua-language-server ...
+```
+
+#### 方法 3: 检查 ALE 的 LSP 信息
+
+```vim
+:ALEInfo
+```
+
+#### 方法 4: 检查 outline 的 Provider
+
+```lua
+:lua =require('outline').get_providers()
+```
+
+---
+
+### 注意事项
+
+#### 1️⃣ **确保 ALE 正确启动 LSP**
+
+```vim
+" init/ale.vim 中
+let g:ale_lsp_suggestions = 1    " 启用 LSP 建议（影响补全）
+let g:ale_lint_on_enter = 1      " 进入文件时启动 LSP
+```
+
+#### 2️⃣ **nvim-cmp 配置正确**
+
+```lua
+-- 确保 sources 包含 nvim_lsp
+sources = {
+  { name = 'nvim_lsp' },  -- ← 必须有这个
+}
+```
+
+#### 3️⃣ **避免重复启动 LSP**
+
+```lua
+-- ❌ 错误：不要同时配置 lspconfig
+require('lspconfig').lua_ls.setup()  -- 会导致 2 个进程！
+
+-- ✅ 正确：只用 ALE 启动 LSP
+-- nvim-cmp 和 outline 自动复用
+```
+
+---
+
+### 优势总结
+
+| 优势 | 说明 |
+|------|------|
+| **资源优化** | 单个 LSP 进程服务所有插件，避免重复分析代码 |
+| **状态一致** | 所有插件看到相同的符号/诊断信息，避免数据不一致 |
+| **解耦设计** | 插件不需要知道其他插件的存在，通过 `vim.lsp` 统一接口通信 |
+| **灵活扩展** | 新插件可以无缝接入现有 LSP 生态，无需重复配置 |
+
+---
+
+### 核心结论
+
+> 在 pretty.nvim 中，**ALE 是 LSP 的启动者**，nvim-cmp、outline、aerial、telescope 等插件都是**复用者**。它们通过 `vim.lsp.get_clients()` 获取现有连接，共享同一个 LSP 进程。这就是 Neovim LSP 架构的精髓！
+
+---
+
+## 🔗 参考链接
+
 - [vim.lsp 官方文档](https://neovim.io/doc/user/lsp.html)
 - [nvim-lspconfig GitHub](https://github.com/neovim/nvim-lspconfig)
 - [ALE GitHub](https://github.com/dense-analysis/ale)
 - [LSP 协议规范](https://microsoft.github.io/language-server-protocol/)
+- [cmp_nvim_lsp GitHub](https://github.com/hrsh7th/cmp-nvim-lsp)
+- [outline.nvim GitHub](https://github.com/hedyhli/outline.nvim)
 
 ---
 
