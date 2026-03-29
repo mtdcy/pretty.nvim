@@ -1,0 +1,125 @@
+local M = {}
+
+---info notification
+---@param msg string
+M.info = function(msg)
+  vim.notify(msg, vim.log.levels.INFO, { title = "emoji.nvim" })
+end
+
+---warning notification
+---@param msg string
+M.warn = function(msg)
+  vim.notify(msg, vim.log.levels.WARN, { title = "emoji.nvim" })
+end
+
+---error notification
+---@param msg string
+M.error = function(msg)
+  vim.notify(msg, vim.log.levels.ERROR, { title = "emoji.nvim" })
+end
+
+---checks if a module is available
+---@param module string
+---@return boolean
+M.is_module_available = function(module)
+  local ok = pcall(require, module)
+  if not ok then
+    return false
+  end
+  return true
+end
+
+--- Check if the minimum Neovim version is satisfied
+--- Expects only the minor version, e.g. "9" for 0.9.1
+---@param version number
+---@return boolean
+M.is_neovim_version_satisfied = function(version)
+  local v = vim.version()
+  if v.major > 0 then
+    return true
+  end
+  return version <= tonumber(v.minor)
+end
+
+---load emoji data from JSON
+---@param file_path string
+---@return table
+M.load_from_json = function(file_path)
+  local file, err = io.open(file_path, "r")
+  if not file then
+    M.error("cannot open data file at '" .. file_path .. "' with error: " .. err)
+    return {}
+  end
+
+  local content = file:read("a")
+  file:close()
+
+  local ok, json_data = pcall(vim.json.decode, content, {})
+  if not ok then
+    M.error("failed to decode JSON from '" .. file_path .. "': " .. tostring(json_data))
+    return {}
+  end
+
+  if json_data == nil or type(json_data) ~= "table" or vim.tbl_isempty(json_data) then
+    M.error("empty json decoded from '" .. file_path .. "'")
+    return {}
+  end
+  return json_data
+end
+
+---creates a list of unique emoji groups
+---@param emojis EmojiData
+---@return table<string><number>
+M.get_groups = function(emojis)
+  local groups = {}
+  for _, e in ipairs(emojis) do
+    groups[e.group] = 1
+  end
+  return groups
+end
+
+---filter emojis based on their group
+---@param emojis EmojiData
+---@param group string
+---@return EmojiData
+M.filter_by_group = function(emojis, group)
+  ---@type EmojiData
+  ---@diagnostic disable-next-line: missing-fields
+  local filtered_emojis = {}
+  for _, e in ipairs(emojis) do
+    if e.group == group then
+      table.insert(filtered_emojis, e)
+    end
+  end
+  return filtered_emojis
+end
+
+M.insert_string_at_current_cursor = function(text)
+  local buf = vim.api.nvim_get_current_buf()
+  table.unpack = table.unpack or unpack -- 5.1 compatibility
+  local row, col = table.unpack(vim.api.nvim_win_get_cursor(0))
+  row = row - 1 -- Adjust because Lua is 1-indexed but Neovim API expects 0-indexed
+  vim.api.nvim_buf_set_text(buf, row, col, row, col, { text })
+end
+
+M.create_emoji_options = function(data)
+  local options = {}
+  for _, e in ipairs(data) do
+    if e.unicodeName ~= nil then
+      table.insert(options, {
+        insert_text = e.character,
+        label = e.character .. " " .. e.unicodeName,
+      })
+    end
+  end
+  return options
+end
+
+M.get_emoji_data_path = function(use_minimal)
+  local plugin_root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h:h")
+  local base_path = plugin_root .. "/lua/data/"
+  local filename = use_minimal and "emojis.minimal.json" or "emojis.json"
+  return base_path .. filename
+end
+
+return M
