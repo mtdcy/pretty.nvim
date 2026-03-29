@@ -252,81 +252,56 @@ git revert <commit-hash>
 
 ---
 
----
+## 🌐 语言服务器支持
 
-## 🛠️ 语言支持配置
+pretty.nvim 使用 **ALE (Asynchronous Lint Engine)** 作为 LSP 客户端，提供异步语法检查和语言服务器集成。
 
-### Vim
-- **vim-language-server** — `npm install vim-language-server`
-- **vint** — `pip3 install vim-vint`
-- 配置文件：[.vintrc.yaml](.vintrc.yaml)
+### 设计原则
 
-### Shell
-- **shellcheck** — `pip3 install shellcheck-py`
-- 配置文件：[lintrc/shellcheckrc](lintrc/shellcheckrc)
+1. **轻量级**：仅启用必要的 Linter
+2. **智能检测**：根据项目配置文件自动启用/禁用
+3. **无侵入**：错误显示在虚拟文本和位置列表，不自动打开窗口
+4. **可扩展**：支持 15+ 种编程语言
 
-### Go
-- **gopls** — `go install golang.org/x/tools/gopls@latest`
-- **gofmt** — 内置
-- **goimports** — `go install golang.org/x/tools/cmd/goimports@latest`
+### 支持的语言服务器
 
-### Rust
-- **rust-analyzer** — `rustup component add rust-analyzer`
-- **rustfmt** — `rustup component add rustfmt`
-- 配置文件：`.rustfmt.toml`
+| 语言 | LSP | Linter | 配置文件 |
+|------|-----|--------|----------|
+| **Vim** | `vim-language-server` | `vint` | `.vintrc.yaml` |
+| **Lua** | `lua-language-server` | `luacheck` | `.luarc.json`, `.luacheckrc` |
+| **Shell** | `bash-language-server` | `shellcheck` | `.shellcheckrc` |
+| **C/C++** | `ccls` | - | `.ccls` |
+| **Go** | `gopls` | - | - |
+| **Python** | `jedi-language-server` | `pylint` / `flake8` | `.pylintrc`, `pylintrc` |
+| **YAML** | - | `yamllint` | `.yamllint.*`, `yamllint.yaml` |
+| **JSON** | - | `jsonlint` / `eslint` | `.eslintrc.json` |
+| **Markdown** | - | `markdownlint` | `.markdownlint.yaml`, `markdownlint.yaml` |
+| **Make** | - | `checkmake` | `.checkmake.ini`, `checkmake.ini` |
+| **CMake** | - | `cmakelint` | `.cmakelintrc`, `cmakelintrc` |
+| **Dockerfile** | - | `hadolint` | `.hadolint.yaml` |
+| **HTML** | - | `htmlhint` | - |
+| **CSS** | - | `stylelint` | - |
 
-### C/C++
-- **ccls** — 需要编译安装
-- **clang-format** — `pip3 install clang-format`
-- 配置文件：`.ccls`
 
-### Python
-- **jedi-language-server** — `pip3 install jedi-language-server`
-- **pylint** — `pip3 install pylint`
-- **flake8** — `pip3 install flake8`
-- **black** — `pip3 install black`
-- 配置文件：
-  - [lintrc/pylintrc](lintrc/pylintrc)
-  - [lintrc/flake8](lintrc/flake8)
-  - [lintrc/black.toml](lintrc/black.toml)
+### 智能启用机制
 
-### JavaScript/TypeScript
-- **tsserver** — `npm install typescript`
-- **eslint** — `npm install eslint`
-- **prettier** — `npm install prettier`
-- 配置文件：
-  - [lintrc/eslintrc](lintrc/eslintrc)
-  - [lintrc/prettierrc](https://prettier.io/docs/configuration)
+ALE 会根据项目中的配置文件自动启用对应的 LSP/Linter：
 
-### Markdown
-- **markdownlint** — `npm install markdownlint-cli`
-- 配置文件：[lintrc/markdownlint.yaml](lintrc/markdownlint.yaml)
+- 检测到 `.luarc.json` → 启用 `lua-language-server`
+- 检测到 `.pylintrc` → 启用 `pylint`（否则使用 `flake8`）
+- 检测到 `.vintrc.yaml` → 启用 `vint`
+- 检测到 `.ccls` → 启用 `ccls`
 
-### YAML
-- **yamllint** — `pip3 install yamllint`
-- **yamlfix** — `pip3 install yamlfix`
-- 配置文件：
-  - [lintrc/yamllint.yaml](lintrc/yamllint.yaml)
-  - [lintrc/yamlfix.toml](lintrc/yamlfix.toml)
+无需手动配置，开箱即用！
 
-### Lua
-- **lua-language-server** — 建议从源码编译
-- **luacheck** — `luarocks install luacheck lanes`
-- 配置文件：
-  - [lintrc/luarc.json](lintrc/luarc.json)
-  - [lintrc/luacheckrc](lintrc/luacheckrc)
-
-### 快速安装所有依赖
+### 安装依赖 (额外依赖)
 
 ```bash
-# 设置国内镜像 (可选)
-npm config set registry https://mirrors.mtdcy.top/npmjs
+# Lua
+luarocks install luacheck
 
-# 安装 Node.js 依赖
-npm install
-
-# 安装 Python 依赖 (在 nvim 中自动完成)
-nvim --update
+# Go
+go install golang.org/x/tools/gopls@latest
 ```
 
 ---
