@@ -33,3 +33,7 @@ build/
 # Local config
 local.lua
 config.local.lua
+/doc/tags
+/prebuilts
+/nvim
+/.npmrc

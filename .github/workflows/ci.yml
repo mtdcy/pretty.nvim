@@ -1,0 +1,40 @@
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install
+        run: |
+          npm --version
+          python3 --version
+          if curl --fail -o /dev/null -sIL --connect-timeout 5 http://git.mtdcy.top; then
+            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+          else
+            bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
+          fi
+        shell: bash
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl --version
+          curl -vL ${{ vars.NOTIFY_WEBHOOK }} \
+              -H 'Content-Type: application/json' \
+              --data @<(cat <<EOF
+              {
+                "token": "${{ secrets.NOTIFY_TOKEN }}",
+                "title": "${{ github.repository }} ${{ job.status }}",
+                "text":  "$(git show --abbrev-commit -s ${{ github.ref }} | sed 's/$/\\n/g')"
+              }
+          EOF
+              )
+        shell: bash

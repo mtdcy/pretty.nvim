@@ -1,0 +1,17 @@
+# nvim dependencies
+pynvim>=0.6.0
+
+# tools
+vim-vint>=0.3.0
+clang-format>=22.0.0
+cmakelint>=1.4.0
+yamllint>=1.0.0
+pylint>=3.0.0
+jedi-language-server>=0.40.0
+flake8>=7.0.0
+black>=24.0.0
+yamlfix>=1.0.0
+
+# update with:
+#  pip install pur
+#  pur -r requirements.txt
