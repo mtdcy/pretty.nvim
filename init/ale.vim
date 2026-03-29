@@ -273,6 +273,21 @@ augroup ALELinterSetup
                 \   let b:ale_css_stylelint_options = PrettyFindFiles('-c ', '.stylelintrc*', '') |
                 \ endif
 
+    " typescript/javascript: tsserver + eslint (事实标准)
+    "  ⚠️ tsserver_config_path 好像没生效
+    autocmd FileType typescript,javascript
+                \ if s:linter_ftype_if('tsserver', 'tsconfig.json;jsconfig.json', 'tsserver') |
+                \   let b:ale_typescript_tsserver_executable = b:linter                       |
+                \   let b:ale_javascript_tsserver_executable = b:linter                       |
+                \   let b:ale_typescript_tsserver_config_path = b:lintrc                      |
+                \   let b:ale_javascript_tsserver_config_path = b:lintrc                      |
+                \ endif                                                                       |
+                \ if s:linter_ftype_if('eslint', 'eslint.config.*;.eslintrc.*', 'eslint', 1)  |
+                \   let b:ale_typescript_eslint_executable = b:linter                         |
+                \   let b:ale_javascript_eslint_executable = b:linter                         |
+                \   let b:ale_typescript_eslint_options = "-c " .. b:lintrc                   |
+                \   let b:ale_javascript_eslint_options = "-c " .. b:lintrc                   |
+                \ endif
 augroup END
 " }}}
 
@@ -396,10 +411,10 @@ function! s:ale_show_status()
     " lua vim.notify("💡 buffer info: " .. vim.inspect(vim.fn.getbufinfo()))
 
     if getbufvar('%', 'ale_linted', 0) == 0
-        lua vim.notify("⏳ ALE: loading linters: " .. vim.inspect(vim.b.ale_linters[vim.bo.filetype], { plain = true }))
+        lua vim.notify("⏳ ALE: loading " .. vim.inspect(vim.b.ale_linters[vim.bo.filetype], { plain = true }))
     else
         let g:ale_status_checked[&filetype] = 1
-        lua vim.notify("✅ ALE: " .. vim.bo.filetype .. " linter is ready")
+        lua vim.notify("✅ ALE: " .. vim.inspect(vim.b.ale_linters[vim.bo.filetype], { plain = true }) .. " is ready")
     endif
 endfunction
 
