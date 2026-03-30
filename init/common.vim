@@ -6,29 +6,28 @@
 " 命名规范：所有函数使用 Pretty* 前缀，保持统一风格
 " =============================================================================
 
+" pretty.nvim 项目根目录
+let g:pretty_home = fnamemodify($MYVIMRC, ':p:h')
+
+" 当前项目根目录
+let g:pretty_project_root = ''
+
 " 需要刷新的操作列表
 " 格式：每个 item 是一个函数字符串或命令
 let g:pretty_reload_commands = []
 
 " =============================================================================
-" 路径配置
+" Python Node.js 环境配置
 " =============================================================================
-
-" pretty.nvim 项目根目录
-let g:pretty_home = fnamemodify($MYVIMRC, ':p:h')
-
+" {{{
 " 忽略 nvim 这个符号链接 和 node python3 目录
 set wildignore+=*/nvim/*,*/node_modules/*,*/py3env/*
 
 " 添加本地可执行文件到 PATH
 " 优先级：node_modules > prebuilts > py3env > 系统
 let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
-let $PATH = g:pretty_home . '/prebuilts/bin:'        . $PATH
-let $PATH = g:pretty_home . '/py3env/bin:'     . $PATH
-
-" =============================================================================
-" Python 环境配置
-" =============================================================================
+let $PATH = g:pretty_home . '/prebuilts/bin:' . $PATH
+let $PATH = g:pretty_home . '/py3env/bin:' . $PATH
 
 " 设置虚拟环境路径
 let $VIRTUAL_ENV = g:pretty_home . '/py3env'
@@ -36,35 +35,198 @@ let $VIRTUAL_ENV = g:pretty_home . '/py3env'
 " 指定 Python3 host 程序（用于 Neovim Python 插件）
 let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3'
 
-" =============================================================================
-" Node.js 环境配置
-" =============================================================================
-
 " 指定 Node.js host 程序（用于 Neovim Node 插件）
 let g:node_host_prog = g:pretty_home . '/node_modules/.bin/neovim-node-host'
+" }}}
+
+" =============================================================================
+" 全局设置
+" =============================================================================
+" {{{
+" ---
+" SSH 远程会话配置
+" 检测到 SSH 连接时，使用自定义剪贴板（只复制不回贴）
+" ---
+if exists('$SSH_CLIENT')
+    let g:clipboard = {
+                \   'name': 'RemoteCopy',
+                \   'copy': {
+                \      '+': g:pretty_home . '/scripts/ncopyc.sh',
+                \      '*': g:pretty_home . '/scripts/ncopyc.sh',
+                \    },
+                \   'paste': { '+': '', '*': '', },
+                \   'cache_enabled': 0,
+                \ }
+endif
+" }}}
+
+" =============================================================================
+" 悬浮窗美化相关 - nvim_open_win
+" =============================================================================
+" {{{
+
+" [top-left, top, top-right, right, bottom-right, bottom, bottom-left, left]
+let g:pretty_borderchars= ['╭','─', '╮', '│', '╯','─', '╰', '│']
+
+" Pretty 高亮颜色组
+"   Shell红   - 外部命令 :!
+"   搜索橙    - 搜索模式 / ?
+"   提示黄    - 确认/输入提示
+"   青柠色    - 成功/完成状态
+"   帮助绿    - Help模式
+"   调试青    - 调试/QuickFix相关
+"   命令蓝    - 普通命令模式
+"   紫罗兰    - 跳转/导航相关
+"   Lua紫     - Lua命令模式
+"   洋红色    - 标记/特殊操作
+"   选择粉    - 选择/标记/特殊模式
+lua require('nvim-highlight-colors').setup({})
+let g:pretty_colors = {
+            \   "PrettyRed"     : "#ef4444",
+            \   "PrettyOrange"  : "#f97316",
+            \   "PrettyYellow"  : "#eab308",
+            \   "PrettyLime"    : "#65a30d",
+            \   "PrettyGreen"   : "#22c55e",
+            \   "PrettyCyan"    : "#06b6d4",
+            \   "PrettyBlue"    : "#3b82f6",
+            \   "PrettyViolet"  : "#7c3aed",
+            \   "PrettyPurple"  : "#a855f7",
+            \   "PrettyMagenta" : "#db2777",
+            \   "PrettyPink"    : "#ec4899",
+            \ } 
+
+" 遍历 g:pretty_colors 并设置高亮组
+function! PrettyHighlightColors() abort
+    for [name, color] in items(g:pretty_colors)
+        execute 'highlight ' . name . ' guifg=' . color
+    endfor
+endfunction
+
+call PrettyHighlightColors()
+
+" ⚠️ Reload 时，高亮组会丢失，需要重新设置
+let g:pretty_reload_commands += [ "call PrettyHighlightColors()" ]
+
+" 颜色辅助函数 {{{
+" 函数：PrettyColors
+" 功能：获取高亮组的颜色值，如果参数已经是颜色值则直接返回
+"
+" 参数：
+"   color : string 可以是高亮组名称（如 "PrettyRed"）或颜色值（如 "#ef4444"）
+"
+" 返回：
+"   string: 颜色值（格式：#RRGGBB）
+"
+" 使用示例：
+"   let red_color = PrettyColors('PrettyRed')
+"   let custom_color = PrettyColors('#ff0000')
+" =============================================================================
+function! PrettyColors(color) abort
+    " 检查是否是颜色值（以 # 开头）
+    if a:color =~? '^#'
+        return a:color
+    else
+        return get(g:pretty_colors, a:color, '#ffffff')
+    endif
+endfunction
+" }}}
+
+" 彩虹边框生成函数 {{{
+" 函数：s:rainbow_borders
+" 功能：根据两个基础色生成8个边框位置的渐变色
+"
+" 参数：
+"   color1 : string 起始颜色（左上角，格式：#RRGGBB）
+"   color2 : string 结束颜色（右下角，格式：#RRGGBB）
+"   prefix : string 高亮组前缀（如 "Blue", "Orange", "Purple"）
+"
+" 返回：
+"   list: 8个边框位置的配置，格式：[ [字符, 高亮组], ... ]
+"
+" 设计原理：
+"   1. 生成5个渐变颜色（起始→结束）
+"   2. 映射到8个边框位置，形成对称渐变
+"   3. 自动创建对应的高亮组
+" =============================================================================
+function! PrettyBorders(color1, color2, prefix = '') abort
+    let color1 = a:color1 =~# '^#' ? a:color1 : PrettyColors(a:color1)
+    let color2 = a:color2 =~# '^#' ? a:color2 : PrettyColors(a:color2)
+
+    " 颜色辅助函数
+    function! s:hex_to_rgb(hex) abort
+        let hex = substitute(a:hex, '^#', '', '')
+        return [
+            \ str2nr(hex[0:1], 16),
+            \ str2nr(hex[2:3], 16),
+            \ str2nr(hex[4:5], 16)
+            \ ]
+    endfunction
+
+    function! s:rgb_to_hex(rgb) abort
+        return printf('#%02x%02x%02x', a:rgb[0], a:rgb[1], a:rgb[2])
+    endfunction
+
+    let start = s:hex_to_rgb(color1)
+    let end = s:hex_to_rgb(color2)
+
+    " 计算过渡色
+    let gradient = [color1]  " index 0: 左上角
+    for i in range(1, 3)
+        let ratio = i / 4.0
+        let r = float2nr(start[0] + (end[0] - start[0]) * ratio)
+        let g = float2nr(start[1] + (end[1] - start[1]) * ratio)
+        let b = float2nr(start[2] + (end[2] - start[2]) * ratio)
+        call add(gradient, s:rgb_to_hex([r, g, b]))
+    endfor
+
+    call add(gradient, color2)  " index 4: 右下角
+    for i in range(5, 7)
+        call add(gradient, gradient[8-i])
+    endfor
+
+    " 边框位置映射
+    let borders = []
+    for i in range(1, 8)
+        let hl_name = "PrettyFloatBorder" . a:prefix . i
+        execute 'highlight ' . hl_name . ' guifg=' . gradient[i-1]
+        call add(borders, [g:pretty_borderchars[i-1], hl_name])
+    endfor
+
+    return borders
+endfunction
+" }}}
+
+" 默认使用蓝色渐变
+let g:pretty_rainbow_borders = PrettyBorders( "PrettyBlue", "PrettyGreen" )
+
+" ---
+" 创建右下角浮动窗口配置
+" 用于显示悬浮信息（如 hover、诊断信息）
+" 参考：:h nvim_open_win
+" 注意：💡 这个变量在 vim 启动时就已经生成，所以 relative 并不一定如预期
+" ---
+let g:pretty_hints_window = {
+            \ 'border'      : g:pretty_rainbow_borders,
+            \ 'style'       : 'minimal',
+            \ 'relative'    : 'win',
+            \ 'anchor'      : 'NW',
+            \ 'row'         : 0,
+            \ 'col'         : 5,
+            \ 'focusable'   : 1
+            \ }
+" }}}
 
 " =============================================================================
 " 工具函数
 " =============================================================================
-
-" ---
-" 查找项目根目录
-" ---
-function! PrettyFindWorkspace() abort
-    " 使用 finddir() 查找 .git 目录（Vim 内置函数，无需 shell 调用）
-    let workdir = finddir('.git', expand('%:p:h') . ';', 1)
-    if workdir == '' | return '' | endif
-
-    return fnameescape(fnamemodify(workdir, ':p:h:h'))
-endfunction
-
+" {{{
 " ---
 " 查找可执行文件
 " 优先级：本地 scripts > prebuilts > py3env > node_modules > 系统 PATH
 " ---
 " @param cmd string 命令名称
 " @return string 返回完整路径，找不到返回空字符串
-function! PrettyFindExecutable(cmd)
+function! PrettyFindExecutable(cmd) abort
     " 1. 检查本地 scripts 目录
     if filereadable(g:pretty_home . '/scripts/' . a:cmd)
         return g:pretty_home . '/scripts/' . a:cmd
@@ -85,49 +247,6 @@ function! PrettyFindExecutable(cmd)
     return ''
 endfunction
 
-" =============================================================================
-" 全局设置
-" =============================================================================
-
-" ---
-" SSH 远程会话配置
-" 检测到 SSH 连接时，使用自定义剪贴板（只复制不回贴）
-" ---
-if exists('$SSH_CLIENT')
-    let g:clipboard = {
-                \   'name': 'RemoteCopy',
-                \   'copy': {
-                \      '+': g:pretty_home . '/scripts/ncopyc.sh',
-                \      '*': g:pretty_home . '/scripts/ncopyc.sh',
-                \    },
-                \   'paste': { '+': '', '*': '', },
-                \   'cache_enabled': 0,
-                \ }
-endif
-
-" ---
-" Ripgrep 集成
-" 如果安装了 rg，设置为默认的 grep 工具
-" 使用 PrettyFindExecutable() 查找 rg 路径
-" ---
-let rg = PrettyFindExecutable('rg')
-if rg != ''
-    let g:pretty_rg_executable = rg
-    let g:pretty_rg_options = [
-                \ "--smart-case", "--glob", "!.git", "--hidden",
-                \ "--no-heading",
-                \ "--with-filename",
-                \ "--line-number",
-                \ "--column",
-                \ ]
-    let &grepprg = g:pretty_rg_executable . " " . join(g:pretty_rg_options, " ")
-    set grepformat=%f:%l:%c:%m
-endif
-
-" =============================================================================
-" 依赖检查工具
-" =============================================================================
-
 " ---
 " 检查可执行文件是否存在
 " 用于依赖检查，不存在时显示提示信息
@@ -143,10 +262,6 @@ function! PrettyCheckExecutable(cmd, msg) abort
     return 1
 endfunction
 
-" =============================================================================
-" 文件查找工具
-" =============================================================================
-
 " ---
 " 搜索配置文件
 " 用于查找项目配置文件（如 .eslintrc.yaml），找不到时返回默认配置
@@ -155,11 +270,11 @@ endfunction
 " @param files string 文件名列表（分号分隔，如 '.eslintrc.yaml;.eslintrc.yml'），支持通配符（如 '.eslintrc*'）
 " @param default string 默认配置文件（相对于 lintrc/ 目录）
 " @return string 返回找到的文件路径或默认配置路径
-function! PrettyFindFiles(prefix, files, default = '')
+function! PrettyFindFiles(prefix, files, default = '') abort
     " 遍历文件列表
     for file in split(a:files, ';')
         " 通配符匹配，从工作区查找
-        let l:matches = globpath(PrettyFindWorkspace(), file, 0, 1)
+        let l:matches = globpath(g:pretty_project_root, file, 0, 1)
         if !empty(l:matches)
             return a:prefix . l:matches[0]
         endif
@@ -167,11 +282,12 @@ function! PrettyFindFiles(prefix, files, default = '')
     " 未找到，返回默认配置或空字符串
     return a:default == '' ? '' : a:prefix . g:pretty_home . '/lintrc/' . a:default
 endfunction
+" }}}
 
 " =============================================================================
 " UI 工具函数
 " =============================================================================
-
+" {{{
 " ---
 " 隐藏/显示缓冲区光标（正常模式下）
 " 在普通模式下隐藏光标，插入模式下显示
@@ -248,11 +364,12 @@ function! PrettyInsertLeave(cmd) abort
     " -- 不要重新定义 Esc 的行为, 使用 autocmd
     exe "autocmd InsertLeave <buffer> " .. a:cmd
 endfunction
+" }}}
 
 " =============================================================================
 " 常用函数
 " =============================================================================
-
+" {{{
 " 获取 Git 分支名称（优先使用 gitsigns，回退到 system 调用）
 function! PrettyGitBranch() abort
     " 尝试使用 gitsigns.nvim（高性能，无阻塞）
@@ -285,7 +402,6 @@ function! PrettyFileName() abort
     endif
 endfunction
 
-" Tab enhance functions {{{
 " text before cursor
 function! PrettyLineTyped() abort
     let c = col('.') - 1
@@ -304,10 +420,21 @@ endfunction
 
 " new start? => insert tab
 function! PrettyLineIsNewWord() abort
-    let typed_line = PrettyLineTyped
+    let typed_line = PrettyLineTyped()
     " space before cursor?
     return typed_line[-1:] =~# '\s'
 endfunction
+
+" ---
+" 检查 Lua 插件是否存在
+" 类似于 VimScript 的 exists('*func')，用于检查 Lua 模块
+" ---
+" @param plugin string Lua 模块名称
+" @return boolean 存在返回 true，不存在返回 false
+function! PrettyLuaExists(plugin) abort
+    return luaeval('select(1, pcall(require, _A))', a:plugin)
+endfunction
+" }}}
 
 " =============================================================================
 " Quickfix 相关函数
@@ -385,12 +512,32 @@ endfunction
 " }}}
 
 " =============================================================================
+" Ripgrep 集成
+" =============================================================================
+" ---
+" 如果安装了 rg，设置为默认的 grep 工具
+" 使用 PrettyFindExecutable() 查找 rg 路径
+" ---
+set grepformat=%f:%l:%c:%m
+let g:pretty_rg_executable = PrettyFindExecutable('rg')
+let g:pretty_rg_options = [
+            \ "--smart-case", "--glob", "!.git", "--hidden",
+            \ "--no-heading",
+            \ "--with-filename",
+            \ "--line-number",
+            \ "--column",
+            \ ]
+if g:pretty_rg_executable != ''
+    let &grepprg = g:pretty_rg_executable . " " . join(g:pretty_rg_options, " ")
+endif
+
+" =============================================================================
 " 刷新系统
 " =============================================================================
-" 用于重新加载配置后执行刷新操作
-
+" {{{
 " ---
 " 刷新函数：遍历并执行 pretty_reload_commands 中的命令
+" 用于重新加载配置后执行刷新操作
 " ---
 function! PrettyReload() abort
     " 检查是否配置了刷新命令
@@ -416,37 +563,31 @@ function! PrettyReload() abort
 
     echom '✅ PrettyReload completed'
 endfunction
+" }}}
 
 " =============================================================================
-" Lua 工具函数
+" 项目相关操作
 " =============================================================================
 
-" ---
-" 检查 Lua 插件是否存在
-" 类似于 VimScript 的 exists('*func')，用于检查 Lua 模块
-" ---
-" @param plugin string Lua 模块名称
-" @return boolean 存在返回 true，不存在返回 false
-function! PrettyLuaExists(plugin) abort
-    return luaeval('select(1, pcall(require, _A))', a:plugin)
-endfunction
-
-" =============================================================================
-" 项目根目录自动切换
-" =============================================================================
 " 打开文件时自动跳转到项目根目录（基于 .git 目录）
-" 只在每个 Neovim 会话中执行一次
+function! s:find_project_root() abort
+    if g:pretty_project_root != '' | return | endif
+        
+    let g:pretty_project_root = expand('%:p:h')
 
-" 标记是否已执行（防止重复）
-let g:auto_lcd_done = v:false
+    " 使用 finddir() 查找 .git 目录（Vim 内置函数，无需 shell 调用）
+    let workdir = finddir('.git', expand('%:p:h') . ';', 1)
+    if workdir != '' 
+        let g:pretty_project_root = fnameescape(fnamemodify(workdir, ':p:h:h'))
+    endif
+
+    echom "💡 lcd to " .. g:pretty_project_root
+    exe "lcd " .. g:pretty_project_root
+endfunction
 
 " 创建自动命令组
 augroup PrettyProject
     autocmd!
     " 打开文件时查找项目根目录
-    autocmd BufReadPost,BufNewFile *
-                \ if !g:auto_lcd_done                  |
-                \   exe 'lcd ' . PrettyFindWorkspace() |
-                \   let g:auto_lcd_done = v:true       |
-                \ endif
+    autocmd BufReadPost,BufNewFile * call <sid>find_project_root()
 augroup END
