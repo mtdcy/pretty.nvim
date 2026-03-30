@@ -21,11 +21,143 @@ if not ok then
   return
 end
 
+-- ✨ 自定义 Trailing Edge Debounce
+-- local debounce = { delay = 500 } -- => 关闭自动补全
+
 local performance = {
-  debounce = 200, -- 输入停止后才触发补全
-  throttle = 100, -- 避免频繁刷新
-  async_budget = 1,
-  max_view_entries = 30,
+  -- ❌ 这个 debounce 并不是防抖，而是延时执行相关指令
+  debounce = 5, -- 💡 越小越好，否则导致所有函数调用都很慢
+  throttle = 100, -- 两次请求间隔
+  max_view_entries = 30, -- 最大显示条目
+}
+
+-- ==================================
+-- 补全源配置
+-- ==================================
+local sources = cmp.config.sources({
+  -- omni/ale 补全 - 💡 已经修正 omnifunc 为异步调用
+  -- {
+  --   name = "omni",
+  --   keyword_length = 3,
+  --   priority = 10, -- 💡 100% 正确 => 最高优先级
+  --   option = {
+  --     -- 强制指定ALE补全，无视LSP omnifunc
+  --     omnifunc = "ale#completion#OmniFunc",
+  --     disable_omnifuncs = { "v:lua.vim.lsp.omnifunc" },
+  --   },
+  -- },
+  -- lsp 补全：直接复用 ale 的 lsp 服务
+  {
+    -- 💡 相比直接调用 omni/ale，多了函数信息和 snippet，但是速度也慢了一些
+    name = "nvim_lsp",
+    keyword_length = 3, -- 💡 > buffer source keyword_length
+    priority = 10, -- 💡 100% 正确 => 最高优先级
+    trigger_characters = {}, -- ⚠️ 使用 keyword_length 触发，避免补全太频繁
+  },
+  -- 缓冲区补全
+  { name = "buffer", keyword_length = 2 },
+  -- 路径补全
+  { name = "path", max_item_count = 30 },
+  -- Emoji - 使用方法: ':warning' => ⚠️
+  --  💡 硬编码 keyword_length = 3
+  { name = "emoji" },
+}, {
+  -- 跨文件补全，最低优先级
+  { name = "rg" },
+})
+
+-- ==================================
+-- 快捷键映射（完全匹配头部说明）
+-- ==================================
+local modes = { "i", "c" }
+local mapping = {
+  -- 超级 Tab 键
+  ["<Tab>"] = cmp.mapping(function(fallback)
+    -- 💡 补全 > 跳转 > Tab
+    if cmp.visible() then
+      -- 选择下一个候选词
+      cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+    elseif vim.b.cmp_snippet_expanded then
+      if vim.snippet.active({ direction = 1 }) then
+        vim.snippet.jump(1)
+      else
+        vim.snippet.stop()
+        vim.b.cmp_snippet_expanded = false
+      end
+    elseif vim.fn.PrettyLineIsNewLine() or vim.fn.PrettyLineIsNewWord() then
+      fallback()
+    else
+      cmp.complete() -- 手动补全
+    end
+  end, modes),
+
+  -- 特殊补全键
+  --- complete_common_string 想要合理融入 Tab 键不太容易
+  ["<S-Tab>"] = cmp.mapping(function(fallback)
+    if not cmp.complete_common_string() then
+      fallback()
+    end
+  end, modes),
+
+  -- 上下选择候选词, 不插入候选词
+  --- 仅当候选词被选中时，解决 cmdline 中翻看历史的问题
+  ["<Down>"] = cmp.mapping(function(fallback)
+    if cmp.get_selected_index() then
+      cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+    else
+      fallback()
+    end
+  end, modes),
+
+  ["<Up>"] = cmp.mapping(function(fallback)
+    if cmp.get_selected_index() then
+      cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+    else
+      fallback()
+    end
+  end, modes),
+
+  -- 确认选择候选词
+  ["<CR>"] = cmp.mapping(function(fallback)
+    -- 如果没有选择，则直接 Enter
+    if cmp.get_selected_index() then
+      cmp.confirm()
+    else
+      fallback()
+    end
+  end, modes),
+
+  -- 选择候选词并插入空格
+  ["<Space>"] = cmp.mapping(function(fallback)
+    if cmp.get_selected_index() then
+      -- 💡 一定要confirm，否则补全操作不完整，比如 snippet emoji 等
+      cmp.confirm()
+      -- 💡 解决 fallback() 不会插入 Space 的问题
+      vim.schedule(function()
+        vim.api.nvim_feedkeys(vim.keycode("<Space>"), "n", true)
+      end)
+    end
+    fallback()
+  end, modes),
+
+  -- 关闭窗口
+  ["<Esc>"] = cmp.mapping(function(fallback)
+    -- 💡 严格控制 cmp.close() 的条件，否则需要按两次 Esc 才能退出插入模式
+    if vim.b.cmp_snippet_expanded and cmp.visible() then
+      cmp.close()
+    else
+      fallback()
+    end
+  end, modes),
+
+  -- 取消补全 (目前 cmp.abort 实现存在问题，会关闭窗口，然后又触发自动补全)
+  ["<BS>"] = cmp.mapping(function(fallback)
+    if cmp.get_selected_index() then
+      cmp.abort()
+    else
+      fallback()
+    end
+  end, modes),
 }
 
 -- return true if filetype is supported
@@ -70,118 +202,13 @@ local window = {
 }
 
 -- ==================================
--- 快捷键映射（完全匹配头部说明）
--- ==================================
-local modes = { "i", "c" }
-local mapping = {
-  -- Tab: 补全并自动插入候选词
-  ["<Tab>"] = cmp.mapping(function(fallback)
-    if cmp.visible() then
-      if not cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert }) then
-        fallback()
-      end
-    elseif vim.fn.PrettyLineIsNewLine() or vim.fn.PrettyLineIsNewWord() then
-      fallback()
-    else
-      cmp.complete() -- 手动补全
-    end
-  end, modes),
-
-  -- complete_common_string 问题太多了 => 使用特殊按键
-  ["<S-Tab>"] = cmp.mapping(function(fallback)
-    if not cmp.complete_common_string() then
-      fallback()
-    end
-  end, modes),
-
-  -- 上下选择候选词, 不插入候选词
-  --- 仅当候选词被选中时，解决 cmdline 中翻看历史的问题
-  ["<Down>"] = cmp.mapping(function(fallback)
-    if not cmp.get_selected_entry() then
-      fallback()
-    elseif not cmp.select_next_item({ behavior = cmp.SelectBehavior.Select }) then
-      fallback()
-    end
-  end, modes),
-
-  ["<Up>"] = cmp.mapping(function(fallback)
-    if not cmp.get_selected_entry() then
-      fallback()
-    elseif not cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select }) then
-      fallback()
-    end
-  end, modes),
-
-  -- 确认选择候选词
-  ["<CR>"] = cmp.mapping(function(fallback)
-    -- 如果没有选择，则直接 Enter
-    if not cmp.get_selected_entry() then
-      fallback()
-    elseif not cmp.confirm() then
-      fallback()
-    end
-  end, modes),
-
-  -- Space 选择候选词
-  ["<Space>"] = cmp.mapping(function(fallback)
-    if cmp.get_selected_entry() then
-      -- 💡 一定要confirm，否则补全操作不完整，比如 snippet emoji等
-      cmp.confirm()
-      -- 💡 解决 fallback() 不会插入 Space 的问题
-      vim.api.nvim_feedkeys(vim.keycode("<Space>"), "n", true)
-    end
-    fallback()
-  end, modes),
-
-  -- 关闭窗口 -- 要按两次 Esc 才能退出 Insert 模式
-  -- ["<Esc>"] = cmp.mapping(function(fallback)
-  --   if not cmp.close() then
-  --     fallback()
-  --   end
-  -- end, modes),
-
-  -- 取消补全 (目前 cmp.abort 实现存在问题，会关闭窗口，然后又触发自动补全)
-  -- ["<BS>"] = cmp.mapping(function(fallback)
-  --     if not cmp.visible() or not cmp.abort() then
-  --       fallback()
-  --     end
-  -- end, modes),
-}
-
--- ==================================
--- 补全源配置
--- ==================================
-local sources = cmp.config.sources({
-  -- omni/ale 补全 - 💡 已经修正 omnifunc 为异步调用
-  {
-    name = "omni",
-    keyword_length = 2,
-    priority = 10, -- 💡 100% 正确 => 最高优先级
-    option = {
-      -- 强制指定ALE补全，无视LSP omnifunc
-      omnifunc = "ale#completion#OmniFunc",
-      disable_omnifuncs = { "v:lua.vim.lsp.omnifunc" },
-    },
-  },
-  -- 缓冲区补全
-  { name = "buffer", keyword_length = 2 },
-  -- 路径补全
-  { name = "path" },
-  -- Emoji - 使用方法: ':warning' => ⚠️
-  --  💡 硬编码 keyword_length = 3
-  { name = "emoji" },
-}, {
-  -- 跨文件补全，最低优先级
-  { name = "rg", keyword_length = 2 },
-})
-
--- ==================================
 -- 补全项显示样式
 -- ==================================
 
 -- icons for sources
 local icons = {
   omni = "",
+  nvim_lsp = "",
   buffer = "󰢨",
   path = "",
   cmdline = "",
@@ -206,9 +233,17 @@ local formatting = {
 cmp.setup({
   enabled = check_filetypes,
   completion = {
-    autocomplete = {
-      cmp.TriggerEvent.TextChanged,
-    },
+    autocomplete = not debounce and { cmp.TriggerEvent.TextChanged } or false,
+    completeopt = "menu,menuone,noselect",
+    keyword_pattern = [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%(-\w*\)*\)]], -- 默认值
+    keyword_length = 1,
+  },
+  snippet = {
+    expand = function(args)
+      -- 💡 使用 vim.snippet 展开 lsp 返回的 snippets
+      vim.snippet.expand(args.body)
+      vim.b.cmp_snippet_expanded = true
+    end,
   },
   sources = sources,
   mapping = mapping,
@@ -259,17 +294,51 @@ cmp.event:on("complete_done", function(event)
 
   -- 只处理来自 ale 的补全
   -- vim.notify(vim.inspect(event.entry))
-  if event.entry.source.name ~= "omni" then
-    return
+  if event.entry.source.name == "omni" then
+    -- 通过 omnifunc 调用 ALE，kind 字段没有正确设置
+    vim.cmd("PrettyFindSymbols hints")
+  else
+    local item = event.entry:get_completion_item()
+    if item.kind == cmp.lsp.CompletionItemKind.Function then
+      vim.cmd("PrettyFindSymbols hints")
+    end
   end
-
-  local item = event.entry:get_completion_item()
-
-  -- 通过 omnifunc 调用 ALE，kind 字段没有正确设置
-  --if item.kind == cmp.lsp.CompletionItemKind.Function then
-  vim.cmd("PrettyFindSymbols hints")
-  --end
 end)
+
+-- ==================================
+-- 实现 Trailing Edge Debounce
+-- ==================================
+if debounce then
+  vim.api.nvim_create_autocmd("TextChangedI", {
+    callback = function()
+      -- 每次按键都重置计时器
+      if debounce.timer then
+        vim.loop.timer_stop(debounce.timer)
+      end
+
+      debounce.timer = vim.loop.new_timer()
+      debounce.timer:start(
+        debounce.delay, -- 延迟时间
+        0, -- 不重复
+        vim.schedule_wrap(function()
+          -- if vim.fn.PrettyLineIsNewLine or vim.fn.PrettyLineIsNewWord then
+          --   return
+          -- end
+          cmp.complete() -- 触发补全
+        end)
+      )
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("InsertLeave", {
+    callback = function()
+      if not debounce.timer then
+        return
+      end
+      vim.loop.timer_stop(debounce.timer)
+    end,
+  })
+end
 
 -- ==================================
 -- 自动切换输入法
