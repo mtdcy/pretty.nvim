@@ -184,14 +184,6 @@ fi
 # nvim final prepare
 ./run --headless -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
 
-# 仅安装 pretty.nvim 所需的 treesitter, 其他的由用户自己安装
-if which gcc; then
-    info "🚀 Install nvim treesitter"
-    ./run --headless -c 'TSInstallSync! vim regex lua bash yaml toml json vimdoc markdown markdown_inline' +quit
-else
-    info "❌ Install gcc for nvim treesitter support"
-fi
-
 # test
 ./run -c 'exe "normal iHello NeoVim!\<Esc>" | wq' /tmp/$$-nvim-install.txt
 trap "rm -f /tmp/$$-nvim-install.txt" EXIT

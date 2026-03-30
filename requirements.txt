@@ -11,6 +11,9 @@ jedi-language-server>=0.40.0
 flake8>=7.0.0
 black>=24.0.0
 yamlfix>=1.0.0
+ruff>=0.15.0
+yapf>=0.40.0
+autopep8>=2.0.0
 
 # update with:
 #  pip install pur

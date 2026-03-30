@@ -5,6 +5,7 @@
     "lua/?.lua",
     "lua/?/init.lua"
   ],
+  "log-path": "/tmp/luals.log",
   "diagnostics": {
     "enable": true,
     "globals": [
@@ -50,7 +51,7 @@
   },
   "completion": {
     "enable": true,
-    "callSnippet": "Both",
+    "callSnippet": "Replace",
     "keywordSnippet": "Disable",
     "displayContext": 10,
     "autoRequire": true
@@ -87,7 +88,7 @@
     "enable": false
   },
   "format": {
-    "enable": false
+    "enable": true
   },
   "codeLens": {
     "enable": true

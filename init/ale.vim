@@ -186,11 +186,12 @@ augroup ALELinterSetup
     " shellcheck: preferred
     " bash-language-server: very slow, `touch .bashls` to enable it
     autocmd FileType sh
-                \ if s:linter_ftype_if('shellcheck', '', 'shellcheck')                                                                             |
+                \ if s:linter_ftype_if('bash-language-server', ".bashls", 'language_server')                                                       |
+                \   let b:ale_sh_language_server_executable = b:linter                                                                             |
+                \ endif                                                                                                                            |
+                \ if s:linter_ftype_if('shellcheck', '', 'shellcheck', v:true)                                                                     |
                 \   let b:ale_sh_shellcheck_executable = b:linter                                                                                  |
                 \   let b:ale_sh_shellcheck_options = '--extended-analysis=false ' . PrettyFindFiles('--rcfile=', '.shellcheckrc', 'shellcheckrc') |
-                \ elseif s:linter_ftype_if('bash-language-server', ".bashls", 'language_server')                                                   |
-                \   let b:ale_sh_language_server_executable = b:linter                                                                             |
                 \ endif
 
     " c,cpp => prefer ccls if .ccls exists
@@ -198,6 +199,13 @@ augroup ALELinterSetup
 
     " gopls & gofmt
     autocmd FileType go call s:linter_ftype_if('gopls', '', 'gopls')
+
+    " rust: rust-analyzer or cargo (fallback)
+    autocmd FileType rust 
+                \ if s:linter_ftype_if('rust-analyzer', '', 'analyzer') == v:false |
+                \   echom "⚠️ no rust-analyzer lsp, fallback to cargo"             |
+                \   call s:linter_ftype('cargo')                                   |
+                \ endif
 
     " python: jedils + pylint or flake8
     "   flake8 is more popular, enable pylint if pylintrc exists
@@ -210,6 +218,7 @@ augroup ALELinterSetup
                 \   let b:ale_python_pylint_options = '--rcfile ' . b:lintrc        |
                 \ elseif s:linter_ftype_if('flake8', '', 'flake8', 1)               |
                 \   let b:ale_python_flake8_executable = b:linter                   |
+                \   let b:ale_python_flake8_options = "--max-line-length 120"       |
                 \ endif
 
     " yaml: yamllint
@@ -225,6 +234,11 @@ augroup ALELinterSetup
                 \   let b:ale_json_eslint_executable = b:linter              |
                 \ elseif s:linter_ftype_if('jsonlint', '', 'jsonlint')       |
                 \   let b:ale_json_jsonlint_executable = b:linter            |
+                \ endif
+
+    autocmd FileType xml
+                \ if s:linter_ftype_if('xmllint', '', 'xmllint') |
+                \   let b:ale_xml_xmllint_executable = b:linter  |
                 \ endif
 
     " markdown: markdownlint
@@ -345,6 +359,8 @@ let g:ale_completion_symbols = {
 function! s:ale_show_selections()
     let bufnr = bufnr('%')
 
+    lua vim.treesitter.stop()
+
     " ALE 的原生 GoToDefinition 会分割窗口，体验不佳
     " 解决方案：手动将查找结果转换为 Quickfix 格式
     call PrettyQuickfixLoad(bufnr, " " .. g:ale_symbols)
@@ -375,12 +391,14 @@ function! s:ale_find_symbols(action = '', ...) abort
     let g:ale_symbols = expand('<cword>')
 
     " 根据 action 参数调用对应的 ALE 功能
-    if a:action == '' || a:action =~? "^def"
-        " 跳转到定义
-        call ale#definition#GoToCommandHandler('')
+    if a:action == "refactor"
+        call ale#rename#Execute() " 💡 重命名 <cword>
     elseif a:action =~? "^hint"
         " 显示悬浮提示
         call ale#hover#ShowAtCursor()
+    elseif a:action == '' || a:action =~? "^def"
+        " 跳转到定义
+        call ale#definition#GoToCommandHandler('')
     elseif a:action =~? "^type"
         " 跳转到类型定义
         call ale#definition#GoToCommandHandler('type')
@@ -434,5 +452,24 @@ command! -nargs=* PrettyFindSymbols call <sid>ale_find_symbols(<f-args>)
 " 快捷键映射：<C-i> 显示悬浮提示
 " 背景：nvim-cmp 无法触发 ale 的悬浮提示功能
 " 解决方案：手动触发 ALE 的悬浮提示功能
-nnoremap <silent> <C-i> :PrettyFindSymbols hints<cr>
-inoremap <silent> <C-i> <C-o>:PrettyFindSymbols hints<cr>
+nnoremap <silent> <C-i>     :PrettyFindSymbols hints<cr>
+inoremap <silent> <C-i>     <C-o>:PrettyFindSymbols hints<cr>
+
+" Go to Define and Back (Top of stack)
+" TODO: map K,<C-]>,gD,... to one key
+"nnoremap gd         <C-]>
+nnoremap <silent> gr        :PrettyFindSymbols refactor<cr>
+nnoremap <silent> gd        :PrettyFindSymbols definition<cr>
+nnoremap <silent> gD        :PrettyFindSymbols implementation<cr>
+nnoremap <silent> gs        :PrettyFindSymbols references<cr>
+nnoremap <silent> gb        <C-T>
+
+" Go to man or doc
+nnoremap <silent> gk        K
+
+" Go to Type
+" nmap gt
+
+" Go to next error of ale
+nnoremap <silent> ge        <Plug>(ale_next_wrap)
+

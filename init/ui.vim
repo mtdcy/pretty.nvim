@@ -402,23 +402,6 @@ noremap  <silent> gG        G
 noremap  <silent> g[        [{
 noremap  <silent> g]        ]}
 
-" Go to Define and Back (Top of stack)
-" TODO: map K,<C-]>,gD,... to one key
-"nnoremap gd         <C-]>
-nnoremap <silent> gd        :PrettyFindSymbols definition<cr>
-nnoremap <silent> gD        :PrettyFindSymbols implementation<cr>
-nnoremap <silent> gs        :PrettyFindSymbols references<cr>
-nnoremap <silent> gb        <C-T>
-
-" Go to man or doc
-nnoremap <silent> gk        K
-
-" Go to Type
-" nmap gt
-
-" Go to next error of ale
-nnoremap <silent> ge        <Plug>(ale_next_wrap)
-
 " Go to yank and paste
 " copy line in visual mode
 vnoremap <silent> gy        "+y
