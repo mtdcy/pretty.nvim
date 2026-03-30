@@ -66,8 +66,7 @@ outline.setup({
   preview_window = { auto_preview = false },
 
   -- 符号图标配置 
-  symbol_blacklist = {}, -- 黑名单：不显示的符号类型
-  symbol_hicons = true, -- 使用 nerd-font 图标
+  symbols = { icon_source = "lspkind" },
 
   outline_items = {
     show_symbol_details = true,

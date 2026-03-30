@@ -218,11 +218,9 @@ local icons = {
 
 local formatting = {
   expandable_indicator = true,
-  -- omnifunc's kind is not right
-  fields = { "icon", "abbr", "menu" },
+  fields = { "menu", "abbr", "icon" }, -- kind => icon
   format = function(entry, item)
-    local icon = icons[entry.source.name] or "󰄱"
-    item.icon = icon .. item.icon
+    item.menu = icons[entry.source.name] or "󰄱"
     return item
   end,
 }
