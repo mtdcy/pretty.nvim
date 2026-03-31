@@ -349,6 +349,15 @@ local IM = {
 if IM.selector ~= "" then
   vim.api.nvim_create_augroup("PrettyIMSettings", { clear = true })
 
+  vim.api.nvim_create_autocmd("VimEnter", {
+    once = true,
+    group = "PrettyIMSettings",
+    callback = function()
+      -- 💡 默认 ABC 输入法
+      vim.system({ IM.selector, IM.default })
+    end,
+  })
+
   vim.api.nvim_create_autocmd("InsertLeave", {
     group = "PrettyIMSettings",
     callback = function()
