@@ -127,17 +127,17 @@ local mapping = {
     end
   end, modes),
 
-  -- 选择候选词并插入空格
+  -- 选择候选词并插入空格 => 有助于连续输入
   ["<Space>"] = cmp.mapping(function(fallback)
     if cmp.get_selected_index() then
       -- 💡 一定要confirm，否则补全操作不完整，比如 snippet emoji 等
       cmp.confirm()
-      -- 💡 解决 fallback() 不会插入 Space 的问题
-      vim.schedule(function()
-        vim.api.nvim_feedkeys(vim.keycode("<Space>"), "n", true)
-      end)
     end
-    fallback()
+
+    -- ⚠️ nvim-cmp 并没有 <Space> 的默认绑定，fallback 没有作用
+    -- fallback()
+    -- 💡 解决 fallback() 不会插入 Space 的问题
+    vim.api.nvim_feedkeys(vim.keycode("<Space>"), "n", true)
   end, modes),
 
   -- 关闭窗口
@@ -148,7 +148,7 @@ local mapping = {
     else
       fallback()
     end
-  end, modes),
+  end, { "i" }), -- ❌ 不要绑定命令模式，nvim-cmp 的 bug 会导致 Esc 变成 CR
 
   -- 取消补全 (目前 cmp.abort 实现存在问题，会关闭窗口，然后又触发自动补全)
   ["<BS>"] = cmp.mapping(function(fallback)
