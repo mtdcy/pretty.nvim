@@ -34,7 +34,7 @@ local finder = {
   augroup = vim.api.nvim_create_augroup("Finder", { clear = true }),
 
   -- Telescope Prompt 窗口的 bufnr（用于 close 操作）
-  bufnr = 0,
+  bufnr = -1, -- ⚠️ 虽然 bufnr > 0，但 nvim api 却认为 bufnr = 0 为当前 buffer
 
   -- 恢复状态
   resumed = false,
@@ -62,7 +62,7 @@ _G.FinderClose = function() -- _G: 需要被 VimL 函数访问
   FinderHide()
 
   -- 清除窗口状态
-  finder.bufnr = 0
+  finder.bufnr = -1
 
   -- 这是一个恢复的窗口 => 打开主窗口
   if finder.resumed then
@@ -468,6 +468,10 @@ end, {
   nargs = "*",
   desc = "Finder Open",
 })
+
+vim.api.nvim_create_user_command("FinderInspect", function()
+  vim.notify(vim.inspect(finder))
+end, { desc = "Finder Inspect" })
 
 -- =============================================================================
 -- Telescope 窗口按键绑定（全局）
