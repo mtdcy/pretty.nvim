@@ -6,10 +6,16 @@ WORKDIR="$(readlink -f "$0" | xargs dirname)"
 
 NVIM="$WORKDIR/prebuilts/nvim"
 
-export XDG_CONFIG_HOME="$WORKDIR"
+#export XDG_CONFIG_HOME="$WORKDIR"
 
 # hack: nvim config => $XDG_CONFIG_HOME/nvim
-[ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
+#[ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
+
+# 使用默认 XDG_CONFIG_HOME，避免在 WORKDIR 创建链接
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export NVIM_APPNAME="$(basename "$WORKDIR")"
+
+test -L "$XDG_CONFIG_HOME/$NVIM_APPNAME" || ln -sf "$WORKDIR" "$XDG_CONFIG_HOME"
 
 case "$1" in
     --update-plugins)
