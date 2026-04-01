@@ -35,9 +35,9 @@ local sorters = require("telescope.sorters")
 -- =============================================================================
 
 -- 这里我们有自己的搜索设置，所以使用 cmdline 的搜索颜色很合理
-vim.api.nvim_set_hl(0, "TelescopePromptBorder", { link = "PrettyOrange" })
-vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { link = "PrettyOrange" })
-vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { link = "PrettyYellow" })
+vim.api.nvim_set_hl(0, "TelescopePromptBorder", { link = "PrettyCyan" })
+vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { link = "PrettyCyan" })
+vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { link = "PrettyGreen" })
 
 -- Popup 布局配置
 local popup_layout = {
