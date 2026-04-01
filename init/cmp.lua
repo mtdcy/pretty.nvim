@@ -68,6 +68,7 @@ local sources = cmp.config.sources({
 
 -- ==================================
 -- 快捷键映射（完全匹配头部说明）
+-- ⚠️ fallback 不可靠，使用 nvim_feedkeys
 -- ==================================
 local modes = { "i", "c" }
 local mapping = {
@@ -85,7 +86,7 @@ local mapping = {
         vim.b.cmp_snippet_expanded = false
       end
     elseif vim.fn.PrettyLineIsNewLine() or vim.fn.PrettyLineIsNewWord() then
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<Tab>"), "n", true)
     else
       cmp.complete() -- 手动补全
     end
@@ -95,7 +96,7 @@ local mapping = {
   --- complete_common_string 想要合理融入 Tab 键不太容易
   ["<S-Tab>"] = cmp.mapping(function(fallback)
     if not cmp.complete_common_string() then
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<S-Tab>"), "n", true)
     end
   end, modes),
 
@@ -105,7 +106,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
     else
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<Down>"), "n", true)
     end
   end, modes),
 
@@ -113,7 +114,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
     else
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<Up>"), "n", true)
     end
   end, modes),
 
@@ -123,7 +124,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.confirm()
     else
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<CR>"), "n", true)
     end
   end, modes),
 
@@ -146,7 +147,7 @@ local mapping = {
     if vim.b.cmp_snippet_expanded and cmp.visible() then
       cmp.close()
     else
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", true)
     end
   end, { "i" }), -- ❌ 不要绑定命令模式，nvim-cmp 的 bug 会导致 Esc 变成 CR
 
@@ -155,7 +156,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.abort()
     else
-      fallback()
+      vim.api.nvim_feedkeys(vim.keycode("<BS>"), "n", true)
     end
   end, modes),
 }
