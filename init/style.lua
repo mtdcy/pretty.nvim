@@ -165,7 +165,8 @@ local style = {}
 style.filetypes = {
 
   -- Makefile：4 空格，使用制表符
-  make = { et = false, ts = 4, sw = 4 },
+  -- 💡 tree-sitter-make 没有折叠功能
+  make = { et = false, ts = 4, sw = 4, foldmethod = "indent" },
 
   -- shell script (注释示例)
   -- sh = { et = true, ts = 4, sw = 4, formatter = { command = "shfmt", opts = { "-w", "-kp", "-i", "4", "-ln", "bash", "-sr" } } },
