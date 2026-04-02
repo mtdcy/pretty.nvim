@@ -194,8 +194,23 @@ augroup ALELinterSetup
                 \   let b:ale_sh_shellcheck_options = '--extended-analysis=false ' . PrettyFindFiles('--rcfile=', '.shellcheckrc', 'shellcheckrc') |
                 \ endif
 
-    " c,cpp => prefer ccls if .ccls exists
-    autocmd FileType c,cpp call s:linter_ftype_if('ccls', ".ccls", 'ccls')
+    " c,cpp: clangd  + clang-tidy or cpplint
+    "   💡 clangd 是 llvm 官方出口，而 ccls 只是社区产品，两者都依赖 llvm
+    "   export CPATH=$(xcrun --show-sdk-path)/usr/include - 否则 clang-tidy 找不到标准头文件
+    autocmd FileType c,cpp 
+                \ if s:linter_ftype_if('clangd', '.clangd', 'clangd')                              |
+                \   let b:ale_c_clangd_executable = b:linter                                       |
+                \   let b:ale_cpp_clangd_executable = b:linter                                     |
+                \ endif                                                                            |
+                \ if s:linter_ftype_if('clang-tidy', '.clang-tidy', 'clangtidy', 1)                |
+                \   let b:ale_c_clangtidy_executable = b:linter                                    |
+                \   let b:ale_cpp_clangtidy_executable = b:linter                                  |
+                \ elseif s:linter_ftype_if('cpplint', '', 'cpplint', 1)                            |
+                \   let b:ale_c_cpplint_executable = b:linter                                      |
+                \   let b:ale_cpp_cpplint_executable = b:linter                                    |
+                \   let b:ale_c_cpplint_options = "--filter=-whitespace/braces --linelength=120"   |
+                \   let b:ale_cpp_cpplint_options = "--filter=-whitespace/braces --linelength=120" |
+                \ endif
 
     " gopls & gofmt
     autocmd FileType go call s:linter_ftype_if('gopls', '', 'gopls')

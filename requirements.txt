@@ -14,6 +14,7 @@ yamlfix>=1.0.0
 ruff>=0.15.0
 yapf>=0.40.0
 autopep8>=2.0.0
+cpplint>=2.0.0
 
 # update with:
 #  pip install pur

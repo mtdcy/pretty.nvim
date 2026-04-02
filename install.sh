@@ -240,6 +240,6 @@ check_host() {
     fi
 }
 
-check_host ccls                 "better C/C++"  || true
+check_host clangd               "better C/C++"  || true
 check_host go                   Go              || true
 check_host rustc                Rust            || true

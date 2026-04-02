@@ -107,16 +107,12 @@ vim.opt.foldtext = "v:lua.pretty_style_foldtext()"
 -- 💡 markdown 折叠需要特殊设置 - ⚠️ 遇到代码块会停止折叠
 vim.g.markdown_folding = 1
 
+-- ⚠️ 禁用推荐样式，稍后在 style_filetypes 中设置
+vim.g.go_recommended_style = 0
+
 -- =============================================================================
 -- 文件类型特定配置
 -- 💡 .editorconfig 会覆盖这些设置
--- =============================================================================
-
--- style 模块
-local style = {}
-
--- =============================================================================
--- 文件类型配置数据结构
 -- =============================================================================
 -- 格式：filetype = { et=true, ts=2, sw=2, foldmethod='marker', foldlevel=n, formatter={} }
 --
@@ -154,7 +150,7 @@ local style = {}
 --   最终命令组成：command opts %
 --
 -- 💡 如果定义 formatter => 保存时自动格式化
--- 💡 formatter 可以是字典（单一命令）或数组（多个命令备选）
+-- 💡 formatter 可以是字典（单一命令）或数组（多个命令备选）或 函数
 --
 -- 示例:
 --   lua = { et=true, ts=2, sw=2, foldmethod='syntax', foldlevel=99, formatter = { command='stylua', files={'.stylua.toml'} } }
@@ -162,78 +158,101 @@ local style = {}
 --   vim = { et=true, ts=4, sw=4, foldmethod='marker' }
 --   make = { et=false, ts=4, sw=4 }                        -- 使用制表符
 -- =============================================================================
-style.filetypes = {
+
+-- 默认风格
+local style_et_ts_4 = { et = true, ts = 4, sw = 4 }
+
+-- 使用 Google/llvm 风格
+local style_et_ts_2 = { et = true, ts = 2, sw = 2 }
+
+-- 强制使用制表符
+local style_noet_ts_4 = { et = false, ts = 4, sw = 4 }
+
+local style_extend = function(base, opts)
+  return vim.tbl_extend("force", base or {}, opts or {})
+end
+
+local style_c_cpp = style_extend(style_et_ts_2, {
+  formatter = {
+    -- 💡 默认使用 clang-format: 优先尊重 .clang-format 配置文件
+    { command = "clang-format", files = { ".clang-format" }, opts = { "-style=file", "-i" } },
+    { command = "clang-format", opts = { "-style=Google", "-i" } },
+  },
+})
+
+local style_json_json5 = style_extend(style_et_ts_2, {
+  formatter = { command = "fixjson", opts = { "-i", "2", "-w" } },
+})
+
+local style_eslint = style_extend(style_et_ts_2, {
+  -- ⚠️ eslint 需要提前安装好依赖，否则会报错。
+  formatter = {
+    command = "eslint",
+    files = { "eslint.config.js", "eslint.config.mjs", "eslint.config.cjs" },
+    opts = { "--fix" },
+  },
+})
+
+local style_filetypes = {
+  -- c,cpp
+  c = style_c_cpp,
+  cpp = style_c_cpp,
 
   -- Makefile：4 空格，使用制表符
   -- 💡 tree-sitter-make 没有折叠功能
-  make = { et = false, ts = 4, sw = 4, foldmethod = "indent" },
+  make = style_extend(style_noet_ts_4, { foldmethod = "indent" }),
 
   -- shell script (注释示例)
   -- sh = { et = true, ts = 4, sw = 4, formatter = { command = "shfmt", opts = { "-w", "-kp", "-i", "4", "-ln", "bash", "-sr" } } },
 
   -- VimL：4 空格缩进，标记折叠
-  vim = { et = true, ts = 4, sw = 4, foldmethod = "marker", foldlevel = 0 },
+  vim = style_extend(style_et_ts_4, { foldmethod = "marker", foldlevel = 0 }),
 
   -- Lua：2 空格缩进，语法折叠，自动格式化
-  lua = {
-    et = true,
-    ts = 2,
-    sw = 2,
+  lua = style_extend(style_et_ts_2, {
     exts = { "lua" },
     formatter = {
       command = "stylua",
       files = { ".stylua.toml", ".styluaignore" },
       opts = {},
     },
-  },
-
-  -- XML：4 空格缩进
-  xml = { et = true, ts = 4, sw = 4 },
+  }),
 
   -- YAML：2 空格缩进，缩进折叠
-  yaml = {
-    et = true,
-    ts = 2,
-    sw = 2,
+  yaml = style_extend(style_et_ts_2, {
     exts = { "yaml", "yml" },
     formatter = { command = "yamlfix" },
-  },
+  }),
 
   -- JSON：2 空格缩进，忽略顶层括号
-  json = {
-    et = true,
-    ts = 2,
-    sw = 2,
-    formatter = { command = "fixjson", opts = { "-i", "2", "-w" } },
-  },
-  json5 = {
-    et = true,
-    ts = 2,
-    sw = 2,
-    formatter = { command = "fixjson", opts = { "-i", "2", "-w" } },
-  },
+  json = style_json_json5,
+  json5 = style_json_json5,
 
   -- Markdown：2 空格缩进, H2 折叠 - ⚠️ @see g:markdown_folding
-  markdown = { et = true, ts = 2, sw = 2, foldlevel = 1 },
+  markdown = style_extend(style_et_ts_2, { foldlevel = 1 }),
 
   -- HTML/CSS：2 空格缩进
-  html = { et = true, ts = 2, sw = 2 },
-  css = { et = true, ts = 2, sw = 2 },
+  html = style_et_ts_2,
+  css = style_et_ts_2,
 
-  -- JavaScript：2 空格缩进
-  javascript = { et = true, ts = 2, sw = 2 },
-
-  -- TypeScript：2 空格缩进
-  typescript = { et = true, ts = 2, sw = 2 },
+  -- JavaScript|TypeScript
+  javascript = style_eslint,
+  typescript = style_eslint,
 
   -- Rust：4 空格缩进，自动格式化
-  rust = { et = true, ts = 4, sw = 4, formatter = { command = "rustfmt" } },
+  rust = style_extend(style_et_ts_4, { formatter = { command = "rustfmt" } }),
+
+  -- Go: goimports > gofmt
+  --- 💡 Go 语言官方强制使用 Tab 缩进
+  go = style_extend(style_noet_ts_4, {
+    formatter = {
+      { command = "goimports", opts = { "-w" } },
+      { command = "gofmt", opts = { "-w" } },
+    },
+  }),
 
   -- Python：4 空格缩进，缩进折叠
-  python = {
-    et = true,
-    ts = 4,
-    sw = 4,
+  python = style_extend(style_et_ts_4, {
     foldmethod = "indent",
     formatter = {
       -- 优先级：ruff > yapf > autopep8
@@ -241,7 +260,7 @@ style.filetypes = {
       { command = "yapf", files = { ".style.yapf" } },
       { command = "autopep8", opts = { "--max-line-length=120", "--in-place" } },
     },
-  },
+  }),
 }
 
 -- =============================================================================
@@ -250,7 +269,7 @@ style.filetypes = {
 
 -- 默认格式化函数：优先 LSP，fallback 到内置 =
 -- 💡 这对 editorConfig 同样有效
----@param verbose? boolean 是否显示通知
+---@param opts? table
 local style_default_formatter = function(opts)
   -- 尝试使用 LSP 格式化
   local clients = vim.lsp.get_clients({ bufnr = 0 })
@@ -287,6 +306,10 @@ end
 local function style_find_formatter(opts)
   if not opts then
     return style_default_formatter
+  end
+
+  if type(opts) == "function" then
+    return opts()
   end
 
   local formatters = #opts > 0 and opts or { opts }
@@ -328,18 +351,15 @@ local function style_find_formatter(opts)
 end
 
 --- 执行命令（支持 string 和 function 两种类型）
----@param opts table : { verbose = false }
+---@param opts? table : { verbose = false }
 local function style_do_format(opts)
-  local config = vim.tbl_extend("force", opts or {}, style.filetypes[vim.bo.filetype] or {})
+  local config = style_extend(opts or {}, style_filetypes[vim.bo.filetype] or {})
   local formatter = style_find_formatter(config.formatter)
 
   if type(formatter) == "function" then
     -- Lua 函数：直接调用
     formatter(opts)
   elseif type(formatter) == "string" then
-    -- 外部命令，先写文件
-    vim.cmd("silent! write")
-
     -- 执行格式化（使用 system() 捕获输出）
     local bufname = vim.api.nvim_buf_get_name(0)
     local cmd = formatter .. " " .. vim.fn.fnameescape(bufname)
@@ -361,7 +381,7 @@ end
 
 --- 为文件类型应用配置
 ---@param ft string 文件类型
----@param config table 配置表 @see style.filetypes
+---@param config table 配置表 @see style_filetypes
 local function style_do_filetype(ft, config)
   vim.api.nvim_create_autocmd("FileType", {
     group = "PrettyStyleGroup",
@@ -415,7 +435,7 @@ end
 local style_main = function()
   vim.api.nvim_create_augroup("PrettyStyleGroup", { clear = true })
 
-  for ft, config in pairs(style.filetypes) do
+  for ft, config in pairs(style_filetypes) do
     style_do_filetype(ft, config)
   end
 end
@@ -434,7 +454,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     -- 检查是否有效且不是 commit 文件
     local mark_pos = vim.fn.getpos("''")
     if mark_pos[2] >= 1 and mark_pos[2] <= vim.fn.line("$") and vim.bo.filetype ~= "commit" then
-      vim.cmd('normal! g`"')
+      vim.cmd("normal! g'\"")
     end
   end,
 })

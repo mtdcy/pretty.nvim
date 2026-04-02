@@ -41,5 +41,8 @@ esac
 
 export NVIM_REMOTE_SOCK="/tmp/nvim-$$.sock"
 
+# 解决 clang-tidy 找不到标准头文件的问题
+which xcrun >/dev/null && export CPATH="$(xcrun --show-sdk-path)/usr/include" || export CPATH=/usr/include
+
 # listen on sock, required by lazygit
 exec "$NVIM" --listen "$NVIM_REMOTE_SOCK" "$@"

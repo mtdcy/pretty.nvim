@@ -252,7 +252,7 @@ git revert <commit-hash>
 
 ---
 
-## 🌐 语言服务器支持
+## 🌐 代码质量工具
 
 pretty.nvim 使用 **ALE (Asynchronous Lint Engine)** 作为 LSP 客户端，提供异步语法检查和语言服务器集成。
 
@@ -263,25 +263,29 @@ pretty.nvim 使用 **ALE (Asynchronous Lint Engine)** 作为 LSP 客户端，提
 3. **无侵入**：错误显示在虚拟文本和位置列表，不自动打开窗口
 4. **可扩展**：支持 15+ 种编程语言
 
-### 支持的语言服务器
+### 支持的语言
 
-| 语言 | LSP | Linter | 配置文件 |
+| 语言 | LSP | Linter | Formatter |
 |------|-----|--------|----------|
-| **Vim** | `vim-language-server` | `vint` | `.vintrc.yaml` |
-| **Lua** | `lua-language-server` | `luacheck` | `.luarc.json`, `.luacheckrc` |
-| **Shell** | `bash-language-server` | `shellcheck` | `.shellcheckrc` |
-| **C/C++** | `ccls` | - | `.ccls` |
-| **Go** | `gopls` | - | - |
-| **Python** | `jedi-language-server` | `pylint` / `flake8` | `.pylintrc`, `pylintrc` |
-| **YAML** | - | `yamllint` | `.yamllint.*`, `yamllint.yaml` |
-| **JSON** | - | `jsonlint` / `eslint` | `.eslintrc.json` |
-| **Markdown** | - | `markdownlint` | `.markdownlint.yaml`, `markdownlint.yaml` |
-| **Make** | - | `checkmake` | `.checkmake.ini`, `checkmake.ini` |
-| **CMake** | - | `cmakelint` | `.cmakelintrc`, `cmakelintrc` |
-| **Dockerfile** | - | `hadolint` | `.hadolint.yaml` |
-| **HTML** | - | `htmlhint` | - |
-| **CSS** | - | `stylelint` | - |
+| **Vim** | `vim-language-server` | `vint` (.vintrc 📍) | - |
+| **Lua** | `lua-language-server` (.luarc.json 📍) | `luacheck` (.luacheckrc 📍) | `stylua` (.stylua.toml 📍) |
+| **Shell** | `bash-language-server` (.bashls 📍) | `shellcheck` (.shellcheckrc) | - |
+| **C/C++** | `clangd` (.clangd 📍) | `clang-tidy` (.clang-tidy 📍) > `cpplint` | `clang-format` (.clang-format) |
+| **Go** | `gopls` | - | `goimports` > `gofmt` |
+| **Rust** | `rust-analyzer` | `cargo` | `rustfmt` |
+| **Python** | `jedi-language-server` | `pylint` (.pylintrc 📍) > `flake8` | `Ruff` (.ruff.toml 📍) > `yapf` (.style.yapf 📍) > `autopep8` |
+| **JavaScript/TypeScript** | `tsserver` (tsconfig.json 📍) | `eslint` (eslint.config.js 📍) | `eslint` (eslint.config.js 📍) |
+| **YAML** | - | `yamllint` (.yamllint.yaml) | `yamlfix` |
+| **JSON/JSON5** | - | `eslint` (.eslintrc.json 📍) > `jsonlint` | `fixjson` |
+| **XML** | - | `xmllint` | - |
+| **Markdown** | - | `markdownlint` (.markdownlint.yaml) | - |
+| **Make** | - | `checkmake` (.checkmake.ini) | - |
+| **CMake** | - | `cmakelint` (.cmakelintrc) | - |
+| **Dockerfile** | - | `hadolint` (.hadolintrc 📍) | - |
+| **HTML** | - | `eslint` (.eslintrc 📍) > `htmlhint ` (.htmlhintrc) | - |
+| **CSS** | - | `csslint` (.csslintrc 📍) > `stylelint` (.stylelintrc) | - |
 
+📍 : 仅当配置文件存在时才会启用对应的工具
 
 ### 智能启用机制
 
@@ -290,18 +294,27 @@ ALE 会根据项目中的配置文件自动启用对应的 LSP/Linter：
 - 检测到 `.luarc.json` → 启用 `lua-language-server`
 - 检测到 `.pylintrc` → 启用 `pylint`（否则使用 `flake8`）
 - 检测到 `.vintrc.yaml` → 启用 `vint`
-- 检测到 `.ccls` → 启用 `ccls`
+- 检测到 `.clangd` → 启用 `clangd`
+- 检测到 `.bashls` → 启用 `bash-language-server`（否则仅用 `shellcheck`）
+- 检测到 `tsconfig.json` → 启用 `tsserver`
 
-无需手动配置，开箱即用！
+`install.sh`会默认安装大部分依赖，无需手动配置，开箱即用！
 
-### 安装依赖 (额外依赖)
+### 额外依赖
 
 ```bash
 # Lua
-luarocks install luacheck
+brew install lua-language-server 
 
 # Go
 go install golang.org/x/tools/gopls@latest
+
+# Rust
+rustup component add rust-analyzer
+
+# C/C++
+macOS: xcode-select --install
+Linux: sudo apt install clangd clang-tidy
 ```
 
 ---
