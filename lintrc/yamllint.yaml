@@ -1,37 +1,68 @@
 ---
+# yamllint 配置 - 与 yamlfix 行为保持一致
 # https://yamllint.readthedocs.io/en/stable/configuration.html
-# https://yamllint.readthedocs.io/en/stable/rules.html
 
 yaml-files:
   - '*.yaml'
   - '*.yml'
   - '.yamllint'
+  - '.yamlfix.toml'
 
 rules:
-  anchors: enable
-  braces: enable
-  brackets: enable
-  colons: enable
-  commas: enable
-  comments:
-    level: warning
-  comments-indentation:
-    level: warning
+  # 基础语法检查
+  anchors: enable  # 锚点检查
+  braces: enable  # 花括号检查
+  brackets: enable  # 方括号检查
+  colons: enable  # 冒号检查
+  commas: enable  # 逗号检查
+  hyphens: enable  # 连字符检查
+
+  # 注释检查（与 yamlfix 默认行为一致）
+  comments: disable
+  comments-indentation: disable  # 禁用注释缩进检查（减少严格性）
+
+  # 文档起始符（yamlfix: explicit_start = false）
+  document-start: enable
+
+  # 文档结束符（yamlfix 不添加）
   document-end: disable
-  document-start:
-    level: warning
+
+  # 空行检查（yamlfix: whitelines = 1）
   empty-lines: enable
+
+  # 空值检查（yamlfix: none_representation = ""）
   empty-values: disable
+
+  # 浮点数值检查
   float-values: disable
-  hyphens: enable
+
+  # 缩进检查（yamlfix: indent_mapping=2, indent_sequence=4）
   indentation: enable
+
+  # 键重复检查（yamlfix: allow_duplicate_keys = false）
   key-duplicates: enable
+
+  # 键顺序检查
   key-ordering: disable
+
+  # 行长度（yamlfix: line_length = 999，实际禁用）
   line-length: disable
+
+  # 文件末尾换行（yamlfix 会自动添加）
   new-line-at-end-of-file: enable
+
+  # 换行符格式
   new-lines: enable
+
+  # 八进制值检查
   octal-values: disable
-  quoted-strings: disable
+
+  # 引号字符串（yamlfix: preserve_quotes = true, quote_basic_values = false）
+  quoted-strings: disable  # 不强制引号风格
+
+  # 行尾空格（yamlfix 会清理）
   trailing-spaces: enable
+
+  # truthy 值检查（yamlfix 会修正）
   truthy:
     level: warning

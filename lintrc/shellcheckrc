@@ -22,3 +22,7 @@ disable=SC2236
 
 # Allow A && B || C
 disable=SC2015
+
+# Disable 'appears unused' warning for variables exported via set -o allexport
+# shellcheck doesn't analyze runtime behavior, only static code
+disable=SC2034

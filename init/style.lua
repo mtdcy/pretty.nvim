@@ -154,9 +154,9 @@ vim.g.go_recommended_style = 0
 --
 -- 示例:
 --   lua = { et=true, ts=2, sw=2, foldmethod='syntax', foldlevel=99, formatter = { command='stylua', files={'.stylua.toml'} } }
---   yaml = { et=true, ts=2, sw=2, formatter = { {command='yamlfix'}, {command='yq'} } }  -- 备选
+--   yaml = { et=true, ts=2, sw=2, formatter = { {command='yamlfix'}, {command='yq'} } } -- 备选
 --   vim = { et=true, ts=4, sw=4, foldmethod='marker' }
---   make = { et=false, ts=4, sw=4 }                        -- 使用制表符
+--   make = { et=false, ts=4, sw=4 } -- 使用制表符
 -- =============================================================================
 
 -- 默认风格
@@ -221,7 +221,12 @@ local style_filetypes = {
   -- YAML：2 空格缩进，缩进折叠
   yaml = style_extend(style_et_ts_2, {
     exts = { "yaml", "yml" },
-    formatter = { command = "yamlfix" },
+    formatter = {
+      -- 优先使用项目的配置文件
+      { command = "yamlfix", files = { ".yamlfix.toml" } },
+      -- 默认使用我们提供的配置文件
+      { command = "yamlfix", opts = { "-c", vim.g.pretty_home .. "/lintrc/yamlfix.toml" } },
+    },
   }),
 
   -- JSON：2 空格缩进，忽略顶层括号

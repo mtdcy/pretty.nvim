@@ -1,8 +1,29 @@
+# yamlfix 配置 - 最小化修改，保留原有格式
 # https://lyz-code.github.io/yamlfix/#configuration-options
+
+# 允许重复键（如 YAML 锚点合并）
 allow_duplicate_keys = false
+
+# 行长度限制（设大避免换行）
 line_length = 999
-none_representation = "null"
-sequence_style = "block_style"
+
+# null 值表示为空
+none_representation = ""
+
+# 保持列表风格不变（不强制 flow/block）
+sequence_style = "keep_style"
+
+# 保留原有引号
 preserve_quotes = true
+
+# 保留空白行（1 表示保留原有空行）
 whitelines = 1
+comments_whitelines = 1
 section_whitelines = 1
+
+# 不添加显式文档起始符 ---
+explicit_start = true
+
+# 不强制引号
+quote_basic_values = false
+quote_keys_and_basic_values = false
