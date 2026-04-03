@@ -431,19 +431,22 @@ function! s:wm_update_winid() abort
     if winid == s:winids[0] | return | endif
 
     call s:wm_set_winid(wmid, winid)
-    echom '⚠️ update window ' . wmid . ' == ' . winid . ', winids: ' . string(s:winids)
 endfunction
 
-function! s:wm_on_winclosed(winid) abort
-    let wmid = s:wmid_winid(a:winid)
+function! s:wm_on_winclosed() abort
+    let wmid = s:wmid_winid()
 
     if wmid == s:wmid_main
         echom '❌ FIXME: main window closed'
     elseif wmid > s:wmid_main
-        echom '💡 window ' . wmid ' = ' . a:winid . ' closed'
-        " clear winid
         call s:wm_set_winid(wmid, 0)
+        echom '💡 window ' .. wmid .. ' closed, winids: ' . string(s:winids)
     endif
+endfunction
+
+function! s:wm_on_winopened() abort
+  call s:wm_update()
+  autocmd BufWinLeave <buffer> ++once call s:wm_on_winclosed()
 endfunction
 
 " =============================================================================
@@ -466,14 +469,8 @@ function! s:wm_buffer_close(bufnr = '') abort
         " 查找其他 listed buffer
         let li = filter(range(1, bufnr('$')), 'buflisted(v:val) == 1 && v:val != ' . bufnr)
         if len(li) > 0
-            let alt = bufnr('#') " alt buffer
-
             " 切换到前一个 buffer 并删除当前 buffer
-            if alt > 0
-                exe 'buffer ' . alt . ' | bdelete ' . bufnr
-            else
-                exe 'bprev | bdelete ' . bufnr
-            endif
+            exe 'bprev | bdelete ' . bufnr
         else
             " 最后一个 buffer：提示用户使用 :qa
             echom "⚠️ Last buffer, close it with :qa"
@@ -502,7 +499,7 @@ endfunction
 " 自动命令组
 " =============================================================================
 
-augroup WM
+augroup PrettyWindowsSettings
     autocmd!
 
     " 主窗口管理：检测 main 窗口关闭并恢复
@@ -519,14 +516,11 @@ augroup WM
     autocmd BufWinEnter * call s:wm_update_winid()
 
     " 特殊处理：文件浏览器和符号大纲在创建时更新窗口映射
-    autocmd FileType    NvimTree call s:wm_update()
-    autocmd FileType    ale-info call s:wm_update()
-    autocmd FileType    nerdtree call s:wm_update()
-    autocmd FileType    tagbar   call s:wm_update()
-    autocmd FileType    Outline  call s:wm_update()
-
-    " 窗口关闭
-    autocmd WinClosed   call s:wm_on_winclosed(expand('<amatch>'))
+    autocmd FileType    NvimTree call s:wm_on_winopened()
+    autocmd FileType    ale-info call s:wm_on_winopened()
+    autocmd FileType    nerdtree call s:wm_on_winopened()
+    autocmd FileType    tagbar   call s:wm_on_winopened()
+    autocmd FileType    Outline  call s:wm_on_winopened()
 
     " Terminal 自动进入插入模式
     "autocmd BufEnter    term://* startinsert
@@ -547,7 +541,7 @@ augroup END
 command! -nargs=0 PrettyBufferInfo      call <sid>wminfo()
 
 " 关闭当前 Buffer（智能关闭：侧边栏直接关闭，主窗口切换 buffer）
-command! -nargs=* PrettyBufferClose     call <sid>wm_buffer_close() <args>
+command! -nargs=0 PrettyBufferClose     call <sid>wm_buffer_close()
 
 " 切换到下一个 Buffer（自动回到主窗口）
 command! -nargs=0 PrettyBufferNext      call <sid>wm_buffer_next()
@@ -566,27 +560,31 @@ let g:pretty_reload_commands += [ 'PrettyBuffersReload' ]
 " =============================================================================
 
 " --- 下一个缓冲区 ---
-" Normal 模式：C-n 或 Tab
+" Normal 模式：C-n
 nnoremap <silent> <C-n>      :PrettyBufferNext<cr>
-nnoremap <silent> <Tab>      :PrettyBufferNext<cr>
-" Insert 模式：C-n
-inoremap <silent> <C-n>      <C-o>:PrettyBufferNext<cr>
 " Terminal 模式：C-n
 tnoremap <silent> <C-n>      <C-\><C-N>:bnext<cr>
 
 " --- 上一个缓冲区 ---
-" Normal 模式：C-p 或 S-Tab
+" Normal 模式：C-p
 nnoremap <silent> <C-p>      :PrettyBufferPrev<cr>
-nnoremap <silent> <S-Tab>    :PrettyBufferPrev<cr>
-" Insert 模式：C-p
-inoremap <silent> <C-p>      <C-o>:PrettyBufferPrev<cr>
 " Terminal 模式：C-p
 tnoremap <silent> <C-p>      <C-\><C-N>:bprev<cr>
 
 " --- 关闭缓冲区 ---
-" Normal 模式：C-w
-nnoremap <silent> <C-w>      :PrettyBufferClose<cr>
-" Insert 模式：C-w
-inoremap <silent> <C-w>      <C-o>:PrettyBufferClose<cr>
-" Terminal 模式：C-w（先退出 Terminal 模式）
-tnoremap <silent> <C-w>      <C-\><C-N>:PrettyBufferClose<cr>
+" Normal 模式：C-q
+nnoremap <silent> <C-q>      :PrettyBufferClose<cr>
+" Terminal 模式：C-q
+tnoremap <silent> <C-q>      <C-\><C-N>:PrettyBufferClose<cr>
+
+" --- 切换窗口 ---
+" Normal 模式：C-j/k/h/l
+nnoremap <silent> <C-j>      <C-W>j
+nnoremap <silent> <C-k>      <C-W>k
+nnoremap <silent> <C-h>      <C-W>h
+nnoremap <silent> <C-l>      <C-W>l
+" Terminal 模式：C-j/k/h/l
+tnoremap <silent> <C-j>      <C-\><C-N><C-W>j
+tnoremap <silent> <C-k>      <C-\><C-N><C-W>k
+tnoremap <silent> <C-h>      <C-\><C-N><C-W>h
+tnoremap <silent> <C-l>      <C-\><C-N><C-W>l

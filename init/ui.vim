@@ -378,19 +378,6 @@ nnoremap <silent> <leader>0 :call <SID>buffer_explorer(10)<cr>
 nnoremap <silent> <leader>` :buffer #<cr>
 
 " =============================================================================
-" 窗口切换（Move focus）
-" =============================================================================
-
-noremap <silent> <C-j>      <C-W>j
-noremap <silent> <C-k>      <C-W>k
-noremap <silent> <C-h>      <C-W>h
-noremap <silent> <C-l>      <C-W>l
-tnoremap <silent> <C-j>     <C-\><C-N><C-W>j
-tnoremap <silent> <C-k>     <C-\><C-N><C-W>k
-tnoremap <silent> <C-h>     <C-\><C-N><C-W>h
-tnoremap <silent> <C-l>     <C-\><C-N><C-W>l
-
-" =============================================================================
 " 跳转 - Goto
 " =============================================================================
 

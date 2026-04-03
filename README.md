@@ -115,7 +115,7 @@ nvim -c 'echo "Plugins loaded!"' -c 'quit'
 | `F10` | 打开/关闭右侧代码大纲（aerial） | n, i |
 | `F12` | 打开LazyGit GUI | n, i |
 | `C-h/j/k/l` | 快速切换窗口焦点 | n, i |
-| `C-w` | 智能关闭当前窗口/缓冲区 | n, i |
+| `C-q` | 智能关闭当前窗口/缓冲区 | n, i |
 
 ### 📋 缓冲区管理
 

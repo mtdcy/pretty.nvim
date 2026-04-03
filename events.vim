@@ -2,8 +2,19 @@
 " =============================================================================
 " FILE: events.vim - Neovim 自动命令事件调试
 " 用途：调试时查看事件触发顺序
-" 用法：启动 Neovim 时加载此文件，观察 echom 输出的事件日志
+" 用法：启动 Neovim 时加载此文件，日志写入 events.log
 " =============================================================================
+
+" 日志文件路径
+let s:events_log = expand('<sfile>:h') . '/events.log'
+
+" 清空日志文件（每次重新加载时重置）
+call writefile([], s:events_log)
+
+" 写日志函数
+function! s:log(msg) abort
+    call writefile([a:msg], s:events_log, 'a')
+endfunction
 
 " =============================================================================
 " 打开文件时的完整事件流程
@@ -203,69 +214,69 @@ augroup events
     " ==========================================================================
     " Vim 生命周期事件
     " ==========================================================================
-    autocmd VimEnter     * echom "== VimEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd VimLeavePre  * echom "== VimLeavePre   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd VimLeave     * echom "== VimLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd ExitPre      * echom "== ExitPre       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd VimEnter     * call s:log("== VimEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd VimLeavePre  * call s:log("== VimLeavePre   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd VimLeave     * call s:log("== VimLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd ExitPre      * call s:log("== ExitPre       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " 窗口事件
     " ==========================================================================
-    autocmd WinEnter     * echom "== WinEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd WinLeave     * echom "== WinLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd WinNew       * echom "== WinNew        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd WinClosed    * echom "== WinClosed     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd WinEnter     * call s:log("== WinEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd WinLeave     * call s:log("== WinLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd WinNew       * call s:log("== WinNew        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd WinClosed    * call s:log("== WinClosed     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " Buffer 创建/读取事件
     " ==========================================================================
-    autocmd BufAdd       * echom "== BufAdd        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufNew       * echom "== BufNew        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufNewFile   * echom "== BufNewFile    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufReadPre   * echom "== BufReadPre    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufRead      * echom "== BufRead       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufReadPost  * echom "== BufReadPost   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd BufAdd       * call s:log("== BufAdd        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufNew       * call s:log("== BufNew        " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufNewFile   * call s:log("== BufNewFile    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufReadPre   * call s:log("== BufReadPre    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufRead      * call s:log("== BufRead       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufReadPost  * call s:log("== BufReadPost   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " Buffer 切换事件
     " ==========================================================================
-    autocmd BufEnter     * echom "== BufEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufLeave     * echom "== BufLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufWinEnter  * echom "== BufWinEnter   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufWinLeave  * echom "== BufWinLeave   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd BufEnter     * call s:log("== BufEnter      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufLeave     * call s:log("== BufLeave      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufWinEnter  * call s:log("== BufWinEnter   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufWinLeave  * call s:log("== BufWinLeave   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " Buffer 写入事件
     " ==========================================================================
-    autocmd BufWritePre  * echom "== BufWritePre   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufWrite     * echom "== BufWrite      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufWritePost * echom "== BufWritePost  " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd BufWritePre  * call s:log("== BufWritePre   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufWrite     * call s:log("== BufWrite      " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufWritePost * call s:log("== BufWritePost  " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " Buffer 删除事件
     " ==========================================================================
-    autocmd BufHidden    * echom "== BufHidden     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufUnload    * echom "== BufUnload     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufDelete    * echom "== BufDelete     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufWipeout   * echom "== BufWipeout    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd BufHidden    * call s:log("== BufHidden     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufUnload    * call s:log("== BufUnload     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufDelete    * call s:log("== BufDelete     " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufWipeout   * call s:log("== BufWipeout    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " Command-line 模式事件（进出命令行模式）
     " ==========================================================================
-    " autocmd CmdlineEnter * echom "== CmdlineEnter  " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    " autocmd CmdlineLeave * echom "== CmdlineLeave   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    " autocmd CmdlineChanged * echom "== CmdlineChanged" . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    " autocmd CmdlineEnter * call s:log("== CmdlineEnter  " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    " autocmd CmdlineLeave * call s:log("== CmdlineLeave   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    " autocmd CmdlineChanged * call s:log("== CmdlineChanged" . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " 其他事件
     " ==========================================================================
-    autocmd QuitPre      * echom "== QuitPre       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufFilePre   * echom "== BufFilePre    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
-    autocmd BufFilePost  * echom "== BufFilePost   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>')
+    autocmd QuitPre      * call s:log("== QuitPre       " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufFilePre   * call s:log("== BufFilePre    " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
+    autocmd BufFilePost  * call s:log("== BufFilePost   " . ' amatch:' . expand('<amatch>') . ' afile:' . expand('<afile>'))
 
     " ==========================================================================
     " 被注释的事件（Cmd 事件用于完全自定义读写行为）
     " ==========================================================================
-    " autocmd BufWriteCmd  * echom "== BufWriteCmd   " . bufname()
-    " autocmd BufReadCmd   * echom "== BufReadCmd    " . bufname()
+    " autocmd BufWriteCmd  * call s:log("== BufWriteCmd   " . bufname()
+    " autocmd BufReadCmd   * call s:log("== BufReadCmd    " . bufname()
 augroup END
