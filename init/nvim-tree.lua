@@ -28,7 +28,9 @@ nvim_tree.setup({
 
   -- 过滤配置
   filters = {
-    dotfiles = true,
+    dotfiles = false,
+    git_ignored = false,
+    custom = { "^\\.git" },
   },
 
   actions = {
@@ -36,7 +38,7 @@ nvim_tree.setup({
     file_popup = {
       open_win_config = {
         relative = "cursor",
-        border = "single",
+        border = "rounded",
         style = "minimal",
       },
     },
@@ -53,24 +55,11 @@ nvim_tree.setup({
     -- 打开文件/文件夹
     vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open"))
     vim.keymap.set("n", "<Space>", api.node.open.edit, opts("Open"))
-    vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Open"))
-    vim.keymap.set("n", "p", api.node.show_info_popup, opts("Info"))
+    vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Double Click"))
+    vim.keymap.set("n", "i", api.node.show_info_popup, opts("Info"))
+    vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
+    vim.keymap.set("n", "/", api.tree.search_node, opts("Search"))
 
     -- 其他默认禁用（不设置任何额外快捷键）
   end,
 })
-
-return {
-  open = function()
-    vim.cmd(NvimTreeOpen)
-  end,
-  close = function()
-    vim.cmd(NvimTreeClose)
-  end,
-  toggle = function()
-    vim.cmd(NvimTreeToggle)
-  end,
-  focus = function()
-    vim.cmd(NvimTreeFocus)
-  end,
-}

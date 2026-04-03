@@ -18,19 +18,19 @@ local keymaps = {
   -- 跳转（Enter 和鼠标双击）
   goto_location = { "<CR>", "<2-LeftMouse>" },
 
-  -- 折叠 
+  -- 折叠
   fold_toggle = "<Space>", -- 空格切换折叠
 
-  -- 其他 
+  -- 其他
+  hover_symbol = { "i" }, -- 显示符号信息
   show_help = "?", -- 显示帮助
   search = "/", -- 搜索符号
-  close = { "Q", "q" },
 
   -- 清除不需要的按键绑定
+  close = {}, -- 使用 :quit 退出
   peek_location = {},
   goto_and_close = {},
   restore_location = {},
-  hover_symbol = {},
   toggle_preview = {},
   rename_symbol = {},
   code_actions = {},
@@ -51,7 +51,7 @@ outline.setup({
     program = vim.fn.PrettyFindExecutable("ctags"),
   },
 
-  -- 窗口配置 
+  -- 窗口配置
   outline_window = {
     position = "right", -- 窗口位置：right/left
     width = 30,
@@ -59,13 +59,13 @@ outline.setup({
     focus_on_open = true,
   },
 
-  -- 按键绑定 
+  -- 按键绑定
   keymaps = keymaps,
 
-  -- 行为配置 
+  -- 行为配置
   preview_window = { auto_preview = false },
 
-  -- 符号图标配置 
+  -- 符号图标配置
   symbols = { icon_source = "lspkind" },
 
   outline_items = {

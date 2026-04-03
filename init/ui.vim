@@ -14,6 +14,7 @@
 let g:lightline_enabled = 1
 let g:lazygit_enabled = 1
 let g:outline_enabled = 1
+let g:nvimtree_enabled = 1
 
 " =============================================================================
 " 全局选项
@@ -249,17 +250,50 @@ endif " g:lightline_enabled }}}
 if g:outline_enabled
     source <sfile>:h/outline.lua
 
-    function! s:outline_toggle_focus() abort
-        if bufwinnr('OUTLINE_1') < 0
-            lua require("outline").open_outline()
-        else
-            lua require("outline").focus_outline()
+    function! s:outline_toggle_focus(split = '') abort
+        if bufwinnr('OUTLINE_1') > 0
+          lua require("outline").focus_outline()
+        elseif a:split == '' || a:split ==? 'right'
+          lua require("outline").open_outline({ focus_outline = true, split_command = 'botright vsp' })
+        elseif a:split ==? 'left'
+          lua require("outline").open_outline({ focus_outline = true, split_command = 'topleft vsp' })
+        elseif a:split ==? 'above'
+          lua require("outline").open_outline({ focus_outline = true, split_command = 'above sp' })
+        elseif a:split ==? 'below'
+          lua require("outline").open_outline({ focus_outline = true, split_command = 'below sp' })
         endif
     endfunction
 
-    command! -nargs=0 TagsExplorer call <sid>outline_toggle_focus()
+    " :TagsExplorer left/right/above/below, 默认 right
+    command! -nargs=? TagsExplorer call <sid>outline_toggle_focus(expand('<args>'))
 endif
 " }}}
+
+" =============================================================================
+" NvimTree 配置
+" =============================================================================
+if g:nvimtree_enabled " {{{
+    function! s:nvimtree_toggle_focus(split = '') abort
+        if bufwinnr('NvimTree_1') > 0
+            lua require("nvim-tree.api").tree.focus()
+        else
+            if a:split == '' || a:split ==? 'left'
+                topleft 30vsp
+            elseif a:split ==? 'right'
+                botright 30vsp
+            elseif a:split ==? 'above'
+                above sp
+            elseif a:split ==? 'below'
+                below sp
+            endif
+            lua require("nvim-tree.api").tree.open({ current_window = vim.api.nvim_get_current_win() })
+        endif
+    endfunction
+
+    " :FileExplorer left/right/above/below, 默认 left
+    command! -nargs=? FileExplorer call <sid>nvimtree_toggle_focus(expand('<args>'))
+endif
+" g:nvimtree_enabled }}}
 
 " =============================================================================
 " Lazygit 配置
@@ -333,10 +367,9 @@ let g:pretty_reload_commands += [ 'lua require("nvim-web-devicons").refresh()' ]
 " for document hightlight
 let g:markdown_fenced_languages = [ 'vim', 'help', 'bash=sh' ]
 " =============================================================================
+" =============================================================================
 " 插件命令
 " =============================================================================
-command! -nargs=0 FileExplorerToggle lua require("nvim-tree.api").tree.toggle()
-command! -nargs=0 FileExplorerFocus lua require("nvim-tree.api").tree.open()
 
 if g:lazygit_enabled
     " already lcd to git root
@@ -345,8 +378,8 @@ endif
 
 " --- 窗口管理 ---
 " Normal/Insert 模式：F9/F10/F12 打开 Explorer/Taglist/LazyGit
-nnoremap <silent> <F9>      :FileExplorerFocus<cr>
-inoremap <silent> <F9>      <C-o>:FileExplorerFocus<cr>
+nnoremap <silent> <F9>      :FileExplorer<cr>
+inoremap <silent> <F9>      <C-o>:FileExplorer<cr>
 nnoremap <silent> <F10>     :TagsExplorer<cr>
 inoremap <silent> <F10>     <C-o>:TagsExplorer<cr>
 " no F11 here, as macOS has global define

@@ -190,7 +190,7 @@ finder.bindings = {
     name = "6. Explorer",
     key = "<F9>",
     close = true,
-    command = "FileExplorerFocus",
+    command = "FileExplorer",
   },
 
   -- 打开标签列表
