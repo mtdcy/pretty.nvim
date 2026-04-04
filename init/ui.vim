@@ -303,9 +303,11 @@ if g:lazygit_enabled
     " transparency of floating window
     let g:lazygit_floating_window_winblend = 0
     " use plenary.nvim to manage floating window if available
-    let g:lazygit_floating_window_use_plenary = 0 "PrettyLuaExists('plenary.window')
-    " customize lazygit popup window border characters
-    let g:lazygit_floating_window_border_chars = g:pretty_borderchars
+    "  💡 使用 nvim_open_win 时，nopen.sh 将有一些异常
+    let g:lazygit_floating_window_use_plenary = PrettyLuaExists('plenary.window')
+    let g:lazygit_floating_window_scaling_factor = 0.8 
+    " customize lazygit popup window border characters - 💡 对 plenary 窗口无效
+    let g:lazygit_floating_window_border_chars = g:pretty_borderchars 
     "let g:lazygit_floating_window_border_chars = ['╭','─', '╮', '│', '╯','─', '╰', '│']
     "let g:lazygit_floating_window_border_chars = [ "─", "│", "─", "│", "╭", "╮", "╯", "╰" ]
     " custom config file first for nvim

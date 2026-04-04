@@ -7,7 +7,7 @@
 " =============================================================================
 
 " pretty.nvim 项目根目录
-let g:pretty_home = fnamemodify($MYVIMRC, ':p:h')
+let g:pretty_home = $NVIM_HOME
 
 " 当前项目根目录
 let g:pretty_project_root = ''
@@ -17,26 +17,17 @@ let g:pretty_project_root = ''
 let g:pretty_reload_commands = []
 
 " =============================================================================
-" Python Node.js 环境配置
+" Python Node.js 环境配置 - 💡 总是使用绝对路径
 " =============================================================================
 " {{{
 " 忽略 nvim 这个符号链接 和 node python3 目录
 set wildignore+=*/nvim/*,*/node_modules/*,*/py3env/*
 
-" 添加本地可执行文件到 PATH
-" 优先级：node_modules > prebuilts > py3env > 系统
-let $PATH = g:pretty_home . '/node_modules/.bin:' . $PATH
-let $PATH = g:pretty_home . '/prebuilts/bin:' . $PATH
-let $PATH = g:pretty_home . '/py3env/bin:' . $PATH
-
-" 设置虚拟环境路径
-let $VIRTUAL_ENV = g:pretty_home . '/py3env'
-
 " 指定 Python3 host 程序（用于 Neovim Python 插件）
-let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3'
+let g:python3_host_prog = exepath('python3')
 
 " 指定 Node.js host 程序（用于 Neovim Node 插件）
-let g:node_host_prog = g:pretty_home . '/node_modules/.bin/neovim-node-host'
+let g:node_host_prog = exepath('neovim-node-host')
 " }}}
 
 " =============================================================================
@@ -227,21 +218,11 @@ let g:pretty_hints_window = {
 " @param cmd string 命令名称
 " @return string 返回完整路径，找不到返回空字符串
 function! PrettyFindExecutable(cmd) abort
-    " 1. 检查本地 scripts 目录
+    " 1. 检查本地 scripts 目录 - 帮助脚本
     if filereadable(g:pretty_home . '/scripts/' . a:cmd)
         return g:pretty_home . '/scripts/' . a:cmd
-    " 2. 检查 prebuilts 目录
-    elseif filereadable(g:pretty_home . '/prebuilts/bin/' . a:cmd)
-        return g:pretty_home . '/prebuilts/bin/' . a:cmd
-    " 3. 检查 py3env 目录
-    elseif filereadable(g:pretty_home . '/py3env/bin/' . a:cmd)
-        return g:pretty_home . '/py3env/bin/' . a:cmd
-    " 4. 检查 node_modules 目录
-    elseif filereadable(g:pretty_home . '/node_modules/.bin/' . a:cmd)
-        return g:pretty_home . '/node_modules/.bin/' . a:cmd
-    " 5. 检查系统 PATH
     elseif executable(a:cmd)
-        return a:cmd
+        return exepath(a:cmd)
     endif
     " 未找到
     return ''

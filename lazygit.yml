@@ -1,4 +1,5 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jesseduffield/lazygit/master/schema/config.json
 # =============================================================================
 # LazyGit 配置文件 - pretty.nvim
 # =============================================================================
@@ -11,7 +12,7 @@
 # =============================================================================
 
 # --- 基本设置 ---
-quitOnTopLevelReturn: true
+quitOnTopLevelReturn: false
 promptToReturnFromSubprocess: false
 disableStartupPopups: true
 
@@ -35,20 +36,24 @@ gui:
     selectedLineBgColor:
       - reverse
 
+os:
+  editPreset: 'nvim'
+  editInTerminal: true
+
 # --- 自定义命令 ---
 customCommands:
   - key: 'p'
     context: 'global'
-    command: 'git pull --rebase && git fetch --prune --tags'
+    command: 'git fetch --prune origin --tags && git rebase'
     loadingText: '♻️ Pull and rebase and fetching tags'
   - key: 'c'
     context: "files"
-    command: "GIT_EDITOR=nvim git commit -e"  # 这样就可以使用 .gitcommit.txt
+    command: "git commit -e"  # 这样就可以使用 .gitcommit.txt
     output: terminal
-  - key: 'o'
-    context: "files"
-    command: "nvim {{ .SelectedFile.Name }}"  # open file with nvim
-    output: terminal
+  - key: '<c-o>'
+    context: "global"
+    command: "nopen.sh {{ .SelectedFile.Name }}" # open file with nvim
+    description: "\U0001F4A1 Open file inside nvim"
 
 # --- Git 设置 ---
 git:
@@ -100,8 +105,8 @@ keybinding:
       - '3' # 默认：'3' - 第四个面板
       - '4' # 默认：'4' - 第五个面板
     # 基本导航
-    quit: 'Q' # 默认：'q' - 退出
-    quit-alt1: '' # 默认：'' - 备用退出
+    quit: 'q' # 默认：'q' - 退出
+    quit-alt1: 'Q' # 默认：'' - 备用退出
     return: '<esc>' # 默认：'<esc>' - 返回上级菜单
     prevItem: '<up>' # 默认：'<up>' - 上一行
     nextItem: '<down>' # 默认：'<down>' - 下一行
@@ -148,9 +153,8 @@ keybinding:
     toggleRangeSelect: 'v' # 默认：'v' - 范围选择
     executeShellCommand: ':' # 默认：':' - 执行 shell 命令
     # 屏幕模式
-    nextScreenMode: '='         # 默认：'\' - 下一个屏幕模式
-    prevScreenMode: '-'         # 默认：'q' - 上一个屏幕模式（与 quit 冲突，需注意）
-
+    nextScreenMode: '=' # 默认：'\' - 下一个屏幕模式
+    prevScreenMode: '-' # 默认：'q' - 上一个屏幕模式（与 quit 冲突，需注意）
     # 剪贴板操作
     copyToClipboard: '' # 默认：'<c-o>' - 复制到剪贴板
     # 滚动操作
@@ -200,7 +204,7 @@ keybinding:
     # 剪贴板操作
     copyToClipboard: '' # 默认：'y' - 复制到剪贴板
     # 文件操作
-    openFile: '' # 默认：'o' - 打开文件
+    openFile: 'o' # 默认：'o' - 打开文件
     editFile: '' # 默认：'e' - 编辑文件
     openDiffTool: '' # 默认：'<c-t>' - 打开外部 diff 工具
     # 其他操作

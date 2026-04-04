@@ -1,37 +1,54 @@
-#!/bin/bash
-# a symlink nvim -> . is needed
-#  `:h startup` for details
+#!/usr/bin/env bash
+# vim:ft=bash
 
-WORKDIR="$(readlink -f "$0" | xargs dirname)"
+# auto export
+set -o allexport 
 
-NVIM="$WORKDIR/prebuilts/nvim"
+# ⚠️ 强制 shell 环境为 bash，保证后续脚本 100% 🆗 
+SHELL=bash
 
-#export XDG_CONFIG_HOME="$WORKDIR"
+# nvim envs
+NVIM_HOME="$(readlink -f "$0" | xargs dirname)"
+NVIM_APPNAME="pretty.nvim"
+NVIM_EXECUTABLE="$NVIM_HOME/prebuilts/nvim"
 
-# hack: nvim config => $XDG_CONFIG_HOME/nvim
-#[ -L "$WORKDIR/nvim" ] || ln -sf . "$WORKDIR/nvim"
+# 添加本地可执行文件到 PATH
+# 💡 优先级：prebuilts > node_modules > py3env > 系统
+PATH="$NVIM_HOME/py3env/bin:$PATH"
+PATH="$NVIM_HOME/node_modules/.bin:$PATH"
+PATH="$NVIM_HOME/prebuilts/bin:$PATH"
 
-# 使用默认 XDG_CONFIG_HOME，避免在 WORKDIR 创建链接
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-export NVIM_APPNAME="$(basename "$WORKDIR")"
+# 💡 启动环境 - :h startup for details
+: "${XDG_CONFIG_HOME:=$HOME/.config}"
 
-test -L "$XDG_CONFIG_HOME/$NVIM_APPNAME" || ln -sf "$WORKDIR" "$XDG_CONFIG_HOME"
+mkdir -p "$XDG_CONFIG_HOME"
+test -L "$XDG_CONFIG_HOME/$NVIM_APPNAME" || ln -sf "$NVIM_HOME" "$XDG_CONFIG_HOME"
+
+# 解决 clang-tidy 找不到标准头文件的问题
+if test -z "$CPATH"; then
+    which xcrun &>/dev/null && CPATH="$(xcrun --show-sdk-path)/usr/include" || CPATH="/usr/include"
+fi
+
+set +o allexport 
+
+# 💡 启动 virtualenv
+source "$NVIM_HOME/py3env/bin/activate"
 
 case "$1" in
     --update-plugins)
-        exec "$NVIM" -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
+        exec "$NVIM_EXECUTABLE" --headless -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
         ;;
     --update*)
-        cd "$WORKDIR" && exec ./install.sh "$@"
+        cd "$NVIM_HOME" && exec ./install.sh "$@"
         ;;
     --help|-h)
-        "$NVIM" --help
+        "$NVIM_EXECUTABLE" --help
 
         cat <<EOF
 
 ---
 Extend Options:
-    --update                update pretty.nvim
+    --update                update $NVIM_APPNAME
     --update-core           update nvim binaries
     --update-plugins        update plugins' cache
 EOF
@@ -39,10 +56,12 @@ EOF
         ;;
 esac
 
-export NVIM_REMOTE_SOCK="/tmp/nvim-$$.sock"
-
-# 解决 clang-tidy 找不到标准头文件的问题
-which xcrun >/dev/null && export CPATH="$(xcrun --show-sdk-path)/usr/include" || export CPATH=/usr/include
-
-# listen on sock, required by lazygit
-exec "$NVIM" --listen "$NVIM_REMOTE_SOCK" "$@"
+if test -n "$NVIM_REMOTE_SOCKET"; then
+    # 💡 start nvim inside nvim
+    exec "$NVIM_EXECUTABLE" "$@"
+else
+    # ⚠️ nvim 默认使用 NVIM / NVIM_LISTEN_ADDRESS (deprecated) for listen addr
+    export NVIM_REMOTE_SOCKET="/tmp/nvim-$$.sock"
+    # 💡 listen on sock, required by nopen.sh|lazygit
+    exec "$NVIM_EXECUTABLE" --listen "$NVIM_REMOTE_SOCKET" "$@"
+fi
