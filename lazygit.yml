@@ -44,7 +44,7 @@ os:
 customCommands:
   - key: 'p'
     context: 'global'
-    command: 'git fetch --prune origin --tags && git rebase'
+    command: 'git fetch --prune origin --tags --force && git rebase'
     loadingText: '♻️ Pull and rebase and fetching tags'
   - key: 'c'
     context: "files"
