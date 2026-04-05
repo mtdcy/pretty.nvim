@@ -44,8 +44,7 @@ fi
 
 echo "💡 nclients => $client $NVIM_HELPER_PORT: $*"
 
-# 使用 Node.js netcat 包（需要 '-w 0' 零超时参数）
-netcat="$NVIM_HOME/node_modules/.bin/nc -w 0 $client $NVIM_HELPER_PORT"
+socat="$NVIM_HOME/prebuilts/bin/socat - TCP:$client:$NVIM_HELPER_PORT"
 
 # 根据命令类型构建命令负载
 case "$1" in
@@ -65,5 +64,5 @@ case "$1" in
     *)
         printf 'pbcopy:%s' "$@"
         ;;
-esac | eval "$netcat" & disown
+esac | eval "$socat" & disown
 # 脱离后台进程，立即返回不等待

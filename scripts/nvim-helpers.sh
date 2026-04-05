@@ -8,7 +8,7 @@
 # - 剪贴板同步 (pbcopy)
 #
 # 用法：启动此脚本运行辅助服务，监听 18643 端口
-# 服务通过 netcat 接收命令并处理
+# 服务通过 socat 接收命令并处理
 # ==============================================================================
 
 set -eo pipefail
@@ -35,14 +35,13 @@ test -n "$NVIM_HOME" || {
 # 重定向标准输出和错误到日志文件
 exec 1> >(tee -a "$NVIM_HELPER_LOGFILE") 2>&1
 
-# 平台特定的剪贴板和 netcat 配置
+socat="$NVIM_HOME/prebuilts/bin/socat - TCP-LISTEN:$NVIM_HELPER_PORT"
+
+# 平台特定的剪贴板配置
 if [ "$(uname)" = "Darwin" ]; then
     pbcopy="pbcopy"  # macOS 原生剪贴板
-    # 使用系统 netcat 监听辅助端口
-    netcat="/usr/bin/nc -l $NVIM_HELPER_PORT"
 else
     pbcopy="xclip -selection clipboard -encoding UTF-8"  # Linux 通过 xclip 剪贴板
-    netcat="nc -l $NVIM_HELPER_PORT"
 fi
 
 # 检查服务是否已运行（PID 文件存在且进程存活）
@@ -67,21 +66,26 @@ do_im_switch() {
     # TODO: 添加 Linux 输入法支持
     im_switch="im-select"
     case "$*" in
-        # 切换到 ABC 布局并保存当前布局
         abc=true)
-	    "$im_switch" > "$NVIM_HELPER_ABCFILE"
+            # 切换到 ABC 布局并保存当前布局
+            "$im_switch" > "$NVIM_HELPER_ABCFILE"
             "$im_switch" "com.apple.keylayout.ABC"
-	    echo "💡 $(cat "$NVIM_HELPER_ABCFILE") => $($im_switch)"
+            echo "💡 $(cat "$NVIM_HELPER_ABCFILE") => $($im_switch)"
             ;;
-        # 恢复之前的输入法布局
         *)
-	    "$im_switch" "$(cat "$NVIM_HELPER_ABCFILE")"
-	    echo "✅ $(cat "$NVIM_HELPER_ABCFILE")"
+            # 恢复之前的输入法布局
+            if test -f "$NVIM_HELPER_ABCFILE"; then
+                "$im_switch" "$(cat "$NVIM_HELPER_ABCFILE")"
+                echo "✅ $(cat "$NVIM_HELPER_ABCFILE")"
+
+                # 清除状态，不然总是会恢复非英文输入法
+                rm -f "$NVIM_HELPER_ABCFILE"
+            fi
             ;;
     esac
 }
 
-# 处理来自 netcat 的输入命令
+# 处理来自 socat 的输入命令
 # 格式：<命令类型>:<上下文>
 do_process() {
     IFS=':' read -r kind context
@@ -106,7 +110,7 @@ do_process() {
 
 # 主服务循环：持续监听命令并处理
 while true; do
-    eval "$netcat" | do_process || {
+    eval "$socat" | do_process || {
         echo "❌ nvim.helpers failed, exit"
         exit 1
     }

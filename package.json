@@ -36,7 +36,6 @@
     "htmlhint": "^1.0",
     "jsonlint": "^1.6.0",
     "markdownlint-cli": "^0.48.0",
-    "nc": "^1.0",
     "neovim": "^5.4.0",
     "prettier": "^3.8",
     "stylelint": "^17.5.0",

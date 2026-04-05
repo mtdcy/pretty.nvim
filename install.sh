@@ -34,7 +34,7 @@ cmdlets=(
 )
 
 # mandatory tools
-tools=(lazygit rg)
+tools=(lazygit rg socat)
 
 optionals=(ctags checkmake shfmt delta shellcheck)
 
