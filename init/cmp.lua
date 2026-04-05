@@ -79,12 +79,17 @@ local mapping = {
       -- 选择下一个候选词
       cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
     elseif vim.b.cmp_snippet_expanded then
-      if vim.snippet.active({ direction = 1 }) then
-        vim.snippet.jump(1)
-      else
-        vim.snippet.stop()
-        vim.b.cmp_snippet_expanded = false
-      end
+      -- 💡 总是尝试跳转，在 snippet 完成之后还可以跳转最后一次
+      vim.snippet.jump(1)
+
+      -- 🐛 完成最后一跳 vim.snippet.active 仍然返回 true
+      --  => 使用 vim.schedule 延缓 vim.snippet.active 判断
+      vim.schedule(function()
+        if not vim.snippet.active({ direction = 1 }) then
+          vim.snippet.stop()
+          vim.b.cmp_snippet_expanded = false
+        end
+      end)
     elseif vim.fn.PrettyLineIsNewLine() or vim.fn.PrettyLineIsNewWord() then
       vim.api.nvim_feedkeys(vim.keycode("<Tab>"), "n", true)
     else
@@ -269,7 +274,7 @@ cmp.setup.cmdline({ "/", "?" }, {
 -- 2. 命令行模式（:）：keyword_length = 3，这样 ':qa' 就不会提示补全
 cmp.setup.cmdline(":", {
   sources = cmp.config.sources({
-    { name = "path" },
+    { name = "path", max_item_count = 30 },
   }, {
     { name = "cmdline", keyword_length = 3 },
   }),
