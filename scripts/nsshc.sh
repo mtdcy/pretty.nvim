@@ -1,18 +1,22 @@
 #!/bin/bash
 # setup a remote socket for coping text back
+
 set -eo pipefail
-cd "$(dirname "$0")"
 
-SSH_SOCKET=${SSH_SOCKET:-8643}
+# 确保 UTF-8 编码
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
-if ! pgrep -f "ncopyd.sh" > /dev/null 2>&1; then
-    echo "start copyd ..."
-    ./pretty.copyd.sh &
-    sleep 1
+: "${XDG_RUNTIME_DIR:=$(getconf DARWIN_USER_TEMP_DIR)}"
+: "${NVIM_HELPER_PORT:=18643}"
+: "${NVIM_HELPER_PIDFILE:=$XDG_RUNTIME_DIR/nvim.helpers.pid}"
+
+: "${SSH_SOCKET:=$NVIM_HELPER_PORT}"
+
+if ! cat "$NVIM_HELPER_PIDFILE" | xargs ps -p &>/dev/null; then
+    echo "⚠️ start nvim.helpers"
+    nvim-helpers.sh & disown
 fi
 
-IFS=' ' read -r _ LOCAL_SOCKET < /tmp/copyd.pid || true
-LOCAL_SOCKET=${LOCAL_SOCKET:-$SSH_SOCKET}
-
-ssh -t -R "$SSH_SOCKET:localhost:$LOCAL_SOCKET" "$@" \
+ssh -t -R "$SSH_SOCKET:localhost:$NVIM_HELPER_PORT" "$@" \
     "export SSH_SOCKET=$SSH_SOCKET; exec \$SHELL -li"

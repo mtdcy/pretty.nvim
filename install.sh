@@ -216,17 +216,20 @@ fi
 
 info "🚀 Install pretty.nvim to $INSTBINDIR"
 
-sudo ln -svf "$(pwd -P)/run"                "$INSTBINDIR/nvim"
-sudo ln -svf "$(pwd -P)/scripts/nopen.sh"   "$INSTBINDIR"
-sudo ln -svf "$(pwd -P)/scripts/ncopyd.sh"  "$INSTBINDIR"
-sudo ln -svf "$(pwd -P)/scripts/ncopyc.sh"  "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/run"                    "$INSTBINDIR/nvim"
+sudo ln -svf "$(pwd -P)/scripts/nopen.sh"       "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/scripts/nclients.sh"    "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/scripts/nvim-helpers.sh" "$INSTBINDIR"
 
 # Install launch daemons
 if which launchctl; then
-    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.ncopyd.plist"
+    PLIST="$HOME/Library/LaunchAgents/com.mtdcy.nvim-helpers.plist"
     info "🚀 Install $PLIST"
 
-    cp scripts/ncopyd.plist "$PLIST"
+    sed -e "s%__PATH__%$PATH%" \
+        -e "s%__NVIM_HOME__%$(pwd -P)%" \
+        scripts/nvim-helpers.plist > "$PLIST"
+
     launchctl unload "$PLIST" 2> /dev/null || true
     launchctl load -w "$PLIST"
 fi

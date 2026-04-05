@@ -3,12 +3,19 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.mtdcy.ncopyd</string>
+        <string>com.mtdcy.nvim-helpers</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/usr/local/bin/ncopyd.sh</string>
+            <string>/usr/local/bin/nvim-helpers.sh</string>
         </array>
         <key>RunAtLoad</key>
         <true/>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__PATH__</string>
+        <key>NVIM_HOME</key>
+        <string>__NVIM_HOME__</string>
+    </dict>
     </dict>
 </plist>

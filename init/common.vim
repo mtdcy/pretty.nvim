@@ -34,21 +34,32 @@ let g:node_host_prog = exepath('neovim-node-host')
 " 全局设置
 " =============================================================================
 " {{{
-" ---
-" SSH 远程会话配置
-" 检测到 SSH 连接时，使用自定义剪贴板（只复制不回贴）
-" ---
-if exists('$SSH_CLIENT')
-    let g:clipboard = {
-                \   'name': 'RemoteCopy',
-                \   'copy': {
-                \      '+': g:pretty_home . '/scripts/ncopyc.sh',
-                \      '*': g:pretty_home . '/scripts/ncopyc.sh',
-                \    },
-                \   'paste': { '+': '', '*': '', },
-                \   'cache_enabled': 0,
-                \ }
-endif
+" 💡 总是使用系统剪切板 '+'
+set clipboard=unnamedplus
+let g:clipboard = {
+            \   'name': 'nclients',
+            \   'copy': {
+            \      '+': g:pretty_home .. '/scripts/nclients.sh pbcopy -',
+            \    },
+            \   'paste': { '+': '' },
+            \   'cache_enabled': 0,
+            \ }
+
+function! PrettyInputMethodSelect(abc = v:true) abort
+    if a:abc == v:true 
+        call system(g:pretty_home .. '/scripts/nclients.sh im-select abc=true')
+    else
+        call system(g:pretty_home .. '/scripts/nclients.sh im-select abc=false')
+    endif
+endfunction
+
+" 自动切换输入法
+augroup PrettyIMSettings
+    autocmd!
+    autocmd VimEnter * call PrettyInputMethodSelect(v:true)
+    autocmd InsertEnter * call PrettyInputMethodSelect(v:false)
+    autocmd InsertLeave * call PrettyInputMethodSelect(v:true)
+augroup END
 " }}}
 
 " =============================================================================

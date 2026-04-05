@@ -204,6 +204,8 @@ local style_filetypes = {
 
   -- shell script (注释示例)
   -- sh = { et = true, ts = 4, sw = 4, formatter = { command = "shfmt", opts = { "-w", "-kp", "-i", "4", "-ln", "bash", "-sr" } } },
+  sh = style_et_ts_4,
+  bash = style_et_ts_4,
 
   -- VimL：4 空格缩进，标记折叠
   vim = style_extend(style_et_ts_4, { foldmethod = "marker", foldlevel = 0 }),
