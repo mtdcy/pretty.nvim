@@ -567,8 +567,26 @@ function! s:find_project_root() abort
         
     let g:pretty_project_root = expand('%:p:h')
 
-    " 使用 finddir() 查找 .git 目录（Vim 内置函数，无需 shell 调用）
-    let workdir = finddir('.git', expand('%:p:h') . ';', 1)
+    " 💡 查找顺序 requirements.txt > .git
+    let files = [
+                \ "requirements.txt",
+                \ "package-lock.json",
+                \ "meson_options.txt",
+                \ "Cargo.toml",
+                \ "configure.ac",
+                \ ]
+    let pwd = expand('%:p:h')
+    for file in files
+        let workdir = findfile(file, pwd . ';')
+        if workdir != ''
+            let g:pretty_project_root = fnameescape(fnamemodify(workdir, ':p:h'))
+            echom "💡 lcd to " .. g:pretty_project_root
+            exe "lcd " .. g:pretty_project_root
+            return
+        endif
+    endfor
+
+    let workdir = finddir('.git', pwd . ';', 1)
     if workdir != '' 
         let g:pretty_project_root = fnameescape(fnamemodify(workdir, ':p:h:h'))
     endif
