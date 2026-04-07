@@ -36,7 +36,7 @@ cmdlets=(
 # mandatory tools
 tools=(lazygit rg socat)
 
-optionals=(ctags checkmake shfmt delta shellcheck)
+optionals=(ctags checkmake shfmt delta shellcheck fd)
 
 MIRRORS=https://mirrors.mtdcy.top
 
