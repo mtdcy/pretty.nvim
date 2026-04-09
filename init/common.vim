@@ -34,14 +34,15 @@ let g:node_host_prog = exepath('neovim-node-host')
 " 全局设置
 " =============================================================================
 " {{{
-" 💡 总是使用系统剪切板 '+'
-set clipboard=unnamedplus
+" 💡 总是使用系统剪切板 '+' => ❌ 总是污染系统剪切板不好
+" set clipboard=unnamedplus
 let g:clipboard = {
             \   'name': 'nclients',
             \   'copy': {
             \      '+': g:pretty_home .. '/scripts/nclients.sh pbcopy -',
+            \      '*': g:pretty_home .. '/scripts/nclients.sh pbcopy -',
             \    },
-            \   'paste': { '+': '' },
+            \   'paste': { '+': '', '*': '' },
             \   'cache_enabled': 0,
             \ }
 
