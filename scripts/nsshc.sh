@@ -13,10 +13,12 @@ export LC_ALL=en_US.UTF-8
 
 : "${SSH_SOCKET:=$NVIM_HELPER_PORT}"
 
-if ! cat "$NVIM_HELPER_PIDFILE" | xargs ps -p &>/dev/null; then
-    echo "⚠️ start nvim.helpers"
-    nvim-helpers.sh & disown
+if test -f "$NVIM_HELPER_PIDFILE"; then
+    if ! ps -p $(cat "$NVIM_HELPER_PIDFILE") >/dev/null; then
+        echo "⚠️ start nvim.helpers"
+        nvim-helpers.sh & disown
+    fi
 fi
 
-ssh -t -R "$SSH_SOCKET:localhost:$NVIM_HELPER_PORT" "$@" \
+ssh -q -t -R "$SSH_SOCKET:localhost:$NVIM_HELPER_PORT" "$@" \
     "export SSH_SOCKET=$SSH_SOCKET; exec \$SHELL -li"

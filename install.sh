@@ -218,6 +218,7 @@ info "🚀 Install pretty.nvim to $INSTBINDIR"
 
 sudo ln -svf "$(pwd -P)/run"                    "$INSTBINDIR/nvim"
 sudo ln -svf "$(pwd -P)/scripts/nopen.sh"       "$INSTBINDIR"
+sudo ln -svf "$(pwd -P)/scripts/nsshc.sh"       "$INSTBINDIR"
 sudo ln -svf "$(pwd -P)/scripts/nclients.sh"    "$INSTBINDIR"
 sudo ln -svf "$(pwd -P)/scripts/nvim-helpers.sh" "$INSTBINDIR"
 

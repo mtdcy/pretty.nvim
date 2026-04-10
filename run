@@ -4,6 +4,10 @@
 # auto export
 set -o allexport 
 
+# 确保 UTF-8 编码
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+
 # ⚠️ 强制 shell 环境为 bash，保证后续脚本 100% 🆗 
 SHELL=bash
 

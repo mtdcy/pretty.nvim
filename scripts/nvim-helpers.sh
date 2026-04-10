@@ -46,7 +46,7 @@ fi
 
 # 检查服务是否已运行（PID 文件存在且进程存活）
 if test -f "$NVIM_HELPER_PIDFILE"; then
-    if xargs ps -p $(cat "$NVIM_HELPER_PIDFILE"); then
+    if ps -p $(cat "$NVIM_HELPER_PIDFILE"); then
         echo "💡 nvim.helpers has started"
         exit
     fi
