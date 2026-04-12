@@ -193,19 +193,26 @@ local style_eslint = style_extend(style_et_ts_2, {
   },
 })
 
+local style_shell = style_extend(style_et_ts_4, {
+  formatter = {
+    command = "shfmt",
+    -- indent + keep spaces + space redirects
+    opts = { "-w", "-i", "4", "-kp", "-sr" },
+  },
+})
+
 local style_filetypes = {
   -- c,cpp
   c = style_c_cpp,
   cpp = style_c_cpp,
 
+  -- shell script
+  sh = style_shell,
+  bash = style_shell,
+
   -- Makefile：4 空格，使用制表符
   -- 💡 tree-sitter-make 没有折叠功能
   make = style_extend(style_noet_ts_4, { foldmethod = "indent" }),
-
-  -- shell script (注释示例)
-  -- sh = { et = true, ts = 4, sw = 4, formatter = { command = "shfmt", opts = { "-w", "-kp", "-i", "4", "-ln", "bash", "-sr" } } },
-  sh = style_et_ts_4,
-  bash = style_et_ts_4,
 
   -- VimL：4 空格缩进，标记折叠
   vim = style_extend(style_et_ts_4, { foldmethod = "marker", foldlevel = 0 }),
