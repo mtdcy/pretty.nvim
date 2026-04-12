@@ -185,7 +185,7 @@ augroup ALELinterSetup
 
     " shellcheck: preferred
     " bash-language-server: very slow, `touch .bashls` to enable it
-    autocmd FileType sh
+    autocmd FileType sh,bash
                 \ if s:linter_ftype_if('bash-language-server', ".bashls", 'language_server')                                                       |
                 \   let b:ale_sh_language_server_executable = b:linter                                                                             |
                 \ endif                                                                                                                            |
