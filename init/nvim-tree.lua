@@ -57,6 +57,7 @@ nvim_tree.setup({
     vim.keymap.set("n", "<Space>", api.node.open.edit, opts("Open"))
     vim.keymap.set("n", "<2-LeftMouse>", api.node.open.edit, opts("Double Click"))
     vim.keymap.set("n", "i", api.node.show_info_popup, opts("Info"))
+    vim.keymap.set("n", "r", api.tree.reload, opts("Reload"))
     vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
 
     -- ⚠️ nvim-tree 的搜索功能并不如预期，其会自动搜索未打开的目录
