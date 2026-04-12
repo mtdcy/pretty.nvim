@@ -459,7 +459,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   pattern = "*",
   callback = function()
     -- 检查是否有效且不是 commit 文件
-    local mark_pos = vim.fn.getpos("''")
+    local mark_pos = vim.fn.getpos("'\"")
     if mark_pos[2] >= 1 and mark_pos[2] <= vim.fn.line("$") and vim.bo.filetype ~= "commit" then
       vim.cmd("normal! g'\"")
     end
