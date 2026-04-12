@@ -477,7 +477,7 @@ function! s:wm_buffer_close(bufnr = '') abort
         endif
     else
         " 特殊情况：不在任何一个窗口, 比如在 Telescope 中关闭 buffer
-        exe 'bdelete ' . bufnr
+        exe 'buffer # | bdelete ' . bufnr
     endif
 endfunction
 
