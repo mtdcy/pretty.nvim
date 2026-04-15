@@ -104,17 +104,6 @@ finder.launchers = {
     end
   end,
 
-  -- Chat（智能切换）
-  -- 如果在 Telescope 中：打开 codecompanion
-  -- 如果不在：切换 AI Chat 窗口
-  codecompanion = function()
-    if finder.active() then
-      return finder.engine.codecompanion()
-    else
-      return vim.cmd("AICodingToggle")
-    end
-  end,
-
   -- LazyGit（智能切换）
   -- 如果在 Telescope 中：打开 lazygit
   -- 如果不在：执行 GitExplorer 命令
@@ -177,17 +166,8 @@ finder.bindings = {
     command = "StyleFormat",
   },
 
-  -- 打开 Chat
   {
-    name = "5. Chat",
-    key = "<F5>",
-    close = true,
-    command = finder.launchers.codecompanion,
-  },
-
-  -- 打开资源管理器
-  {
-    name = "6. Explorer",
+    name = "5. Explorer",
     key = "<F9>",
     close = true,
     command = "FileExplorer",
@@ -195,7 +175,7 @@ finder.bindings = {
 
   -- 打开标签列表
   {
-    name = "7. Taglist",
+    name = "6. Taglist",
     key = "<F10>",
     close = true,
     command = "TagsExplorer",
@@ -203,7 +183,7 @@ finder.bindings = {
 
   -- Messages
   {
-    name = "8. Messages",
+    name = "7. Messages",
     key = "",
     close = true,
     command = finder.launchers.messages,
@@ -211,7 +191,7 @@ finder.bindings = {
 
   -- Quickfix
   {
-    name = "9. Quickfix",
+    name = "8. Quickfix",
     key = "",
     close = false,
     command = finder.launchers.quickfix,

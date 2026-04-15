@@ -6,7 +6,7 @@
 --   本文件负责 Telescope 的核心配置，包括：
 --   1. UI 配置（布局、主题、提示符等）
 --   2. 按键绑定（清空默认映射，自定义必要映射）
---   3. 扩展启动函数（find/grep/buffers/nerdy/emoji/lazygit/codecompanion）
+--   3. 扩展启动函数（find/grep/buffers/nerdy/emoji/lazygit）
 --
 -- 设计理念：
 --   - default_mappings = { i = {}, n = {} } 清空所有默认映射
@@ -21,7 +21,6 @@
 --   telescope.nerdy()          -- Nerdy 图标搜索
 --   telescope.emoji()          -- Emoji 表情搜索
 --   telescope.lazygit()        -- LazyGit
---   telescope.codecompanion()  -- CodeCompanion
 -- =============================================================================
 --]]
 
@@ -317,11 +316,6 @@ require("telescope").setup({
       use_ssh_address = false,
     },
 
-    -- CodeCompanion 配置
-    codecompanion = {
-      -- 使用默认配置
-    },
-
     -- FZY 原生排序器（覆盖默认排序器）
     -- fzy_native = {
     --   override_generic_sorter = false, -- 日常使用 mini fuzzy 更快一些
@@ -336,7 +330,6 @@ require("telescope").load_extension("ui-select")
 require("telescope").load_extension("nerdy")
 require("telescope").load_extension("emoji")
 require("telescope").load_extension("lazygit")
-require("telescope").load_extension("codecompanion")
 require("telescope").load_extension("notify")
 
 -- =============================================================================
@@ -410,12 +403,6 @@ return {
   lazygit = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults)
     return require("telescope").extensions.lazygit.lazygit(opts)
-  end,
-
-  --- CodeCompanion
-  codecompanion = function(opts)
-    opts = vim.tbl_extend("force", opts or {}, popup_defaults)
-    return require("telescope").extensions.codecompanion.codecompanion(opts)
   end,
 
   -- notify
