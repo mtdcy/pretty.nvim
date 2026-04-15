@@ -105,14 +105,6 @@ finder.launchers = {
   end,
 
   -- Chat（智能切换）
-  -- 如果在 Telescope 中：打开 codecompanion
-  -- 如果不在：切换 AI Chat 窗口
-  codecompanion = function()
-    if finder.active() then
-      return finder.engine.codecompanion()
-    else
-      return vim.cmd("AICodingToggle")
-    end
   end,
 
   -- LazyGit（智能切换）
@@ -180,12 +172,6 @@ finder.bindings = {
   -- 打开 Chat
   {
     name = "5. Chat",
-    key = "<F5>",
-    close = true,
-    command = finder.launchers.codecompanion,
-  },
-
-  -- 打开资源管理器
   {
     name = "6. Explorer",
     key = "<F9>",
