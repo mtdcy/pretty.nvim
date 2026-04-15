@@ -2,13 +2,13 @@
 # vim:ft=bash
 
 # auto export
-set -o allexport 
+set -o allexport
 
 # 确保 UTF-8 编码
 LANG=en_US.UTF-8
 LC_ALL=en_US.UTF-8
 
-# ⚠️ 强制 shell 环境为 bash，保证后续脚本 100% 🆗 
+# ⚠️ 强制 shell 环境为 bash，保证后续脚本 100% 🆗
 SHELL=bash
 
 # nvim envs
@@ -24,16 +24,17 @@ PATH="$NVIM_HOME/prebuilts/bin:$PATH"
 
 # 💡 启动环境 - :h startup for details
 : "${XDG_CONFIG_HOME:=$HOME/.config}"
+: "${XDG_RUNTIME_DIR:=$(getconf DARWIN_USER_TEMP_DIR)}"
 
 mkdir -p "$XDG_CONFIG_HOME"
 test -L "$XDG_CONFIG_HOME/$NVIM_APPNAME" || ln -sf "$NVIM_HOME" "$XDG_CONFIG_HOME/$NVIM_APPNAME"
 
 # 解决 clang-tidy 找不到标准头文件的问题
 if test -z "$CPATH"; then
-    which xcrun &>/dev/null && CPATH="$(xcrun --show-sdk-path)/usr/include" || CPATH="/usr/include"
+    which xcrun &> /dev/null && CPATH="$(xcrun --show-sdk-path)/usr/include" || CPATH="/usr/include"
 fi
 
-set +o allexport 
+set +o allexport
 
 # 💡 启动 virtualenv
 source "$NVIM_HOME/py3env/bin/activate"
@@ -45,10 +46,10 @@ case "$1" in
     --update*)
         cd "$NVIM_HOME" && exec ./install.sh "$@"
         ;;
-    --help|-h)
+    --help | -h)
         "$NVIM_EXECUTABLE" --help
 
-        cat <<EOF
+        cat << EOF
 
 ---
 Extend Options:
@@ -65,7 +66,7 @@ if test -n "$NVIM_REMOTE_SOCKET"; then
     exec "$NVIM_EXECUTABLE" "$@"
 else
     # ⚠️ nvim 默认使用 NVIM / NVIM_LISTEN_ADDRESS (deprecated) for listen addr
-    export NVIM_REMOTE_SOCKET="/tmp/nvim-$$.sock"
+    export NVIM_REMOTE_SOCKET="$XDG_RUNTIME_DIR/nvim-$$.sock"
     # 💡 listen on sock, required by nopen.sh|lazygit
     exec "$NVIM_EXECUTABLE" --listen "$NVIM_REMOTE_SOCKET" "$@"
 fi
