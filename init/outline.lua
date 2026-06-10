@@ -54,9 +54,25 @@ outline.setup({
   -- 窗口配置
   outline_window = {
     position = "right", -- 窗口位置：right/left
-    width = 30,
+    -- 窗口大小
+    width = 25,
     relative_width = false, -- 💡 没有这个, width 不起作用
+    auto_width = {
+      enabled = true,
+      max_width = 40,
+      include_symbol_details = false,
+    },
     focus_on_open = true,
+  },
+
+  -- 符号折叠
+  symbol_folding = {
+    autofold_depth = 2, -- 💡 自动折叠2 级以上的符号
+    auto_unfold = {
+      hovered = true,
+      only = true,
+    },
+    markers = { "", "" },
   },
 
   -- 按键绑定
