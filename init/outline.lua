@@ -60,7 +60,7 @@ outline.setup({
     auto_width = {
       enabled = true,
       max_width = 40,
-      include_symbol_details = false,
+      include_symbol_details = true,
     },
     focus_on_open = true,
   },
