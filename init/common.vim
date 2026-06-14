@@ -588,9 +588,10 @@ function! s:find_project_root() abort
     endfor
 
     let workdir = finddir('.git', pwd . ';', 1)
-    if workdir != '' 
-        let g:pretty_project_root = fnameescape(fnamemodify(workdir, ':p:h:h'))
-    endif
+    if workdir == '' | return | endif
+
+    let g:pretty_project_root = fnameescape(fnamemodify(workdir, ':p:h:h'))
+    if g:pretty_project_root == '' | return | endif
 
     echom "💡 lcd to " .. g:pretty_project_root
     exe "lcd " .. g:pretty_project_root
