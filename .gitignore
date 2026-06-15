@@ -16,6 +16,7 @@ yarn-error.log*
 # Dependencies
 node_modules/
 vendor/
+cmdlets.sh
 
 # Build
 dist/
