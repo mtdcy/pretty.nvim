@@ -312,7 +312,7 @@ if g:lazygit_enabled
     "let g:lazygit_floating_window_border_chars = [ "─", "│", "─", "│", "╭", "╮", "╯", "╰" ]
     " custom config file first for nvim
     let g:lazygit_use_custom_config_file_path = 1
-    let g:lazygit_config_file_path = g:pretty_home . '/lazygit.yml'
+    let g:lazygit_config_file_path = $NVIM_HOME . '/lazygit.yml'
     " XXX: close win with esc => https://github.com/jesseduffield/lazygit/discussions/1966
 
     function! s:lazygit_ready() abort

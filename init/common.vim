@@ -6,8 +6,10 @@
 " 命名规范：所有函数使用 Pretty* 前缀，保持统一风格
 " =============================================================================
 
-" pretty.nvim 项目根目录
-let g:pretty_home = $NVIM_HOME
+" pretty.nvim 项目根目录: $NVIM_HOME
+if $NVIM_HOME == ''
+    let $NVIM_HOME = fnamemodify($MYVIMRC, ':p:h')
+endif
 
 " 当前项目根目录
 let g:pretty_project_root = ''
@@ -39,8 +41,8 @@ let g:node_host_prog = exepath('neovim-node-host')
 let g:clipboard = {
             \   'name': 'nclients',
             \   'copy': {
-            \      '+': g:pretty_home .. '/scripts/nclients.sh pbcopy -',
-            \      '*': g:pretty_home .. '/scripts/nclients.sh pbcopy -',
+            \      '+': $NVIM_HOME .. '/scripts/nclients.sh pbcopy -',
+            \      '*': $NVIM_HOME .. '/scripts/nclients.sh pbcopy -',
             \    },
             \   'paste': { '+': '', '*': '' },
             \   'cache_enabled': 0,
@@ -48,9 +50,9 @@ let g:clipboard = {
 
 function! PrettyInputMethodSelect(abc = v:true) abort
     if a:abc == v:true 
-        call system(g:pretty_home .. '/scripts/nclients.sh im-select abc=true')
+        call system($NVIM_HOME .. '/scripts/nclients.sh im-select abc=true')
     else
-        call system(g:pretty_home .. '/scripts/nclients.sh im-select abc=false')
+        call system($NVIM_HOME .. '/scripts/nclients.sh im-select abc=false')
     endif
 endfunction
 
@@ -231,8 +233,8 @@ let g:pretty_hints_window = {
 " @return string 返回完整路径，找不到返回空字符串
 function! PrettyFindExecutable(cmd) abort
     " 1. 检查本地 scripts 目录 - 帮助脚本
-    if filereadable(g:pretty_home . '/scripts/' . a:cmd)
-        return g:pretty_home . '/scripts/' . a:cmd
+    if filereadable($NVIM_HOME . '/scripts/' . a:cmd)
+        return $NVIM_HOME . '/scripts/' . a:cmd
     elseif executable(a:cmd)
         return exepath(a:cmd)
     endif
@@ -273,7 +275,7 @@ function! PrettyFindFiles(prefix, files, default = '') abort
         endif
     endfor
     " 未找到，返回默认配置或空字符串
-    return a:default == '' ? '' : a:prefix . g:pretty_home . '/lintrc/' . a:default
+    return a:default == '' ? '' : a:prefix . $NVIM_HOME . '/lintrc/' . a:default
 endfunction
 " }}}
 

@@ -197,7 +197,7 @@ local style_shell = style_extend(style_et_ts_4, {
   formatter = {
     command = "shfmt",
     -- indent + keep spaces + space redirects
-    opts = { "-w", "-i", "4", "-kp", "-sr" },
+    opts = { "-w", "-i", "4", "-kp", "-sr", "-ci" },
   },
 })
 
@@ -234,7 +234,7 @@ local style_filetypes = {
       -- 优先使用项目的配置文件
       { command = "yamlfix", files = { ".yamlfix.toml" } },
       -- 默认使用我们提供的配置文件
-      { command = "yamlfix", opts = { "-c", vim.g.pretty_home .. "/lintrc/yamlfix.toml" } },
+      { command = "yamlfix", opts = { "-c", vim.env.NVIM_HOME .. "/lintrc/yamlfix.toml" } },
     },
   }),
 

@@ -203,7 +203,7 @@ finder.bindings = {
     key = "",
     close = true,
     command = function()
-      vim.cmd("edit " .. vim.g.pretty_home .. "/README.md")
+      vim.cmd("edit " .. vim.env.NVIM_HOME .. "/README.md")
     end,
   },
 
