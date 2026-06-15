@@ -50,9 +50,9 @@ let g:clipboard = {
 
 function! PrettyInputMethodSelect(abc = v:true) abort
     if a:abc == v:true 
-        call system($NVIM_HOME .. '/scripts/nclients.sh im-select abc=true')
+        call system($NVIM_HOME .. '/scripts/nclients.sh IME ABC=true')
     else
-        call system($NVIM_HOME .. '/scripts/nclients.sh im-select abc=false')
+        call system($NVIM_HOME .. '/scripts/nclients.sh IME ABC=false')
     endif
 endfunction
 

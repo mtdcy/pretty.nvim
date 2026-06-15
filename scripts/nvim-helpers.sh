@@ -62,25 +62,37 @@ echo "$$" > "$NVIM_HELPER_PIDFILE"
 
 # 在 ABC 和之前的输入法布局之间切换
 # 注意：目前仅支持 macOS (im-select 工具)
-do_im_switch() {
+do_IME() {
     # TODO: 添加 Linux 输入法支持
-    im_switch="im-select"
+    IME="im-select"
     case "$*" in
-        abc=true)
+        ABC=true)
             # 切换到 ABC 布局并保存当前布局
-            "$im_switch" > "$NVIM_HELPER_ABCFILE"
-            "$im_switch" "com.apple.keylayout.ABC"
-            echo "💡 $(cat "$NVIM_HELPER_ABCFILE") => $($im_switch)"
+            "$IME" > "$NVIM_HELPER_ABCFILE"
+            "$IME" "com.apple.keylayout.ABC"
+            echo "💡 $(cat "$NVIM_HELPER_ABCFILE") => $($IME)"
             ;;
         *)
             # 恢复之前的输入法布局
             if test -f "$NVIM_HELPER_ABCFILE"; then
-                "$im_switch" "$(cat "$NVIM_HELPER_ABCFILE")"
+                "$IME" "$(cat "$NVIM_HELPER_ABCFILE")"
                 echo "✅ $(cat "$NVIM_HELPER_ABCFILE")"
 
                 # 清除状态，不然总是会恢复非英文输入法
                 rm -f "$NVIM_HELPER_ABCFILE"
             fi
+            ;;
+    esac
+}
+
+# do_pbcopy kind context
+do_pbcopy() {
+    case "$1" in
+        "pbcopy")
+            echo -n "$2" | base64 -d | $pbcopy
+            ;;
+        *)
+            echo "$*" | $pbcopy
             ;;
     esac
 }
@@ -93,17 +105,13 @@ do_process() {
     echo "✅ $kind: [$context]"
 
     case "$kind" in
-        "im-select")
+        "IME")
             # 处理输入法切换
-            do_im_switch "$context"
-            ;;
-        "pbcopy")
-            # 处理剪贴板复制
-            echo -n "$context" | base64 -d | $pbcopy
+            do_IME "$context"
             ;;
         *)
-            # 默认：复制 命令类型：上下文 到剪贴板
-            echo "$kind:$context" | $pbcopy
+            # 处理剪贴板复制
+            do_pbcopy "$kind" "$context"
             ;;
     esac
 }
@@ -111,7 +119,6 @@ do_process() {
 # 主服务循环：持续监听命令并处理
 while true; do
     eval "$socat" | do_process || {
-        echo "❌ nvim.helpers failed, exit"
-        exit 1
+        echo "❌ nvim.helpers failed with ret $?"
     }
 done
