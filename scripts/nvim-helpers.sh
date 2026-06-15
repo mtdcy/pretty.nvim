@@ -89,21 +89,21 @@ do_im_switch() {
 # 格式：<命令类型>:<上下文>
 do_process() {
     IFS=':' read -r kind context
-    
+
     echo "✅ $kind: [$context]"
 
     case "$kind" in
-        # 处理输入法切换
         "im-select")
+            # 处理输入法切换
             do_im_switch "$context"
             ;;
-        # 处理剪贴板复制
         "pbcopy")
-            echo "$context" | "$pbcopy"
+            # 处理剪贴板复制
+            echo -n "$context" | base64 -d | $pbcopy
             ;;
-        # 默认：复制 命令类型：上下文 到剪贴板
         *)
-            echo "$kind:$context" | "$pbcopy"
+            # 默认：复制 命令类型：上下文 到剪贴板
+            echo "$kind:$context" | $pbcopy
             ;;
     esac
 }

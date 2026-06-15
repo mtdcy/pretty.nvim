@@ -46,23 +46,31 @@ echo "💡 nclients => $client $NVIM_HELPER_PORT: $*"
 
 socat="$NVIM_HOME/prebuilts/bin/socat - TCP:$client:$NVIM_HELPER_PORT"
 
+if base64 --help | grep -- --wrap &> /dev/null; then
+    base64_encode="base64 -w 0"
+else
+    base64_encode="base64 -b 0"
+fi
+
 # 根据命令类型构建命令负载
 case "$1" in
-    # 输入法切换 - 带命令前缀传递
     "im-select")
+        # 输入法切换 - 带命令前缀传递
         printf '%s:%s' "$1" "${@:2}"
         ;;
-    # 剪贴板复制 - 处理标准输入 (-) 或参数
     "pbcopy")
+        # 剪贴板复制 - 处理标准输入 (-) 或参数
         if [ "$2" == "-" ]; then
-            printf 'pbcopy:%s' "$(cat)"
+            printf 'pbcopy:%s' "$($base64_encode)"
         else
-            printf 'pbcopy:%s' "${@:2}"
+            printf 'pbcopy:%s' "$(echo -n "${*:2}" | $base64_encode)"
         fi
         ;;
-    # 默认：复制所有参数到远程剪贴板
     *)
-        printf 'pbcopy:%s' "$@"
+        # 默认：复制所有参数到远程剪贴板
+        printf 'pbcopy:%s' "$(echo "$*" | $base64_encode)"
         ;;
-esac | eval "$socat" & disown
+esac | eval "$socat" &
+
+disown
 # 脱离后台进程，立即返回不等待
