@@ -22,9 +22,14 @@ PATH="$NVIM_HOME/py3env/bin:$PATH"
 PATH="$NVIM_HOME/node_modules/.bin:$PATH"
 PATH="$NVIM_HOME/prebuilts/bin:$PATH"
 
+# no XDG_RUNTIME_DIR on synology DSM
+test -f /etc/synoinfo.conf && XDG_RUNTIME_DIR="/tmp/$(id -u)" || true
+
 # 💡 启动环境 - :h startup for details
 : "${XDG_CONFIG_HOME:=$HOME/.config}"
 : "${XDG_RUNTIME_DIR:=$(getconf DARWIN_USER_TEMP_DIR)}"
+
+mkdir -p "$XDG_RUNTIME_DIR"
 
 mkdir -p "$XDG_CONFIG_HOME"
 test -L "$XDG_CONFIG_HOME/$NVIM_APPNAME" || ln -sf "$NVIM_HOME" "$XDG_CONFIG_HOME/$NVIM_APPNAME"
