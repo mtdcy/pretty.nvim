@@ -240,6 +240,7 @@ local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_d
   -- 文件忽略模式（不搜索这些文件/目录）
   file_ignore_patterns = {
     "node_modules",
+    "py3env",
     "%.git/",
     "%.hg/",
     "%.bzr/",

@@ -23,7 +23,7 @@ let g:pretty_reload_commands = []
 " =============================================================================
 " {{{
 " 忽略 nvim 这个符号链接 和 node python3 目录
-set wildignore+=*/nvim/*,*/node_modules/*,*/py3env/*
+set wildignore+=*/.git/*,*/node_modules/*,*/py3env/*,*/prebuilts/*
 
 " 指定 Python3 host 程序（用于 Neovim Python 插件）
 let g:python3_host_prog = exepath('python3')
