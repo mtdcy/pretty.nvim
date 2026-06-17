@@ -41,6 +41,9 @@ source "$NVIM_HOME/py3env/bin/activate"
 export PATH="$NVIM_HOME/node_modules/.bin:$PATH"
 export PATH="$NVIM_HOME/prebuilts/bin:$PATH"
 
+# 设置 iTerm2 标题
+echo -ne "\033]0;Nvim $*\007"
+
 case "$1" in
     --update-plugins)
         exec "$NVIM_EXECUTABLE" --headless -c 'packloadall | silent! helptags ALL | UpdateRemotePlugins' +quit
