@@ -67,7 +67,7 @@ outline.setup({
 
   -- 符号折叠
   symbol_folding = {
-    autofold_depth = 2, -- 💡 自动折叠2 级以上的符号
+    autofold_depth = 1, -- 💡 自动折叠2 级以上的符号
     auto_unfold = {
       hovered = true,
       only = true,

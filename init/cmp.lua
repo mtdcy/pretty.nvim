@@ -151,9 +151,8 @@ local mapping = {
     -- 💡 严格控制 cmp.close() 的条件，否则需要按两次 Esc 才能退出插入模式
     if vim.b.cmp_snippet_expanded and cmp.visible() then
       cmp.close()
-    else
-      vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", true)
     end
+    vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", true)
   end, { "i" }), -- ❌ 不要绑定命令模式，nvim-cmp 的 bug 会导致 Esc 变成 CR
 
   -- 取消补全 (目前 cmp.abort 实现存在问题，会关闭窗口，然后又触发自动补全)
