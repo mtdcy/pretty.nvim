@@ -30,9 +30,9 @@ let g:ale_jitter = 200
 set omnifunc=ale#completion#OmniFunc
 let g:ale_completion_autoimport = 1
 
-" 禁用自动修复功能：专注于语法检查，不自动格式化代码
-let g:ale_fix_on_save = 0
-let g:ale_fixers = { '*' : [] }
+" 仅保留基本自动修复功能 => 专注于语法检查
+let g:ale_fix_on_save = 1
+let g:ale_fixers = { '*' : [ 'remove_trailing_lines', 'trim_whitespace' ] }
 
 " -----------------------------------------------------------------------------
 " 悬浮提示 (Hover) 配置
