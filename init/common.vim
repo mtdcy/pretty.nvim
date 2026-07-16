@@ -415,9 +415,13 @@ endfunction
 
 " new start? => insert tab
 function! PrettyLineIsNewWord() abort
-    let typed_line = PrettyLineTyped()
+    let c = PrettyLineTyped()[-1:]
     " space before cursor?
-    return typed_line[-1:] =~# '\s'
+    if c ==# '' || c ==# ' ' || c ==# '\t'
+        return v:true
+    else
+        return v:false
+    endif
 endfunction
 
 " ---
