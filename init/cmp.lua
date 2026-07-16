@@ -1,19 +1,12 @@
 -- =============================================================================
--- 文本输入配置：nvim-cmp + hints + 输入法切换
---
--- 稳定版，修复搜索补全Tab选择问题
---
--- 总是自动补全
---
--- 按键绑定（插入/命令行双模式生效）：
---  - <Tab>：有候选词时选择下一个，光标前有字符时触发补全，否则插入Tab
---  - <S-Tab>：有候选词时补全最长公共前缀，否则 fallback
---  - <Down>/<Up>：有候选词时上下选择，否则 fallback
---  - <CR>：有候选词时确认选择并填入，否则 fallback
---  - <BS>：有候选词时取消补全并关闭窗口，否则执行删除
---  - Esc：默认行为（无定制，关闭补全需按BS或点击外部）
---
+-- 自动补全配置：nvim-cmp + hints (ale)
 -- =============================================================================
+
+-- 总开关: 1 - 自动补全; 2 - Tab 手动补全; 0 - 禁用
+local autocomplete = 1
+if autocomplete == 0 then
+  return
+end
 
 local ok, cmp = pcall(require, "cmp")
 if not ok then
@@ -22,13 +15,10 @@ if not ok then
 end
 
 -- ✨ 自定义 Trailing Edge Debounce
--- local debounce = { delay = 500 } -- => 关闭自动补全
-
-local performance = {
-  -- ❌ 这个 debounce 并不是防抖，而是延时执行相关指令
-  debounce = 5, -- 💡 越小越好，否则导致所有函数调用都很慢
-  throttle = 100, -- 两次请求间隔
-  max_view_entries = 30, -- 最大显示条目
+-- ❌ nvim-cmp 自动触发补全时会阻塞按键
+local debounce = {
+  delay = 500,
+  timer = vim.loop.new_timer(),
 }
 
 -- ==================================
@@ -52,7 +42,8 @@ local sources = cmp.config.sources({
     name = "nvim_lsp",
     keyword_length = 3, -- 💡 > buffer source keyword_length
     priority = 10, -- 💡 100% 正确 => 最高优先级
-    trigger_characters = {}, -- ⚠️ 使用 keyword_length 触发，避免补全太频繁
+    max_item_count = 30,
+    -- trigger_characters = {}, -- ⚠️ 使用 keyword_length 触发，避免补全太频繁
   },
   -- 缓冲区补全
   { name = "buffer", keyword_length = 2 },
@@ -66,19 +57,33 @@ local sources = cmp.config.sources({
   { name = "rg" },
 })
 
+-- icons for sources
+local icons = {
+  omni = "",
+  nvim_lsp = "",
+  buffer = "󰢨",
+  path = "",
+  cmdline = "",
+  emoji = "󰞅",
+  rg = "",
+}
+
 -- ==================================
--- 快捷键映射（完全匹配头部说明）
+-- 快捷键映射
+-- ==================================
 -- ⚠️ fallback 不可靠，使用 nvim_feedkeys
--- ==================================
+local feedkeys = function(keycode)
+  vim.api.nvim_feedkeys(vim.keycode(keycode), "n", true)
+end
+
 local modes = { "i", "c" }
 local mapping = {
-  -- 超级 Tab 键
+  -- 💡 超级 Tab 键: 补全 > 跳转 > Tab
   ["<Tab>"] = cmp.mapping(function(fallback)
-    -- 💡 补全 > 跳转 > Tab
     if cmp.visible() then
       -- 选择下一个候选词
       cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-    elseif vim.b.cmp_snippet_expanded then
+    elseif vim.snippet.active({ direction = 1 }) then
       -- 💡 总是尝试跳转，在 snippet 完成之后还可以跳转最后一次
       vim.snippet.jump(1)
 
@@ -87,21 +92,13 @@ local mapping = {
       vim.schedule(function()
         if not vim.snippet.active({ direction = 1 }) then
           vim.snippet.stop()
-          vim.b.cmp_snippet_expanded = false
         end
       end)
-    elseif vim.fn.PrettyLineIsNewLine() or vim.fn.PrettyLineIsNewWord() then
-      vim.api.nvim_feedkeys(vim.keycode("<Tab>"), "n", true)
+    elseif autocomplete < 2 or vim.fn.PrettyLineIsNewWord() then
+      feedkeys("<Tab>")
     else
-      cmp.complete() -- 手动补全
-    end
-  end, modes),
-
-  -- 特殊补全键
-  --- complete_common_string 想要合理融入 Tab 键不太容易
-  ["<S-Tab>"] = cmp.mapping(function(fallback)
-    if not cmp.complete_common_string() then
-      vim.api.nvim_feedkeys(vim.keycode("<S-Tab>"), "n", true)
+      -- 手动补全
+      cmp.complete({ reason = cmp.ContextReason.Auto })
     end
   end, modes),
 
@@ -111,7 +108,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
     else
-      vim.api.nvim_feedkeys(vim.keycode("<Down>"), "n", true)
+      feedkeys("<Down>")
     end
   end, modes),
 
@@ -119,7 +116,7 @@ local mapping = {
     if cmp.get_selected_index() then
       cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
     else
-      vim.api.nvim_feedkeys(vim.keycode("<Up>"), "n", true)
+      feedkeys("<Up>")
     end
   end, modes),
 
@@ -128,8 +125,22 @@ local mapping = {
     -- 如果没有选择，则直接 Enter
     if cmp.get_selected_index() then
       cmp.confirm()
+
+      -- 💡 snippet 尝试下一跳
+      if vim.snippet.active({ direction = 1 }) then
+        vim.schedule(function()
+          vim.snippet.jump(1)
+        end)
+      end
+
+      -- 💡 避免再次提示补全
+      if debounce then
+        vim.schedule(function()
+          debounce.timer:stop()
+        end)
+      end
     else
-      vim.api.nvim_feedkeys(vim.keycode("<CR>"), "n", true)
+      feedkeys("<CR>")
     end
   end, modes),
 
@@ -138,48 +149,36 @@ local mapping = {
     if cmp.get_selected_index() then
       -- 💡 一定要confirm，否则补全操作不完整，比如 snippet emoji 等
       cmp.confirm()
-    end
 
-    -- ⚠️ nvim-cmp 并没有 <Space> 的默认绑定，fallback 没有作用
-    -- fallback()
-    -- 💡 解决 fallback() 不会插入 Space 的问题
-    vim.api.nvim_feedkeys(vim.keycode("<Space>"), "n", true)
+      -- 💡 snippet 尝试下一跳
+      if vim.snippet.active({ direction = 1 }) then
+        vim.schedule(function()
+          vim.snippet.jump(1)
+        end)
+      end
+    elseif cmp.visible() then
+      cmp.close()
+    end
+    feedkeys("<Space>")
   end, modes),
 
   -- 关闭窗口
   ["<Esc>"] = cmp.mapping(function(fallback)
     -- 💡 严格控制 cmp.close() 的条件，否则需要按两次 Esc 才能退出插入模式
-    if vim.b.cmp_snippet_expanded and cmp.visible() then
+    if cmp.visible() then
       cmp.close()
     end
-    vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", true)
+    feedkeys("<Esc>")
   end, { "i" }), -- ❌ 不要绑定命令模式，nvim-cmp 的 bug 会导致 Esc 变成 CR
 
-  -- 取消补全 (目前 cmp.abort 实现存在问题，会关闭窗口，然后又触发自动补全)
+  -- 取消补全
   ["<BS>"] = cmp.mapping(function(fallback)
     if cmp.get_selected_index() then
       cmp.abort()
-    else
-      vim.api.nvim_feedkeys(vim.keycode("<BS>"), "n", true)
     end
+    feedkeys("<BS>")
   end, modes),
 }
-
--- return true if filetype is supported
-local check_filetypes = function()
-  return not vim.tbl_contains({
-    "nerdtree",
-    "NvimTree",
-    "tagbar",
-    "Outline",
-    "ale",
-    "TelescopePrompt",
-    "help",
-    "dashboard",
-    "lazy",
-    "mason",
-  }, vim.bo.filetype)
-end
 
 -- 候选框样式
 local view = {
@@ -206,56 +205,55 @@ local window = {
   }),
 }
 
--- ==================================
--- 补全项显示样式
--- ==================================
-
--- icons for sources
-local icons = {
-  omni = "",
-  nvim_lsp = "",
-  buffer = "󰢨",
-  path = "",
-  cmdline = "",
-  emoji = "󰞅",
-  rg = "",
-}
-
-local formatting = {
-  expandable_indicator = true,
-  fields = { "menu", "abbr", "icon" }, -- kind => icon
-  format = function(entry, item)
-    item.menu = icons[entry.source.name] or "󰄱"
-    return item
-  end,
-}
+local supported_filetypes = function()
+  return not vim.list_contains({
+    "nerdtree",
+    "NvimTree",
+    "tagbar",
+    "Outline",
+    "ale",
+    "TelescopePrompt",
+    "dashboard",
+    "lazy",
+    "mason",
+  }, vim.bo.filetype)
+end
 
 -- ==================================
 -- 全局配置
 -- ==================================
 cmp.setup({
-  enabled = check_filetypes,
-  completion = {
-    autocomplete = not debounce and { cmp.TriggerEvent.TextChanged } or false,
-    completeopt = "menu,menuone,noselect",
-    keyword_pattern = [[\%(-\?\d\+\%(\.\d\+\)\?\|\h\w*\%(-\w*\)*\)]], -- 默认值
-    keyword_length = 1,
-  },
-  snippet = {
-    expand = function(args)
-      -- 💡 使用 vim.snippet 展开 lsp 返回的 snippets
-      vim.snippet.expand(args.body)
-      vim.b.cmp_snippet_expanded = true
-    end,
-  },
+  enabled = supported_filetypes,
   sources = sources,
   mapping = mapping,
-  formatting = formatting,
-
   view = view,
   window = window,
 
-  performance = performance,
+  completion = {
+    -- autocomplete = { cmp.TriggerEvent.TextChanged },
+    autocomplete = false,
+  },
+
+  snippet = {
+    expand = function(args)
+      vim.snippet.expand(args.body) -- 💡 使用 vim.snippet 展开 lsp 返回的 snippets
+    end,
+  },
+
+  formatting = {
+    expandable_indicator = true,
+    fields = { "menu", "abbr", "icon" }, -- kind => icon
+    format = function(entry, item)
+      item.menu = icons[entry.source.name] or "󰄱"
+      return item
+    end,
+  },
+
+  -- ❌ nvim-cmp debounce 是指令延时，导致某些指令执行很慢, 比如 cmp.visible()
+  performance = {
+    debounce = 0, -- 💡 越小越好，否则导致所有函数调用都很慢
+    throttle = 200, -- 两次请求间隔
+  },
   experimental = { ghost_text = false },
 })
 
@@ -263,20 +261,28 @@ cmp.setup({
 -- 命令行模式补全（区分搜索/命令行场景）
 -- ==================================
 
--- 1. 搜索模式（/ ?）：
+-- 1. 搜索模式（/ ?）
 cmp.setup.cmdline({ "/", "?" }, {
+  enabled = supported_filetypes,
   sources = {
     { name = "buffer", keyword_length = 2 },
   },
+  completion = {
+    autocomplete = { cmp.TriggerEvent.TextChanged }, -- 总是自动补全
+  },
 })
 
--- 2. 命令行模式（:）：keyword_length = 3，这样 ':qa' 就不会提示补全
+-- 2. 命令行模式（:）
 cmp.setup.cmdline(":", {
+  enabled = supported_filetypes,
   sources = cmp.config.sources({
-    { name = "path", max_item_count = 30 },
-  }, {
+    -- 💡 keyword_length = 3，这样 ':qa' 就不会提示补全
     { name = "cmdline", keyword_length = 3 },
+    { name = "path", max_item_count = 30 },
   }),
+  completion = {
+    autocomplete = { cmp.TriggerEvent.TextChanged }, -- 总是自动补全
+  },
   matching = { disallow_symbol_nonprefix_matching = false },
 })
 
@@ -311,34 +317,34 @@ end)
 -- ==================================
 -- 实现 Trailing Edge Debounce
 -- ==================================
-if debounce then
+if autocomplete == 1 and debounce then
   vim.api.nvim_create_autocmd("TextChangedI", {
     callback = function()
-      -- 每次按键都重置计时器
-      if debounce.timer then
-        vim.loop.timer_stop(debounce.timer)
+      if not supported_filetypes() then
+        return
       end
 
-      debounce.timer = vim.loop.new_timer()
+      -- 每次都重置计时器
+      debounce.timer:stop()
       debounce.timer:start(
         debounce.delay, -- 延迟时间
         0, -- 不重复
-        vim.schedule_wrap(function()
-          -- if vim.fn.PrettyLineIsNewLine or vim.fn.PrettyLineIsNewWord then
-          --   return
-          -- end
-          cmp.complete() -- 触发补全
-        end)
+        function()
+          vim.schedule(function()
+            if cmp.visible() then
+              return
+            end
+            -- 触发自动补全
+            cmp.complete({ reason = cmp.ContextReason.Auto })
+          end)
+        end
       )
     end,
   })
 
   vim.api.nvim_create_autocmd("InsertLeave", {
     callback = function()
-      if not debounce.timer then
-        return
-      end
-      vim.loop.timer_stop(debounce.timer)
+      debounce.timer:stop()
     end,
   })
 end
