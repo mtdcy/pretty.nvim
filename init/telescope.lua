@@ -1,48 +1,19 @@
---[[
 -- =============================================================================
 -- Telescope 配置文件
 -- =============================================================================
--- 说明：
---   本文件负责 Telescope 的核心配置，包括：
---   1. UI 配置（布局、主题、提示符等）
---   2. 按键绑定（清空默认映射，自定义必要映射）
---   3. 扩展启动函数（find/grep/buffers/nerdy/emoji/lazygit）
---
--- 设计理念：
---   - default_mappings = { i = {}, n = {} } 清空所有默认映射
---   - 只保留必要的按键（j/k/Enter/Space/数字键/鼠标）
---   - 所有扩展使用统一的 popup_defaults 配置
---
--- 使用方式：
---   local telescope = require('init.telescope')
---   telescope.find()           -- 文件搜索
---   telescope.grep({opts})     -- 项目搜索
---   telescope.buffers()        -- 缓冲区列表
---   telescope.nerdy()          -- Nerdy 图标搜索
---   telescope.emoji()          -- Emoji 表情搜索
---   telescope.lazygit()        -- LazyGit
--- =============================================================================
---]]
 
 local actions = require("telescope.actions")
 local state = require("telescope.actions.state")
 local layout = require("telescope.actions.layout")
 local sorters = require("telescope.sorters")
 
--- =============================================================================
--- UI 配置
--- =============================================================================
-
--- 这里我们有自己的搜索设置，所以使用 cmdline 的搜索颜色很合理
 vim.api.nvim_set_hl(0, "TelescopePromptBorder", { link = "PrettyCyan" })
 vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { link = "PrettyCyan" })
 vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { link = "PrettyGreen" })
 
 -- Popup 布局配置
 local popup_layout = {
-  -- 布局策略：center（居中显示）
-  layout_strategy = "center",
-
+  layout_strategy = "center", -- 布局策略：center（居中显示）
   layout_config = {
     prompt_position = "bottom", -- prompt 在底部
 
@@ -57,35 +28,25 @@ local popup_layout = {
   },
 }
 
--- =============================================================
--- 自定义按键绑定
--- =============================================================
--- 说明：
--- 1. default_mappings = { i = {}, n = {} } 清空所有默认映射
--- 2. mappings 设置自定义映射
-
 --- 按数字键选择对应项（1-9）
 ---@param index number 要选择的项（从 1 开始）
 ---@return function 返回一个函数，接收 prompt_bufnr 参数
----
--- 使用 vim.schedule 延迟执行，避免与 Telescope 的事件循环冲突
--- 返回空字符串防止按键输入到 prompt
 local function select_by_index(index)
   return function(prompt_bufnr)
     local picker = state.get_current_picker(prompt_bufnr)
-    -- 设置选中
+    -- 使用 vim.schedule 延迟执行，避免与 Telescope 的事件循环冲突
     vim.schedule(function()
       picker:set_selection(index - 1) -- index 从 1 开始，row 从 0 开始
       actions.select_default(prompt_bufnr)
     end)
-    return ""
+    return "" -- 返回空字符串防止按键输入到 prompt
   end
 end
 
+-- 自定义按键绑定
 -- 参考：https://github.com/nvim-telescope/telescope.nvim/blob/master/lua/telescope/mappings.lua
 local popup_mappings = {
-  -- Insert 模式
-  i = {
+  i = { -- Insert 模式
     ["<LeftMouse>"] = {
       actions.mouse_click,
       type = "action",
@@ -100,13 +61,9 @@ local popup_mappings = {
     ["<Down>"] = actions.move_selection_next,
     ["<Up>"] = actions.move_selection_previous,
   },
-  -- Normal 模式
-  n = {
+  n = { -- Normal 模式
     -- 使用 Finder 的 close 逻辑
-    -- ["Q"] = actions.close,
-
     ["<CR>"] = actions.select_default,
-
     ["<Space>"] = actions.toggle_selection,
 
     ["j"] = actions.move_selection_next,
@@ -122,14 +79,10 @@ local popup_mappings = {
       -- 使用 FinderOpen 逻辑 <= send_to_qflist 总是替换当前内容。
 
       local picker = state.get_current_picker(prompt_bufnr)
-
-      -- vim.notify(vim.inspect(picker))
-
       local title = vim.api.nvim_buf_get_lines(prompt_bufnr, 0, 1, false)[1]
 
       -- 将当前结果加载到 quickfix
       vim.fn.PrettyQuickfixLoad(picker.layout.results.bufnr, title)
-
       vim.notify("💡 Saved `" .. title .. "` to quickfix")
     end,
 
@@ -160,37 +113,28 @@ local popup_mappings = {
 local popup_buffers_mappings = vim.tbl_extend("force", popup_mappings, {
   -- Normal 模式
   n = {
-    -- 安全删除 Buffer（覆盖 Telescope 默认行为）
+    -- 覆盖 delete_buffer 行为
     ["w"] = function(prompt_bufnr)
-      local picker = state.get_current_picker(prompt_bufnr)
+      -- 检查是否是最后一个 listed buffer
+      local listed = 0
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_get_option(buf, "buflisted") then listed = listed + 1 end
+      end
 
-      picker:delete_selection(function(selection)
-        -- 检查是否是最后一个 listed buffer
-        local listed_count = 0
-        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-          if vim.api.nvim_buf_get_option(buf, "buflisted") then
-            listed_count = listed_count + 1
-          end
-        end
-
+      if listed <= 1 then
         -- 如果是最后一个 buffer，提示但不删除
-        if listed_count <= 1 then
-          vim.notify("⚠️ 最后一个 buffer，请使用 :qa 退出", vim.log.levels.WARN, { title = "Telescope" })
-          return false
-        end
-
+        vim.notify("⚠️ 请使用 :qa 退出最后一个 buffer", vim.log.levels.WARN)
+      else
         -- 不是最后一个 buffer，执行删除
-        vim.api.nvim_buf_delete(selection.bufnr, { force = false })
-        return true
-      end)
+        actions.delete_buffer(prompt_bufnr)
+      end
     end,
   },
 })
 
 -- Popup 主题（基于 dropdown）
 local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_dropdown(popup_layout), {
-  -- 初始模式：normal = 不自动进入插入模式
-  initial_mode = "normal",
+  initial_mode = "normal", -- 初始模式：normal = 不自动进入插入模式
 
   -- 提示符配置
   prompt_title = vim.g.finder_tips,
@@ -200,12 +144,8 @@ local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_d
   color_devicons = true,
 
   -- 清空默认映射（关键！不能是 nil）
-  -- default_mappings = { i = {}, n = {} } 清空 Telescope 内置默认映射
-  -- mappings 使用 popup_mappings 中定义的自定义映射
   default_mappings = { i = {}, n = {} },
   mappings = popup_mappings,
-
-  -- borderchars = vim.fn.PrettyBorders("#ef4444", "#eab308", “Telescope"),
 
   -- 预览器配置
   dynamic_preview_title = true, -- 显示文件名作为标题
@@ -222,20 +162,10 @@ local popup_defaults = vim.tbl_extend("force", require("telescope.themes").get_d
   --  速度：mini > fzy > generic_sorter
   generic_sorter = function(opts)
     local ok, mini = pcall(require, "mini.fuzzy")
-    if ok then
-      vim.notify("💡 create mini fuzzy sorter")
-      return mini.get_telescope_sorter(opts)
-    end
+    if ok then return mini.get_telescope_sorter(opts) end
     return sorters.get_fzy_sorter(opts)
     -- override by override_generic_sorter by fzy-native
   end,
-
-  -- =============================================================
-  -- 自动补全：禁用
-  -- =============================================================
-  completion = {
-    complete = false,
-  },
 
   -- 文件忽略模式（不搜索这些文件/目录）
   file_ignore_patterns = {
@@ -313,38 +243,25 @@ require("telescope").setup({
   -- 扩展配置
   extensions = {
     -- LazyGit 配置
-    lazygit = {
-      use_ssh_address = false,
-    },
-
-    -- FZY 原生排序器（覆盖默认排序器）
-    -- fzy_native = {
-    --   override_generic_sorter = false, -- 日常使用 mini fuzzy 更快一些
-    --   override_file_sorter = true,
-    -- },
+    lazygit = { use_ssh_address = false },
   },
 })
 
 -- 明确开启已经安装的扩展（按加载顺序）
--- require("telescope").load_extension("fzy_native")
 require("telescope").load_extension("ui-select")
 require("telescope").load_extension("nerdy")
 require("telescope").load_extension("emoji")
 require("telescope").load_extension("lazygit")
 require("telescope").load_extension("notify")
 
--- =============================================================================
--- 返回扩展启动函数
--- =============================================================================
--- 说明：
---   使用 ':Telescope nerdy' 不会应用默认主题设置（某些参数会被覆盖）
---   为了保持统一的 UI，插件启动函数必须手动应用默认主题设置
-
 -- 默认是关闭 preview，但某些场景是需要直接打开 preview
 local popup_preview = {
   preview = { hide_on_startup = false },
 }
 
+-- 返回扩展启动函数
+--  使用 ':Telescope nerdy' 不会应用默认主题设置（某些参数会被覆盖）
+--  为了保持统一的 UI，插件启动函数必须手动应用默认主题设置
 return {
   --- 关闭 Telescope
   close = actions.close,
@@ -357,7 +274,7 @@ return {
 
   --- 文件搜索
   ---@param opts table|nil 可选参数
-  find = function(opts)
+  files = function(opts)
     return require("telescope.builtin").find_files(opts)
   end,
 
@@ -377,6 +294,7 @@ return {
   end,
 
   -- Quickfix
+  ---@param opts table|nil 可选参数
   quickfix = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults, popup_preview)
     if opts.id or opts.nr then
@@ -386,27 +304,29 @@ return {
     end
   end,
 
-  --- 插件功能 ---
-
   --- Nerdy 图标搜索
+  ---@param opts table|nil 可选参数
   nerdy = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults)
     return require("telescope").extensions.nerdy.nerdy(opts)
   end,
 
   --- Emoji 表情搜索
+  ---@param opts table|nil 可选参数
   emoji = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults)
     return require("telescope").extensions.emoji.emoji(opts)
   end,
 
   --- LazyGit
+  ---@param opts table|nil 可选参数
   lazygit = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults)
     return require("telescope").extensions.lazygit.lazygit(opts)
   end,
 
   -- notify
+  ---@param opts table|nil 可选参数
   messages = function(opts)
     opts = vim.tbl_extend("force", opts or {}, popup_defaults, popup_preview)
     return require("telescope").extensions.notify.notify(opts)
