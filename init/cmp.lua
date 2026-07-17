@@ -162,6 +162,18 @@ local mapping = {
     feedkeys("<Space>")
   end, modes),
 
+  -- 取消补全
+  ["<BS>"] = cmp.mapping(function(fallback)
+    if cmp.get_selected_index() then
+      cmp.abort()
+    elseif cmp.visible() then
+      cmp.close()
+      feedkeys("<BS>") -- 💡 保证连续输入
+    else
+      feedkeys("<BS>")
+    end
+  end, modes),
+
   -- 关闭窗口
   ["<Esc>"] = cmp.mapping(function(fallback)
     -- 💡 严格控制 cmp.close() 的条件，否则需要按两次 Esc 才能退出插入模式
@@ -170,14 +182,6 @@ local mapping = {
     end
     feedkeys("<Esc>")
   end, { "i" }), -- ❌ 不要绑定命令模式，nvim-cmp 的 bug 会导致 Esc 变成 CR
-
-  -- 取消补全
-  ["<BS>"] = cmp.mapping(function(fallback)
-    if cmp.get_selected_index() then
-      cmp.abort()
-    end
-    feedkeys("<BS>")
-  end, modes),
 }
 
 -- 候选框样式
