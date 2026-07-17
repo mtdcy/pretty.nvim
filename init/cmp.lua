@@ -244,6 +244,12 @@ cmp.setup({
     expandable_indicator = true,
     fields = { "menu", "abbr", "icon" }, -- kind => icon
     format = function(entry, item)
+      -- 💡 最大宽度
+      local max_width = 40
+      if string.len(item.abbr) > max_width then
+        item.abbr = string.sub(item.abbr, 1, max_width) .. "..."
+      end
+      -- 💡 显示图标
       item.menu = icons[entry.source.name] or "󰄱"
       return item
     end,
