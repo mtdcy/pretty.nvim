@@ -134,20 +134,17 @@ vim.g.go_recommended_style = 0
 -- formatter 配置格式:
 --
 --   1. 单一命令（字典格式）:
---      formatter = { command = '...', files = {...}, opts = {...} }
+--      formatter = { command = {...}, files = {...} }
 --
 --   2. 多个命令（数组格式，优先选择第一个可用的）:
 --      formatter = {
---        { command = 'command1', files = {...}, opts = {...} },
---        { command = 'command2', files = {...}, opts = {...} },
+--        { command = {command1}, files = {...} }
+--        { command = {command2}, files = {...} }
 --      }
 --
 --   字段说明:
 --     command : 格式化命令（字符串，如 'stylua'）
 --     files   : 配置文件数组（如 {'.stylua.toml'}，默认不设置）
---     opts    : 命令行参数数组（如 {'-i', '2'}，默认不设置）
---
---   最终命令组成：command opts %
 --
 -- 💡 如果定义 formatter => 保存时自动格式化
 -- 💡 formatter 可以是字典（单一命令）或数组（多个命令备选）或 函数
@@ -175,29 +172,27 @@ end
 local style_c_cpp = style_extend(style_et_ts_2, {
   formatter = {
     -- 💡 默认使用 clang-format: 优先尊重 .clang-format 配置文件
-    { command = "clang-format", files = { ".clang-format" }, opts = { "-style=file", "-i" } },
-    { command = "clang-format", opts = { "-style=Google", "-i" } },
+    { command = { "clang-format", "-style=file", "-i" }, files = { ".clang-format" } },
+    { command = { "clang-format", "-style=Google", "-i" } },
   },
 })
 
 local style_json_json5 = style_extend(style_et_ts_2, {
-  formatter = { command = "fixjson", opts = { "-i", "2", "-w" } },
+  formatter = { command = { "fixjson", "-i", "2", "-w" } },
 })
 
 local style_eslint = style_extend(style_et_ts_2, {
   -- ⚠️ eslint 需要提前安装好依赖，否则会报错。
   formatter = {
-    command = "eslint",
+    command = { "eslint", "--fix" },
     files = { "eslint.config.js", "eslint.config.mjs", "eslint.config.cjs" },
-    opts = { "--fix" },
   },
 })
 
 local style_shell = style_extend(style_et_ts_4, {
   formatter = {
-    command = "shfmt",
     -- indent + keep spaces + space redirects
-    opts = { "-w", "-i", "4", "-kp", "-sr", "-ci" },
+    command = { "shfmt", "-w", "-i", "4", "-kp", "-sr", "-ci" },
   },
 })
 
@@ -223,7 +218,6 @@ local style_filetypes = {
     formatter = {
       command = "stylua",
       files = { ".stylua.toml", ".styluaignore" },
-      opts = {},
     },
   }),
 
@@ -234,7 +228,7 @@ local style_filetypes = {
       -- 优先使用项目的配置文件
       { command = "yamlfix", files = { ".yamlfix.toml" } },
       -- 默认使用我们提供的配置文件
-      { command = "yamlfix", opts = { "-c", vim.env.NVIM_HOME .. "/lintrc/yamlfix.toml" } },
+      { command = { "yamlfix", "-c", vim.env.NVIM_HOME .. "/lintrc/yamlfix.toml" } },
     },
   }),
 
@@ -260,8 +254,8 @@ local style_filetypes = {
   --- 💡 Go 语言官方强制使用 Tab 缩进
   go = style_extend(style_noet_ts_4, {
     formatter = {
-      { command = "goimports", opts = { "-w" } },
-      { command = "gofmt", opts = { "-w" } },
+      { command = { "goimports", "-w" } },
+      { command = { "gofmt", "-w" } },
     },
   }),
 
@@ -272,7 +266,7 @@ local style_filetypes = {
       -- 优先级：ruff > yapf > autopep8
       { command = "ruff", files = { "ruff.toml", ".ruff.toml" } },
       { command = "yapf", files = { ".style.yapf" } },
-      { command = "autopep8", opts = { "--max-line-length=120", "--in-place" } },
+      { command = { "autopep8", "--max-line-length=120", "--in-place" } },
     },
   }),
 }
@@ -284,7 +278,7 @@ local style_filetypes = {
 -- 默认格式化函数：优先 LSP，fallback 到内置 =
 -- 💡 这对 editorConfig 同样有效
 ---@param opts? table
-local style_default_formatter = function(opts)
+local style_default = function(opts)
   -- 尝试使用 LSP 格式化
   local clients = vim.lsp.get_clients({ bufnr = 0 })
 
@@ -298,39 +292,30 @@ local style_default_formatter = function(opts)
 
     -- 检查 changedtick 是否变化（判断是否真的格式化了）
     if vim.b.changedtick ~= before then
-      if opts and opts.verbose then
-        vim.notify("✅ Format with vim.lsp", vim.log.levels.INFO)
-      end
+      vim.notify("✅ Format with vim.lsp")
       return
     end
-  end
+  else
+    -- Fallback: 使用内置 = 格式化
+    vim.cmd("normal! gg=G")
+    vim.cmd("normal! ``")
 
-  -- Fallback: 使用内置 = 格式化
-  vim.cmd("normal! gg=G")
-  vim.cmd("normal! ``")
-
-  if opts and opts.verbose then
-    vim.notify("✅ Format done (builtin)", vim.log.levels.INFO)
+    vim.notify("✅ Format done (builtin)")
   end
 end
 
 --- 查找格式化工具
----@param opts {} filetype 对应的配置
----@return string|function 工具命令 or style_default_formatter
-local function style_find_formatter(opts)
-  if not opts then
-    return style_default_formatter
-  end
+---@param filetype? string
+---@return function style_default
+local function style_function(filetype)
+  if not filetype then return style_default end
+  if not style_filetypes[filetype] then return style_default end
 
-  if type(opts) == "function" then
-    return opts()
-  end
+  local formatters = style_filetypes[filetype].formatter
+  if not formatters then return style_default end
 
-  local formatters = #opts > 0 and opts or { opts }
-  for _, formatter in ipairs(formatters) do
-    if not formatter.command then
-      goto next
-    end
+  for _, formatter in ipairs(#formatters > 0 and formatters or { formatters }) do
+    if not formatter.command then goto next end
 
     -- 检查配置文件是否存在（如果有指定）
     if formatter.files then
@@ -343,53 +328,37 @@ local function style_find_formatter(opts)
       end
 
       -- 如果配置文件没找到，跳过当前 formatter
-      if not found then
-        goto next
-      end
+      if not found then goto next end
     end
 
-    -- 使用 PrettyFindExecutable 获取完整路径（VimL 函数）
-    local executable = vim.fn.PrettyFindExecutable(formatter.command)
-    if executable and executable ~= "" then
-      -- 组建完整命令
-      if formatter.opts then
-        return executable .. " " .. table.concat(formatter.opts, " ")
-      else
-        return executable
+    local command = type(formatter.command) == "table" and formatter.command or { formatter.command }
+    if vim.fn.executable(command[1]) then
+      return function()
+        local bufname = vim.api.nvim_buf_get_name(0)
+
+        -- 组建完整命令
+        local cmd = table.concat(command, " ") .. " " .. vim.fn.fnameescape(bufname)
+
+        -- 执行格式化（使用 system() 捕获输出）
+        local output = vim.fn.system(cmd)
+
+        -- 检查错误
+        if vim.v.shell_error ~= 0 then
+          vim.notify("❌ Style Format: " .. output, vim.log.levels.ERROR)
+        else
+          vim.notify("✅ Format with " .. vim.fs.basename(command[1]))
+        end
       end
     end
 
     ::next::
   end
-  return style_default_formatter
+  return style_default
 end
 
---- 执行命令（支持 string 和 function 两种类型）
----@param opts? table : { verbose = false }
-local function style_do_format(opts)
-  local config = style_extend(opts or {}, style_filetypes[vim.bo.filetype] or {})
-  local formatter = style_find_formatter(config.formatter)
-
-  if type(formatter) == "function" then
-    -- Lua 函数：直接调用
-    formatter(opts)
-  elseif type(formatter) == "string" then
-    -- 执行格式化（使用 system() 捕获输出）
-    local bufname = vim.api.nvim_buf_get_name(0)
-    local cmd = formatter .. " " .. vim.fn.fnameescape(bufname)
-    local output = vim.fn.system(cmd)
-
-    -- 检查错误
-    if vim.v.shell_error ~= 0 then
-      vim.notify("❌ Style Format: " .. output, vim.log.levels.ERROR)
-      return
-    end
-
-    if opts and opts.verbose then
-      vim.notify("✅ Format with " .. formatter, vim.log.levels.INFO)
-    end
-  end
-
+--- 执行格式化
+local function style_do_format()
+  style_function(vim.bo.filetype)()
   vim.cmd("checktime")
 end
 
@@ -405,16 +374,14 @@ local function style_do_filetype(ft, config)
       -- 支持 foldmethod, foldlevel, formatexpr, indentexpr 等所有 vim.opt_local 选项
       local skip_keys = { formatter = true, exts = true }
       for key, value in pairs(config) do
-        if key ~= "formatter" and key ~= "exts" then
-          vim.opt_local[key] = value
-        end
+        if key ~= "formatter" and key ~= "exts" then vim.opt_local[key] = value end
       end
     end,
   })
 
-  local formatter = style_find_formatter(config.formatter)
+  local formatter = style_function(ft)
 
-  if formatter ~= style_default_formatter then
+  if formatter ~= style_default then
     -- 使用 exts 或 filetype 注册 autocmd
     if config.exts and #config.exts > 0 then
       -- 有 exts：使用扩展名匹配
@@ -435,9 +402,7 @@ local function style_do_filetype(ft, config)
         group = "PrettyStyleGroup",
         pattern = "*",
         callback = function()
-          if vim.bo.filetype ~= ft then
-            return
-          end
+          if vim.bo.filetype ~= ft then return end
           style_do_format()
         end,
       })
@@ -445,9 +410,75 @@ local function style_do_filetype(ft, config)
   end
 end
 
+-- =============================================================================
+-- 实用功能
+-- =============================================================================
+
+local style_create_autocmds = function()
+  vim.api.nvim_create_augroup("PrettyStyleGroup", { clear = true })
+
+  -- 自动跳转到上一次打开的位置
+  vim.api.nvim_create_autocmd("BufReadPost", {
+    group = "PrettyStyleGroup",
+    pattern = "*",
+    callback = function()
+      -- 检查是否有效且不是 commit 文件
+      local mark_pos = vim.fn.getpos("'\"")
+      if mark_pos[2] >= 1 and mark_pos[2] <= vim.fn.line("$") and vim.bo.filetype ~= "commit" then
+        vim.cmd("normal! g'\"")
+      end
+    end,
+  })
+
+  -- 自动创建父目录（保存文件时）
+  vim.api.nvim_create_autocmd({ "BufWritePre", "FileWritePre" }, {
+    group = "PrettyStyleGroup",
+    pattern = "*",
+    callback = function(event)
+      -- vim.notify(vim.inspect(event))
+      if vim.fn.filereadable(event.file) > 0 then return end
+
+      -- 排除 URL
+      if not string.match(event.file, "^[a-z]+://") then
+        vim.fn.mkdir(vim.fn.fnamemodify(event.file, ":p:h"), "p")
+      end
+    end,
+  })
+
+  -- 进入插入模式时禁用忽略大小写
+  vim.api.nvim_create_autocmd("InsertEnter", {
+    group = "PrettyStyleGroup",
+    pattern = "*",
+    callback = function()
+      vim.opt.ignorecase = false
+    end,
+  })
+
+  -- 离开插入模式时启用忽略大小写
+  vim.api.nvim_create_autocmd("InsertLeave", {
+    group = "PrettyStyleGroup",
+    pattern = "*",
+    callback = function()
+      vim.opt.ignorecase = true
+    end,
+  })
+end
+
+-- =============================================================================
+-- 用户命令
+-- =============================================================================
+
+local style_create_commands = function()
+  -- 手动格式化当前文件
+  vim.api.nvim_create_user_command("StyleFormat", function()
+    style_do_format({ verbose = true })
+  end, { desc = "Format current file using configured formatter" })
+end
+
 -- 为每个文件类型注册自动命令
 local style_main = function()
-  vim.api.nvim_create_augroup("PrettyStyleGroup", { clear = true })
+  style_create_autocmds()
+  style_create_commands()
 
   for ft, config in pairs(style_filetypes) do
     style_do_filetype(ft, config)
@@ -455,67 +486,6 @@ local style_main = function()
 end
 
 style_main()
-
--- =============================================================================
--- 实用功能
--- =============================================================================
-
--- 自动跳转到上一次打开的位置
-vim.api.nvim_create_autocmd("BufReadPost", {
-  group = "PrettyStyleGroup",
-  pattern = "*",
-  callback = function()
-    -- 检查是否有效且不是 commit 文件
-    local mark_pos = vim.fn.getpos("'\"")
-    if mark_pos[2] >= 1 and mark_pos[2] <= vim.fn.line("$") and vim.bo.filetype ~= "commit" then
-      vim.cmd("normal! g'\"")
-    end
-  end,
-})
-
--- 自动创建父目录（保存文件时）
-vim.api.nvim_create_autocmd({ "BufWritePre", "FileWritePre" }, {
-  group = "PrettyStyleGroup",
-  pattern = "*",
-  callback = function(event)
-    -- vim.notify(vim.inspect(event))
-    if vim.fn.filereadable(event.file) > 0 then
-      return
-    end
-
-    -- 排除 URL
-    if not string.match(event.file, "^[a-z]+://") then
-      vim.fn.mkdir(vim.fn.fnamemodify(event.file, ":p:h"), "p")
-    end
-  end,
-})
-
--- 进入插入模式时禁用忽略大小写
-vim.api.nvim_create_autocmd("InsertEnter", {
-  group = "PrettyStyleGroup",
-  pattern = "*",
-  callback = function()
-    vim.opt.ignorecase = false
-  end,
-})
-
--- 离开插入模式时启用忽略大小写
-vim.api.nvim_create_autocmd("InsertLeave", {
-  group = "PrettyStyleGroup",
-  pattern = "*",
-  callback = function()
-    vim.opt.ignorecase = true
-  end,
-})
-
--- =============================================================================
--- 用户命令
--- =============================================================================
-
--- 手动格式化当前文件
-vim.api.nvim_create_user_command("StyleFormat", function()
-  style_do_format({ verbose = true })
-end, { desc = "Format current file using configured formatter" })
 
 -- =============================================================================
 -- EditorConfig 配置
