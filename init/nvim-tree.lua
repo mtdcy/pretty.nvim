@@ -27,10 +27,12 @@ nvim_tree.setup({
   },
 
   -- 过滤配置
+  git = {
+    ignore = false, -- 不隐藏
+  },
   filters = {
-    dotfiles = false,
-    git_ignored = false,
-    custom = { "^\\.git" },
+    dotfiles = false, -- 不隐藏
+    custom = { "^\\.git$" }, -- 隐藏 .git
   },
 
   actions = {
