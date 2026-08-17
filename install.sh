@@ -28,11 +28,6 @@ PREBUILTS=(
     https://github.com/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz
 )
 
-cmdlets=(
-    http://git.mtdcy.top/mtdcy/cmdlets/raw/branch/main/cmdlets.sh
-    https://raw.githubusercontent.com/mtdcy/cmdlets/main/cmdlets.sh
-)
-
 # mandatory tools
 tools=(lazygit rg socat)
 
@@ -93,7 +88,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
         exit 1
     fi
 
-    if _curl cmdlets.sh "${cmdlets[@]}"; then
+    if _curl cmdlets.sh https://cmdlets.mtdcy.top/latest/cmdlets.sh; then
         info "✅ Download cmdlets.sh"
     else
         info "❌ Download cmdlets.sh failed"
