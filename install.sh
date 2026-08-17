@@ -174,7 +174,7 @@ if which npm; then
     info "🚀 Install node modules with npm"
     # new version npm does not support url subdir
     [ -n "$MIRRORS" ] && npm config set registry "$MIRRORS/npmjs/" || true
-    npm install --quiet
+    npm ci --quiet
     # install package with 'npm install <name>' && save with 'npm init'
     npm cache clean --force
 else

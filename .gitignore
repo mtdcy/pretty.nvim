@@ -15,6 +15,7 @@ yarn-error.log*
 
 # Dependencies
 node_modules/
+py3env/
 vendor/
 cmdlets.sh
 
