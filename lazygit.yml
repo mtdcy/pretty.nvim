@@ -1,4 +1,3 @@
----
 # yaml-language-server: $schema=https://raw.githubusercontent.com/jesseduffield/lazygit/master/schema/config.json
 # =============================================================================
 # LazyGit 配置文件 - pretty.nvim
@@ -15,7 +14,6 @@
 quitOnTopLevelReturn: false
 promptToReturnFromSubprocess: false
 disableStartupPopups: true
-
 # --- GUI 设置 ---
 gui:
   border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
@@ -35,11 +33,9 @@ gui:
       - bold
     selectedLineBgColor:
       - reverse
-
 os:
   editPreset: 'nvim'
   editInTerminal: true
-
 # --- 自定义命令 ---
 customCommands:
   - key: 'p'
@@ -48,13 +44,12 @@ customCommands:
     loadingText: '♻️ Pull and rebase and fetching tags'
   - key: 'c'
     context: "files"
-    command: "git commit -e"  # 这样就可以使用 .gitcommit.txt
+    command: "git commit -e" # 这样就可以使用 .gitcommit.txt
     output: terminal
   - key: '<c-o>'
     context: "global"
     command: "nopen.sh {{ .SelectedFile.Name }}" # open file with nvim
     description: "\U0001F4A1 Open file inside nvim"
-
 # --- Git 设置 ---
 git:
   mainBranches:
@@ -69,10 +64,10 @@ git:
   overrideGpg: false
   branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=oneline {{branchName}} --'
   externalDiffCommand: 'nvim -d'
-  pagers:
+  diffRenderers:
     - colorArg: always
       useConfig: false
-      pager: 'delta --paging=never --color-only'
+      command: 'delta --paging=never --color-only'
   commit:
     signOff: false
     autoWrapCommitMessage: false
@@ -85,7 +80,6 @@ git:
     showWholeGraph: true
   allBranchesLogCmds:
     - git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline
-
 # =============================================================================
 # 按键绑定配置
 # =============================================================================

@@ -219,6 +219,7 @@ sudo ln -svf "$(pwd -P)/scripts/nvim-helpers.sh" "$INSTBINDIR"
 
 # Install launch daemons
 if which launchctl; then
+    mkdir -pv "$HOME/Library/LaunchAgents"
     PLIST="$HOME/Library/LaunchAgents/com.mtdcy.nvim-helpers.plist"
     info "🚀 Install $PLIST"
 
