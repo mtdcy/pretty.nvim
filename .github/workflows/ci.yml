@@ -16,8 +16,8 @@ jobs:
         run: |
           npm --version
           python3 --version
-          if curl --fail -o /dev/null -sIL --connect-timeout 5 http://git.mtdcy.top; then
-            bash -c "$(curl -fsSL http://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+          if curl --fail -o /dev/null -sIL --connect-timeout 5 http://gitea.mtdcy.top; then
+            bash -c "$(curl -fsSL http://gitea.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
           else
             bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
           fi

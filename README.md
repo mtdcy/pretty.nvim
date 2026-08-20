@@ -42,7 +42,7 @@
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/mtdcy/pretty.nvim/main/install.sh)"
 
 # 国内镜像 (推荐)
-bash -c "$(curl -fsSL https://git.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
+bash -c "$(curl -fsSL https://gitea.mtdcy.top/mtdcy/pretty.nvim/raw/branch/main/install.sh)"
 ```
 
 ### 升级配置

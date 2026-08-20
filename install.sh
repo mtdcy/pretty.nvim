@@ -16,17 +16,17 @@ case "$OSTYPE" in
     *)       ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
-REPO=(
-    https://git.mtdcy.top/mtdcy/pretty.nvim.git
-    https://github.com/mtdcy/pretty.nvim.git
-)
-
 VERSION=0.11.7
+DOMAIN=https://gitea.mtdcy.top
+CURL_OPTS="-fsSL --connect-timeout 1"
 
-PREBUILTS=(
-    https://git.mtdcy.top/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz
-    https://github.com/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz
-)
+curl $CURL_OPTS "$DOMAIN" -o /dev/null || unset DOMAIN
+
+: "${DOMAIN:=https://github.com}"
+
+REPO="$DOMAIN/mtdcy/pretty.nvim.git"
+NVIM="$DOMAIN/mtdcy/nvim-build/releases/download/$VERSION/$ARCH.tar.gz"
+CMDLET="https://cmdlets.mtdcy.top/latest/cmdlets.sh"
 
 # mandatory tools
 tools=(lazygit rg socat)
@@ -34,22 +34,6 @@ tools=(lazygit rg socat)
 optionals=(ctags checkmake shfmt delta shellcheck fd)
 
 MIRRORS=https://mirrors.mtdcy.top
-
-CURL_OPTS=(-sL --fail --connect-timeout 1)
-
-__curl() { curl "${CURL_OPTS[@]}" "$@"; }
-
-__curl -I "$MIRRORS" -o /dev/null || unset MIRRORS
-
-# _curl file urls...
-_curl() {
-    for url in "${@:2}"; do
-        info "🚀 curl < $url"
-        __curl -I "$url" -o /dev/null || continue
-        __curl    "$url" -o "$1" && return 0 || true
-    done
-    return 1
-}
 
 if [ -z "$1" ] || [ "$1" = "--update" ]; then
     if [ -f "$(dirname "$0")/init.vim" ]; then
@@ -61,13 +45,8 @@ if [ -z "$1" ] || [ "$1" = "--update" ]; then
         pushd "$HOME/.nvim"
         git pull --rebase --force
     else
-        for repo in "${REPO[@]}"; do
-            # test connection
-            __curl -I "$repo" -o /dev/null || continue
-
-            info "🚀 clone pretty.nvim < $repo"
-            git clone --depth=1 "$repo" "$HOME/.nvim" && break || true
-        done
+        info "🚀 clone pretty.nvim"
+        git clone --depth=1 "$REPO" "$HOME/.nvim"
         pushd "$HOME/.nvim"
     fi
 
@@ -81,15 +60,17 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     # shellcheck disable=SC2064
     temp="$(mktemp -d)" && trap "rm -rf $temp" EXIT
 
-    if _curl "$temp/$ARCH.tar.gz" "${PREBUILTS[@]}" && tar -C prebuilts -xzf "$temp/$ARCH.tar.gz"; then
-        info "✅ Download $(./prebuilts/bin/nvim --version | grep "^NVIM")"
+    info "💡 Download pretty.nvim < $NVIM"
+    if curl $CURL_OPTS "$NVIM" | tar -C prebuilts -xz; then
+        info "✅ Download $(./prebuilts/bin/nvim --version | grep "^NVIM") success"
     else
         info "❌ Download prebuilts failed"
         exit 1
     fi
 
-    if _curl cmdlets.sh https://cmdlets.mtdcy.top/latest/cmdlets.sh; then
-        info "✅ Download cmdlets.sh"
+    info "💡 Download cmdlets.sh < $CMDLET"
+    if curl $CURL_OPTS "$CMDLET" -o cmdlets.sh; then
+        info "✅ Download cmdlets.sh success"
     else
         info "❌ Download cmdlets.sh failed"
         exit 2
@@ -97,7 +78,7 @@ if [ "$1" = "--update-core" ] || [ "$1" = "--update-core-exit" ]; then
     chmod a+x cmdlets.sh
 
     if ./cmdlets.sh fetch "${tools[@]}"; then
-        info "✅ Download ${tools[*]}"
+        info "✅ Download ${tools[*]} success"
     else
         info "❌ Download ${tools[*]} failed"
         exit 3
