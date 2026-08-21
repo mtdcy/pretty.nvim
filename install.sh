@@ -16,7 +16,7 @@ case "$OSTYPE" in
     *)       ARCH="$(uname -m)-$OSTYPE"      ;;
 esac
 
-VERSION=0.11.7
+VERSION=0.12.4
 DOMAIN=https://gitea.mtdcy.top
 CURL_OPTS="-fsSL --connect-timeout 1"
 
