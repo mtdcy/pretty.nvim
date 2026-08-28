@@ -31,8 +31,8 @@ set omnifunc=ale#completion#OmniFunc
 let g:ale_completion_autoimport = 1
 
 " 仅保留基本自动修复功能 => 专注于语法检查
-let g:ale_fix_on_save = 1
-let g:ale_fixers = { '*' : [ 'remove_trailing_lines', 'trim_whitespace' ] }
+let g:ale_fix_on_save = 0
+" let g:ale_fixers = { '*' : [ 'remove_trailing_lines', 'trim_whitespace' ] }
 
 " -----------------------------------------------------------------------------
 " 悬浮提示 (Hover) 配置
@@ -55,9 +55,17 @@ let g:ale_echo_cursor = 0
 let g:ale_set_signs = 0
 
 " 虚拟文本显示（在代码行内显示错误信息）
+let g:ale_use_neovim_diagnostics_api=0
 let g:ale_virtualtext_delay = g:ale_jitter       " 延迟显示，减少闪烁
 let g:ale_virtualtext_cursor = 'all'             " 为所有错误显示虚拟文本
-let g:ale_virtualtext_prefix = '%linter%:: %code%: '  " 虚拟文本前缀格式
+let g:ale_virtualtext_prefix = ' [%linter%] %type%(%code%): '  " 虚拟文本前缀格式
+
+"highlight ALEVirtualTextError ctermfg=Red guifg=#FF0000
+"highlight ALEVirtualTextWarning ctermfg=Yellow guifg=#FFAA00
+"highlight ALEVirtualTextInfo ctermfg=Blue guifg=#00AAFF
+highlight! link ALEVirtualTextError     PrettyRed
+highlight! link ALEVirtualTextWarning   PrettyYellow
+highlight! link ALEVirtualTextInfo      PrettyLime
 
 " -----------------------------------------------------------------------------
 " 错误列表配置
@@ -197,7 +205,7 @@ augroup ALELinterSetup
     " c,cpp: clangd  + clang-tidy or cpplint
     "   💡 clangd 是 llvm 官方出口，而 ccls 只是社区产品，两者都依赖 llvm
     "   export CPATH=$(xcrun --show-sdk-path)/usr/include - 否则 clang-tidy 找不到标准头文件
-    autocmd FileType c,cpp 
+    autocmd FileType c,cpp
                 \ if s:linter_ftype_if('clangd', '.clangd', 'clangd')                              |
                 \   let b:ale_c_clangd_executable = b:linter                                       |
                 \   let b:ale_cpp_clangd_executable = b:linter                                     |
@@ -216,7 +224,7 @@ augroup ALELinterSetup
     autocmd FileType go call s:linter_ftype_if('gopls', '', 'gopls')
 
     " rust: rust-analyzer or cargo (fallback)
-    autocmd FileType rust 
+    autocmd FileType rust
                 \ if s:linter_ftype_if('rust-analyzer', '', 'analyzer') == v:false |
                 \   echom "⚠️ no rust-analyzer lsp, fallback to cargo"             |
                 \   call s:linter_ftype('cargo')                                   |
@@ -487,4 +495,3 @@ nnoremap <silent> gk        K
 
 " Go to next error of ale
 nnoremap <silent> ge        <Plug>(ale_next_wrap)
-
