@@ -1,3 +1,4 @@
+---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/jesseduffield/lazygit/master/schema/config.json
 # =============================================================================
 # LazyGit 配置文件 - pretty.nvim
@@ -14,6 +15,7 @@
 quitOnTopLevelReturn: false
 promptToReturnFromSubprocess: false
 disableStartupPopups: true
+
 # --- GUI 设置 ---
 gui:
   border: 'rounded' # one of 'single' | 'double' | 'rounded' | 'hidden'
@@ -33,9 +35,11 @@ gui:
       - bold
     selectedLineBgColor:
       - reverse
+
 os:
   editPreset: 'nvim'
   editInTerminal: true
+
 # --- 自定义命令 ---
 customCommands:
   - key: 'p'
@@ -50,6 +54,7 @@ customCommands:
     context: "global"
     command: "nopen.sh {{ .SelectedFile.Name }}" # open file with nvim
     description: "\U0001F4A1 Open file inside nvim"
+
 # --- Git 设置 ---
 git:
   mainBranches:
@@ -80,6 +85,7 @@ git:
     showWholeGraph: true
   allBranchesLogCmds:
     - git log --graph --all --color=always --abbrev-commit --decorate --date=relative --pretty=oneline
+
 # =============================================================================
 # 按键绑定配置
 # =============================================================================
@@ -99,9 +105,9 @@ keybinding:
       - '3' # 默认：'3' - 第四个面板
       - '4' # 默认：'4' - 第五个面板
     # 基本导航
-    quit: 'q' # 默认：'q' - 退出
+    quit: '<esc>' # 默认：'q' - 退出
     quit-alt1: 'Q' # 默认：'' - 备用退出
-    return: '<esc>' # 默认：'<esc>' - 返回上级菜单
+    return: 'q' # 默认：'<esc>' - 返回上级菜单
     prevItem: '<up>' # 默认：'<up>' - 上一行
     nextItem: '<down>' # 默认：'<down>' - 下一行
     # 面板切换
